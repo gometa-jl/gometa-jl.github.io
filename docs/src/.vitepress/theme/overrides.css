@@ -1,7 +1,11 @@
 /* ==========================================================================
-   GoMeta brand theme (C3 "Deck-pop" final, user-locked 2026-08-05).
-   Dark: the logo's warm browns, one step deeper. Light: broken white + brown ink.
-   Violet brand everywhere; cyan reserved for code; magenta appears once (hero).
+   GoMeta brand theme — v0.3 deck adoption (user-picked D2 dark + L4 light,
+   2026-08-12), evolved from C3 "Deck-pop" (user-locked 2026-08-05).
+   Dark: warm browns kept; inks + code palette from the JuliaCon deck
+   (rose ink, magenta #~, Text gold, Code mint, comment green, structure cyan).
+   Light: broken white + brown ink kept; deck palette via approved-tone twins.
+   Motifs both modes: outlined rounded cards/panels, boxed hero metaLine, chips.
+   Violet brand kept; magenta appears once (hero) plus the #~ sigils in code.
    Loaded after style.css so these tokens win.
    ========================================================================== */
 
@@ -64,6 +68,20 @@
   --gm-signature: #ea0094;
   --gm-glow: rgba(234, 0, 148, 0.18);
   --gm-hero-hash: #7043e9;
+  /* deck adoption (L4): headings/hero-ink stay brown; motif + flavor tokens */
+  --gm-head: #4b3421;
+  --gm-hero-box: #ea0094;
+  --gm-hero-ink: #4b3421;
+  --gm-card-outline: #c3a77d;
+  --gm-chip-mint: #0b7f5c;
+  --gm-chip-cyan: #07778a;
+  --gm-syn-sig: #ea0094;
+  --gm-syn-meta: #4b3421;
+  --gm-syn-text: #7a5c00;
+  --gm-syn-code: #0b7f5c;
+  --gm-syn-com: #3e7d14;
+  --gm-syn-str: #07778a;
+  --gm-syn-num: #8a7a66;
 }
 
 .dark {
@@ -75,9 +93,9 @@
   --vp-c-divider: #3a3126;
   --vp-c-border: #5b4935;
   --vp-c-gutter: #191512;
-  --vp-c-text-1: #ffe3e1;
-  --vp-c-text-2: #b0adad;
-  --vp-c-text-3: #9b9795;
+  --vp-c-text-1: #ffd6d6;
+  --vp-c-text-2: #cbb7b4;
+  --vp-c-text-3: #a89693;
   --vp-c-brand-1: #9777ef;
   --vp-c-brand-2: #a78bf2;
   --vp-c-brand-3: #7043e9;
@@ -98,7 +116,7 @@
   --vp-c-danger-2: #ff6cbd;
   --vp-c-danger-3: #ea0094;
   --vp-c-danger-soft: rgba(255, 65, 169, 0.16);
-  --vp-code-color: #0cc0df;
+  --vp-code-color: #7bc4dc;
   --vp-code-bg: #2a231c;
   --vp-code-block-bg: #191512;
   --vp-button-brand-bg: #7043e9;
@@ -108,12 +126,41 @@
   --gm-signature: #ff1fa9;
   --gm-glow: #ff1fa92e;
   --gm-hero-hash: #9777ef;
+  /* deck adoption (D2): deck inks + flavor palette on the kept warm-brown ground */
+  --gm-head: #f7d1d5;
+  --gm-hero-box: #ff1fa9;
+  --gm-hero-ink: #ffe3e3;
+  --gm-card-outline: rgba(247, 209, 213, 0.5);
+  --gm-chip-mint: #3cf0b5;
+  --gm-chip-cyan: #7bc4dc;
+  --gm-syn-sig: #ff1fa9;
+  --gm-syn-meta: #ffd6d6;
+  --gm-syn-text: #ffe994;
+  --gm-syn-code: #96efbe;
+  --gm-syn-com: #5eb91e;
+  --gm-syn-str: #7bc4dc;
+  --gm-syn-num: #706d6d;
 }
 
 /* ---- readability (R1, measured): real ~60ch prose, 14px code ------------- */
 .vp-doc p, .vp-doc li { max-width: 60ch; }
 .vp-doc :not(pre) > code { font-size: 0.875em; }
 .vp-doc div[class*='language-'] code { font-size: 14px; line-height: 1.7; }
+
+/* ---- deck adoption: headings, outlined panels, literal inline code ------- */
+.vp-doc h1, .vp-doc h2, .vp-doc h3, .vp-doc h4 { color: var(--gm-head); }
+.vp-doc div[class*='language-'] { border: 1.5px solid var(--gm-card-outline); border-radius: 14px; }
+.dark .vp-doc :not(pre) > code,
+.dark .gm-home code { background: transparent; padding: 0; color: inherit; }
+
+/* ---- ```gometa fences: flavor palette (rendered by the owned fence rule) -- */
+.gm-syn code { color: var(--gm-syn-meta); }
+.gm-syn .gm-sg { color: var(--gm-syn-sig); font-weight: 700; }
+.gm-syn .gm-mt { color: var(--gm-syn-meta); }
+.gm-syn .gm-tx { color: var(--gm-syn-text); }
+.gm-syn .gm-cd { color: var(--gm-syn-code); }
+.gm-syn .gm-cm { color: var(--gm-syn-com); }
+.gm-syn .gm-st { color: var(--gm-syn-str); }
 
 /* ---- navbar: pre-hydration-safe sidebar spacing (VP adds .has-sidebar to the
    navbar only at hydration; the SSR title already carries it — key off that so
@@ -147,29 +194,30 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
 .gm-hero-title { font-size: 38px; line-height: 1.25; font-weight: 700; margin: 22px 0 0; letter-spacing: -0.01em; color: var(--vp-c-text-1); }
 .gm-hero-tagline { margin: 16px 0 0; font-size: 18px; line-height: 1.6; color: var(--vp-c-text-2); max-width: 34em; }
 .gm-hero-tagline code { font-family: var(--vp-font-family-mono); color: var(--vp-code-color); background: var(--vp-code-bg); border-radius: 4px; padding: 2px 6px; }
-.gm-metaline { margin-top: 30px; font-family: var(--vp-font-family-mono); font-size: 23px; font-weight: 700; white-space: nowrap; overflow: hidden; }
-.gm-metaline .h { color: var(--gm-hero-hash); }
-.gm-metaline .t { color: var(--gm-signature); text-shadow: 0 0 18px var(--gm-glow); }
-.gm-metaline .r { color: var(--vp-c-text-2); font-weight: 400; }
+.gm-metaline { margin-top: 30px; font-family: var(--vp-font-family-mono); font-size: 23px; font-weight: 700; white-space: nowrap; overflow: hidden;
+  display: inline-block; border: 2px solid var(--gm-hero-box); border-radius: 16px; padding: 14px 22px; color: var(--gm-hero-ink); }
+.gm-metaline .h { color: var(--gm-signature); }
+.gm-metaline .t { color: var(--gm-signature); }
+.gm-metaline .r { color: var(--gm-hero-ink); font-weight: 700; }
 .gm-metaline-inner { display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom; }
-@media (prefers-reduced-motion: no-preference) {
-  .gm-metaline-inner.gm-typein { animation: gm-type 1.3s steps(38, end) both; }
-  @keyframes gm-type { from { max-width: 0; } to { max-width: 38ch; } }
-}
+.gm-chips { margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; }
+.gm-chip { font-family: var(--vp-font-family-mono); font-size: 13px; padding: 5px 14px; border-radius: 999px; border: 1.5px solid; }
+.gm-chip-mint { color: var(--gm-chip-mint); border-color: var(--gm-chip-mint); }
+.gm-chip-cyan { color: var(--gm-chip-cyan); border-color: var(--gm-chip-cyan); }
 .gm-hero-actions { margin-top: 34px; display: flex; gap: 16px; flex-wrap: wrap; }
 .gm-btn { display: inline-block; border-radius: 22px; padding: 11px 24px; font-size: 15px; font-weight: 600; text-decoration: none; transition: background 0.15s, border-color 0.15s; }
 .gm-btn:hover { text-decoration: none; }
 .gm-btn-brand { background: var(--vp-button-brand-bg); color: #fff; }
 .gm-btn-brand:hover { background: var(--vp-button-brand-hover-bg); color: #fff; }
 .gm-btn-brand:active { background: var(--vp-button-brand-active-bg); }
-.gm-btn-alt { background: var(--vp-c-bg-soft); color: var(--vp-c-text-1); border: 1px solid var(--vp-c-border); }
+.gm-btn-alt { background: transparent; color: var(--vp-c-text-1); border: 1.5px solid var(--vp-c-border); }
 .gm-btn-alt:hover { border-color: var(--vp-c-brand-1); color: var(--vp-c-text-1); }
 .gm-hero-image { flex: 0 0 340px; display: flex; justify-content: center; }
 .gm-hero-image img { width: 330px; height: auto; }
 
 .gm-features { max-width: 1152px; margin: 0 auto; padding: 0 32px 56px; }
 .gm-features-inner { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px; }
-.gm-card { background: var(--vp-c-bg-soft); border: 1px solid var(--vp-c-divider); border-radius: 12px; padding: 28px 26px; }
+.gm-card { background: transparent; border: 1.5px solid var(--gm-card-outline); border-radius: 14px; padding: 28px 26px; }
 .gm-eyebrow { font-family: var(--vp-font-family-mono); font-size: 12.5px; letter-spacing: 0.06em; color: #7a5c00; margin-bottom: 12px; }
 .dark .gm-eyebrow { color: #ffd21f; }
 .gm-eyebrow .h { color: var(--gm-hero-hash); }

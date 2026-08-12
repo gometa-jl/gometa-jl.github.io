@@ -19,6 +19,7 @@ makedocs(;
         "Tutorials" => [
             "Getting started" => "tutorials/getting-started.md",
         ],
+        "Examples" => "examples/index.md",
     ],
     warnonly = true,
 )

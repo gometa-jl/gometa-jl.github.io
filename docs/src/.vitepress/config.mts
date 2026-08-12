@@ -75,6 +75,62 @@ export default defineConfig({
       md.use(tabsMarkdownPlugin),
       md.use(mathjax3),
       md.use(footnote)
+      // ```gometa fences: deck-faithful flavor coloring (sigil/meta/text/code/comment)
+      // via theme CSS tokens — shiki has no GoMeta grammar, and the flavor colors are
+      // brand surface, so they must follow the light/dark token set, not a shiki theme.
+      const gmEsc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      const gmSpan = (cls: string, s: string) => s.length ? `<span class="${cls}">${gmEsc(s)}</span>` : ''
+      const gmMeta = (rest: string): string => {
+        const m = rest.match(/(^|\s)##(\s|$)/)
+        if (m && m.index !== undefined) {
+          const cut = m.index + m[1].length
+          return gmSpan('gm-mt', rest.slice(0, cut)) + gmSpan('gm-cm', rest.slice(cut))
+        }
+        return gmSpan('gm-mt', rest)
+      }
+      const gmInline = (base: string, cls: string): string => {
+        const m = base.match(/\s(#~[0-9~]*!?|#\])(?=\s|$)/)
+        if (m && m.index !== undefined) {
+          const cut = m.index + 1
+          const head = base.slice(0, cut), tok = m[1], rest = base.slice(cut + tok.length)
+          return gmSpan(cls, head) + gmSpan('gm-sg', tok) + gmMeta(rest)
+        }
+        return gmSpan(cls, base)
+      }
+      const gmLine = (line: string, inStr: boolean): [string, boolean] => {
+        if (line.trim() === '') return ['', inStr]
+        if (inStr) return [gmInline(line, 'gm-tx'), !/"""/.test(line)]
+        if (/^\s*md"""/.test(line)) return [gmInline(line, 'gm-tx'), true]
+        let m = line.match(/^(\s*)(#~[0-9~]*!?|#\])(?=[\s[]|$)/)
+        if (m) {
+          const head = m[1] + m[2]
+          return [gmSpan('gm-sg', head) + gmMeta(line.slice(head.length)), false]
+        }
+        if (/^\s*##(\s|$)/.test(line)) return [gmSpan('gm-cm', line), false]
+        if (/^\s*#(\s|$)/.test(line)) return [gmInline(line, 'gm-tx'), false]
+        const t = line.match(/\s(#~[0-9~]*!?|#\]|##|#)(?=\s|$)/)
+        if (t && t.index !== undefined) {
+          const cut = t.index + 1, tok = t[1], rest = line.slice(cut + tok.length)
+          const head = gmSpan('gm-cd', line.slice(0, cut))
+          if (tok.startsWith('#~') || tok === '#]') return [head + gmSpan('gm-sg', tok) + gmMeta(rest), false]
+          if (tok === '##') return [head + gmSpan('gm-cm', tok + rest), false]
+          return [head + gmSpan('gm-tx', tok + rest), false]
+        }
+        return [gmSpan('gm-cd', line), false]
+      }
+      const gmDefaultFence = md.renderer.rules.fence!
+      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+        const tok = tokens[idx]
+        if (tok.info.trim() !== 'gometa') return gmDefaultFence(tokens, idx, options, env, self)
+        let inStr = false
+        const out: string[] = []
+        for (const raw of tok.content.replace(/\n$/, '').split('\n')) {
+          const [html, next] = gmLine(raw, inStr)
+          inStr = next
+          out.push(html)
+        }
+        return `<div class="language-gometa vp-adaptive-theme gm-syn"><span class="lang">gometa</span><pre class="shiki" tabindex="0"><code>${out.join('\n')}</code></pre></div>\n`
+      }
     },
     theme: {
       light: "github-light",
