@@ -158,6 +158,25 @@
   --vp-custom-block-warning-bg: rgba(255, 145, 77, 0.15);
 }
 
+/* ---- first-draft banner (launch window; remove after polish) --------------
+   VP's fixed navbar honors --vp-layout-top-height: the nav and content shift
+   down and this fixed strip owns the freed space. */
+:root { --vp-layout-top-height: 34px; }
+.Layout::before {
+  content: "🚧 First draft — brand-new for JuliaCon 2026, still being polished.";
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: var(--vp-z-index-layout-top, 30);
+  height: var(--vp-layout-top-height);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; line-height: 1.35; padding: 0 14px; text-align: center;
+  background: var(--vp-c-bg-soft); color: var(--vp-c-warning-1);
+  border-bottom: 1px solid var(--vp-c-warning-3);
+}
+@media (max-width: 700px) {
+  :root { --vp-layout-top-height: 50px; }
+  .Layout::before { font-size: 12px; }
+}
+
 /* ---- readability (R1, measured): real ~60ch prose, 14px code ------------- */
 .vp-doc p, .vp-doc li { max-width: 60ch; }
 .vp-doc :not(pre) > code { font-size: 0.875em; }
