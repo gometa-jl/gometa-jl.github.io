@@ -1,0 +1,4 @@
+docs/build/
+docs/node_modules/
+docs/Manifest.toml
+docs/package-lock.json

@@ -1,0 +1,199 @@
+/* ==========================================================================
+   GoMeta brand theme (C3 "Deck-pop" final, user-locked 2026-08-05).
+   Dark: the logo's warm browns, one step deeper. Light: broken white + brown ink.
+   Violet brand everywhere; cyan reserved for code; magenta appears once (hero).
+   Loaded after style.css so these tokens win.
+   ========================================================================== */
+
+/* ---- faces (self-hosted, OFL-1.1; files + licenses in /fonts/) ---------- */
+@font-face{font-family:'Poppins';font-weight:400;font-style:normal;font-display:swap;
+  src:url('/fonts/poppins/Poppins-Regular.woff2') format('woff2')}
+@font-face{font-family:'Poppins';font-weight:700;font-style:normal;font-display:swap;
+  src:url('/fonts/poppins/Poppins-Bold.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:400;font-style:normal;font-display:swap;
+  src:url('/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:700;font-style:normal;font-display:swap;
+  src:url('/fonts/jetbrains-mono/JetBrainsMono-Bold.woff2') format('woff2')}
+
+:root {
+  --vp-font-family-base: 'Poppins', system-ui, sans-serif;
+  --vp-font-family-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* ---- LIGHT: broken white + brown ink ---- */
+  --vp-c-bg: #f7eedf;
+  --vp-c-bg-alt: #ece0c8;
+  --vp-c-bg-soft: #f1e6d2;
+  --vp-c-bg-elv: #faf3e8;
+  --vp-c-divider: #d6bf9a;
+  --vp-c-border: #c3a77d;
+  --vp-c-gutter: #d6bf9a;
+  --vp-c-text-1: #4b3421;
+  --vp-c-text-2: #6a533c;
+  --vp-c-text-3: #755d47;
+  --vp-c-brand-1: #7043e9;
+  --vp-c-brand-2: #5f2fd8;
+  --vp-c-brand-3: #7043e9;
+  --vp-c-brand-soft: rgba(112, 67, 233, 0.14);
+  --vp-c-default-1: #6a533c;
+  --vp-c-default-2: #a08a6e;
+  --vp-c-default-3: #d6bf9a;
+  --vp-c-default-soft: rgba(203, 178, 140, 0.22);
+  --vp-c-tip-1: #0b7f5c;
+  --vp-c-tip-2: #096b4d;
+  --vp-c-tip-3: #0b7f5c;
+  --vp-c-tip-soft: rgba(49, 237, 174, 0.20);
+  --vp-c-warning-1: #aa3f00;
+  --vp-c-warning-2: #8f3500;
+  --vp-c-warning-3: #c64c00;
+  --vp-c-warning-soft: rgba(255, 145, 77, 0.16);
+  --vp-c-danger-1: #dd0088;
+  --vp-c-danger-2: #b80071;
+  --vp-c-danger-3: #ea0094;
+  --vp-c-danger-soft: rgba(234, 0, 148, 0.12);
+  --vp-code-color: #07778a;
+  --vp-code-bg: #f1e6d2;
+  --vp-code-block-bg: #ece0c8;
+  --vp-button-brand-bg: #7043e9;
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-hover-bg: #5f2fd8;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-active-bg: #4f27c4;
+  --vp-button-brand-active-text: #ffffff;
+  --vp-home-hero-name-color: #7043e9;
+  --gm-signature: #ea0094;
+  --gm-glow: rgba(234, 0, 148, 0.18);
+  --gm-hero-hash: #7043e9;
+}
+
+.dark {
+  /* ---- DARK: the logo's warm browns, one step deeper ---- */
+  --vp-c-bg: #1f1a15;
+  --vp-c-bg-alt: #191512;
+  --vp-c-bg-soft: #2a231c;
+  --vp-c-bg-elv: #2d261f;
+  --vp-c-divider: #3a3126;
+  --vp-c-border: #5b4935;
+  --vp-c-gutter: #191512;
+  --vp-c-text-1: #ffe3e1;
+  --vp-c-text-2: #b0adad;
+  --vp-c-text-3: #9b9795;
+  --vp-c-brand-1: #9777ef;
+  --vp-c-brand-2: #a78bf2;
+  --vp-c-brand-3: #7043e9;
+  --vp-c-brand-soft: rgba(133, 95, 236, 0.16);
+  --vp-c-default-1: #b0adad;
+  --vp-c-default-2: #6b5f52;
+  --vp-c-default-3: #443a2f;
+  --vp-c-default-soft: rgba(91, 73, 53, 0.30);
+  --vp-c-tip-1: #3cf0b5;
+  --vp-c-tip-2: #5ff1c0;
+  --vp-c-tip-3: #0b835b;
+  --vp-c-tip-soft: rgba(49, 237, 174, 0.16);
+  --vp-c-warning-1: #ff914d;
+  --vp-c-warning-2: #ffa76d;
+  --vp-c-warning-3: #c64c00;
+  --vp-c-warning-soft: rgba(255, 145, 77, 0.15);
+  --vp-c-danger-1: #ff41a9;
+  --vp-c-danger-2: #ff6cbd;
+  --vp-c-danger-3: #ea0094;
+  --vp-c-danger-soft: rgba(255, 65, 169, 0.16);
+  --vp-code-color: #0cc0df;
+  --vp-code-bg: #2a231c;
+  --vp-code-block-bg: #191512;
+  --vp-button-brand-bg: #7043e9;
+  --vp-button-brand-hover-bg: #5f2fd8;
+  --vp-button-brand-active-bg: #4f27c4;
+  --vp-home-hero-name-color: #9777ef;
+  --gm-signature: #ff1fa9;
+  --gm-glow: #ff1fa92e;
+  --gm-hero-hash: #9777ef;
+}
+
+/* ---- readability (R1, measured): real ~60ch prose, 14px code ------------- */
+.vp-doc p, .vp-doc li { max-width: 60ch; }
+.vp-doc :not(pre) > code { font-size: 0.875em; }
+.vp-doc div[class*='language-'] code { font-size: 14px; line-height: 1.7; }
+
+/* ---- navbar: pre-hydration-safe sidebar spacing (VP adds .has-sidebar to the
+   navbar only at hydration; the SSR title already carries it — key off that so
+   the search never paints under the title, before or after hydration) -------- */
+.VPNavBar:has(.VPNavBarTitle.has-sidebar):not(.has-sidebar) .content {
+  padding-left: var(--vp-sidebar-width, 272px);
+}
+
+/* This site is unversioned — hide the package-docs version picker */
+.VPVersionPicker { display: none !important; }
+
+/* ---- accessibility (R3): visible brand focus + sticky-nav clearance ------ */
+:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
+:is(a, button, input, [tabindex]):focus-visible { scroll-margin-top: calc(var(--vp-nav-height, 64px) + 12px); }
+
+/* ==========================================================================
+   Landing page (raw-html .gm-home in index.md) — the approved sample, ported.
+   ========================================================================== */
+.gm-home { font-family: var(--vp-font-family-base); }
+.gm-home a { text-decoration: none; }
+.gm-home a:hover { text-decoration: none; }
+.gm-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.gm-home .gm-only-light { display: none; }
+.gm-home .gm-only-dark { display: block; }
+html:not(.dark) .gm-home .gm-only-light { display: block; }
+html:not(.dark) .gm-home .gm-only-dark { display: none; }
+
+.gm-hero { max-width: 1152px; margin: 0 auto; padding: 72px 32px 64px; display: flex; gap: 64px; align-items: center; }
+.gm-hero-text { flex: 1; min-width: 0; }
+.gm-wordmark { height: 58px; width: auto; display: block; }
+.gm-hero-title { font-size: 38px; line-height: 1.25; font-weight: 700; margin: 22px 0 0; letter-spacing: -0.01em; color: var(--vp-c-text-1); }
+.gm-hero-tagline { margin: 16px 0 0; font-size: 18px; line-height: 1.6; color: var(--vp-c-text-2); max-width: 34em; }
+.gm-hero-tagline code { font-family: var(--vp-font-family-mono); color: var(--vp-code-color); background: var(--vp-code-bg); border-radius: 4px; padding: 2px 6px; }
+.gm-metaline { margin-top: 30px; font-family: var(--vp-font-family-mono); font-size: 23px; font-weight: 700; white-space: nowrap; overflow: hidden; }
+.gm-metaline .h { color: var(--gm-hero-hash); }
+.gm-metaline .t { color: var(--gm-signature); text-shadow: 0 0 18px var(--gm-glow); }
+.gm-metaline .r { color: var(--vp-c-text-2); font-weight: 400; }
+.gm-metaline-inner { display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom; }
+@media (prefers-reduced-motion: no-preference) {
+  .gm-metaline-inner.gm-typein { animation: gm-type 1.3s steps(38, end) both; }
+  @keyframes gm-type { from { max-width: 0; } to { max-width: 38ch; } }
+}
+.gm-hero-actions { margin-top: 34px; display: flex; gap: 16px; flex-wrap: wrap; }
+.gm-btn { display: inline-block; border-radius: 22px; padding: 11px 24px; font-size: 15px; font-weight: 600; text-decoration: none; transition: background 0.15s, border-color 0.15s; }
+.gm-btn:hover { text-decoration: none; }
+.gm-btn-brand { background: var(--vp-button-brand-bg); color: #fff; }
+.gm-btn-brand:hover { background: var(--vp-button-brand-hover-bg); color: #fff; }
+.gm-btn-brand:active { background: var(--vp-button-brand-active-bg); }
+.gm-btn-alt { background: var(--vp-c-bg-soft); color: var(--vp-c-text-1); border: 1px solid var(--vp-c-border); }
+.gm-btn-alt:hover { border-color: var(--vp-c-brand-1); color: var(--vp-c-text-1); }
+.gm-hero-image { flex: 0 0 340px; display: flex; justify-content: center; }
+.gm-hero-image img { width: 330px; height: auto; }
+
+.gm-features { max-width: 1152px; margin: 0 auto; padding: 0 32px 56px; }
+.gm-features-inner { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px; }
+.gm-card { background: var(--vp-c-bg-soft); border: 1px solid var(--vp-c-divider); border-radius: 12px; padding: 28px 26px; }
+.gm-eyebrow { font-family: var(--vp-font-family-mono); font-size: 12.5px; letter-spacing: 0.06em; color: #7a5c00; margin-bottom: 12px; }
+.dark .gm-eyebrow { color: #ffd21f; }
+.gm-eyebrow .h { color: var(--gm-hero-hash); }
+.gm-card h2 { font-size: 16.5px; font-weight: 700; margin: 0 0 10px; padding: 0; border: none; color: var(--vp-c-text-1); }
+.gm-card p { font-size: 14px; line-height: 1.6; margin: 0; color: var(--vp-c-text-2); }
+
+.gm-status { max-width: 1152px; margin: 0 auto; padding: 0 32px 72px; }
+.gm-status p { max-width: 62em; margin: 0 0 10px; font-size: 14.5px; line-height: 1.65; color: var(--vp-c-text-2); }
+.gm-status strong { color: var(--vp-c-text-1); }
+.gm-license-note { font-size: 13px; color: var(--vp-c-text-3); }
+
+@media (max-width: 920px) {
+  .gm-hero { flex-direction: column-reverse; text-align: center; padding-top: 44px; gap: 36px; }
+  .gm-wordmark { margin: 0 auto; }
+  .gm-hero-tagline { margin-left: auto; margin-right: auto; }
+  .gm-hero-actions { justify-content: center; }
+  .gm-metaline { font-size: 17px; }
+}
+@media (max-width: 640px) {
+  .gm-hero-image img { width: 250px; }
+  .gm-metaline { font-size: 15px; }
+}
+@media (max-width: 420px) {
+  /* R3 reflow: at 320px the nowrap metaLine cannot fit — wrap it, drop the animation */
+  .gm-metaline, .gm-metaline-inner { white-space: normal; }
+  .gm-metaline-inner.gm-typein { animation: none; }
+}
