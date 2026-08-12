@@ -258,6 +258,53 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
 .gm-license-note { font-size: 13px; color: var(--vp-c-text-3); }
 .gm-license-note a { text-decoration: underline; }
 
+/* ==========================================================================
+   Merci page (/merci) — the thank-you slide, transformed. A deliberate single
+   visual world (the deck's #201d1d ground) in BOTH site modes; colors are the
+   slide's own bytes, independent of the theme tokens.
+   ========================================================================== */
+.gm-merci { background: #201d1d; color: #ffd6d6; font-family: var(--vp-font-family-base);
+  min-height: calc(100vh - var(--vp-nav-height, 64px)); padding: 72px 18px 84px; }
+.gm-merci p { margin: 0 0 10px; }
+.gm-merci p:last-child { margin-bottom: 0; }
+.m-frame { max-width: 1180px; margin: 0 auto; border: 1.5px solid rgba(255, 214, 214, 0.7);
+  border-radius: 18px; padding: 30px 26px 34px; }
+.m-line { background: #201d1d; border: 2.5px solid #ff1fa9; border-radius: 16px;
+  padding: 16px 26px; margin: -58px auto 34px; max-width: 92%; width: fit-content;
+  font-family: var(--vp-font-family-mono); font-size: clamp(15px, 2.3vw, 25px);
+  line-height: 1.5; text-align: center; }
+.m-sig { font-weight: 700; font-size: 1.15em; }
+.m-bigl { font-size: 1.2em; }
+.m-big { font-size: 1.08em; }
+.m-grid { display: grid; grid-template-columns: 1fr 1.4fr 1.15fr; gap: 22px; align-items: start; }
+.m-col { display: flex; flex-direction: column; gap: 22px; align-items: center; }
+.m-box { border: 2px solid; border-radius: 16px; padding: 20px 22px; width: 100%;
+  text-align: center; font-size: 15px; line-height: 1.65; }
+.m-mami { border-color: #ff1fa9; font-size: 16.5px; margin-top: 26px; }
+.m-note { border-color: #ffd6d6; font-size: 14.5px; }
+.m-note p { margin-bottom: 14px; }
+.m-beach { border-color: #ffd21f; color: #fff3c2; font-weight: 600; }
+.m-berg { border-color: #31edae; color: #c7fae9; margin-top: 10px; }
+.m-h { font-weight: 700; }
+.m-dots { padding: 10px 18px; font-weight: 700; letter-spacing: 0.3em; width: 60%; }
+.m-cyan { border-color: #0cc0df; color: #caf5f7; }
+.m-green { border-color: #07d012; color: #e4ffc2; width: 42%; }
+.m-orange { border-color: #ff914d; color: #ffc099; width: 52%; }
+.m-violet { border-color: #cda8f0; color: #cea8f0; }
+@media (max-width: 860px) {
+  .m-grid { grid-template-columns: 1fr; }
+  .m-line { margin-top: -52px; font-size: 15px; }
+  .m-frame { padding: 22px 14px 26px; }
+  .m-mami { margin-top: 0; }
+}
+
+/* the small Merci button at the bottom of the landing page */
+.gm-merci-cta { margin-top: 26px; }
+.gm-merci-cta a { display: inline-block; font-size: 13px; padding: 6px 16px;
+  border: 1.5px solid var(--gm-card-outline); border-radius: 999px;
+  color: var(--vp-c-text-2); transition: border-color 0.15s, color 0.15s; }
+.gm-merci-cta a:hover { border-color: var(--gm-signature); color: var(--vp-c-text-1); }
+
 @media (max-width: 920px) {
   .gm-hero { flex-direction: column-reverse; text-align: center; padding-top: 44px; gap: 36px; }
   .gm-wordmark { margin: 0 auto; }

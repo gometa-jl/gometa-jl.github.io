@@ -84,6 +84,7 @@ footer: true
     GoMeta-based offerings. On the second anniversary of a version&rsquo;s
     release, that version becomes available under the MIT license &mdash; irrevocably. See the
     <a href="https://github.com/gometa-jl/GoMeta.jl">repository</a> for the license and details.</p>
+    <p class="gm-merci-cta"><a href="/merci">Merci🌷</a></p>
   </section>
 </div>
 ```
