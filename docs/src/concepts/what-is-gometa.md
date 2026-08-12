@@ -86,7 +86,8 @@ documented crash edge — are catalogued honestly in the repository's API refere
 language grows by design; the v0 subset forecloses none of it.
 
 GoMeta is **Fair Source** — licensed under the Functional Source License, Version 1.1,
-MIT Future License (**FSL-1.1-MIT**): source-available, and free for everyone's own use — at
+MIT Future License (**FSL-1.1-MIT**; source-available, not OSI-approved open source): free
+for everyone's own use — at
 work, at university, in the public sector — including internal use and access, non-commercial
 education and research, and professional services provided to other licensees. Not licensed:
 offering GoMeta to others in a commercial product

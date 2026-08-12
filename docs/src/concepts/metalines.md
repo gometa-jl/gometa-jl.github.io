@@ -101,7 +101,8 @@ metadata must not survive a share.
 Every metaBlock sits at a **depth** (1, 2, 3, …), analogous to heading levels. The tilde
 count sets it (`#~~~` opens depth 3), and a digit sets it too (`#~2` opens depth 2); with
 neither, a metaBlock sits at depth 1. The authorable window at v0 is depths 1–8 — `#~9`
-and beyond meets a stable refusal, not a crash.
+meets a stable refusal, not a crash (a multi-digit marker reads its first digit only:
+`#~10` behaves as depth 1).
 
 Depth governs **scope** between metaBlocks: a following metaBlock at depth *P* **nests
 inside** an open metaBlock at depth *N* — and inherits it — when *P* > *N*; it

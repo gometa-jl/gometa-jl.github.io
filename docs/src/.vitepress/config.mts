@@ -29,7 +29,8 @@ const nav = [
 export default defineConfig({
   base: 'REPLACE_ME_DOCUMENTER_VITEPRESS',// TODO: replace this in makedocs!
   title: 'REPLACE_ME_DOCUMENTER_VITEPRESS',
-  description: 'REPLACE_ME_DOCUMENTER_VITEPRESS',
+  // literal (not the REPLACE_ME slot): the builder's default is "Documentation for <sitename>"
+  description: 'One #~ comment line makes a file retrievable, interlinkable, re-renderable, and shareable on your terms — read by tools, never run by them.',
   lastUpdated: true,
   cleanUrls: true,
   outDir: 'REPLACE_ME_DOCUMENTER_VITEPRESS', // This is required for MarkdownVitepress to work correctly...
@@ -129,14 +130,24 @@ export default defineConfig({
           inStr = next
           out.push(html)
         }
-        return `<div class="language-gometa vp-adaptive-theme gm-syn"><span class="lang">gometa</span><pre class="shiki" tabindex="0"><code>${out.join('\n')}</code></pre></div>\n`
+        return `<div class="language-gometa vp-adaptive-theme gm-syn"><button title="Copy Code" class="copy"></button><span class="lang">gometa</span><pre class="shiki" tabindex="0"><code>${out.join('\n')}</code></pre></div>\n`
       }
     },
     theme: {
-      light: "github-light",
+      // high-contrast light: github-light's keyword/comment tokens sink under
+      // 4.5:1 on the warm code bg #ece0c8 (measured 3.50 / 3.68)
+      light: "github-light-high-contrast",
       dark: "github-dark-dimmed"},
     codeTransformers: [
-      { pre(node) { node.properties.tabindex = 0 } }  // keyboard-focusable scrollable code (WCAG 2.1.1)
+      { pre(node) { node.properties.tabindex = 0 } },  // keyboard-focusable scrollable code (WCAG 2.1.1)
+      { span(node) {
+          // gh-light-high-contrast comments (#66707B) still land at 3.85:1 on the
+          // warm code bg #ece0c8; darken to #4B535D (5.96:1). Light-only token.
+          const s = node.properties?.style
+          if (typeof s === 'string' && s.includes('--shiki-light:#66707B')) {
+            node.properties.style = s.replace('--shiki-light:#66707B', '--shiki-light:#4B535D')
+          }
+        } }
     ]
   },
   themeConfig: {
@@ -155,10 +166,12 @@ export default defineConfig({
     sidebar: 'REPLACE_ME_DOCUMENTER_VITEPRESS',
     editLink: 'REPLACE_ME_DOCUMENTER_VITEPRESS',
     socialLinks: [
-      { icon: 'github', link: 'REPLACE_ME_DOCUMENTER_VITEPRESS' }
+      // deliberate literal: the nav GitHub icon targets the PRODUCT repo, not the
+      // site-source repo the builder would inject (editLink stays builder-injected)
+      { icon: 'github', link: 'https://github.com/gometa-jl/GoMeta.jl' }
     ],
     footer: {
-      message: 'GoMeta — evaluated, never executed. · <a href="mailto:hello@gometa.dev">hello@gometa.dev</a><br>Made with <a href="https://luxdl.github.io/DocumenterVitepress.jl/dev/" target="_blank"><strong>DocumenterVitepress.jl</strong></a>',
+      message: 'GoMeta evaluates — it never executes · <a href="mailto:hello@gometa.dev">hello@gometa.dev</a><br>Made with <a href="https://luxdl.github.io/DocumenterVitepress.jl/dev/" target="_blank"><strong>DocumenterVitepress.jl</strong></a>',
       copyright: `© Copyright ${new Date().getUTCFullYear()}.`
     }
   }
