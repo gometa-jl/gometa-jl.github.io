@@ -20,6 +20,11 @@ makedocs(;
             "Getting started" => "tutorials/getting-started.md",
         ],
         "Examples" => "examples/index.md",
+        "Reference" => [
+            "Syntax & semantics" => "reference/syntax-and-semantics.md",
+            "Public API" => "reference/public-api.md",
+            "Canonical output" => "reference/canonical-output.md",
+        ],
     ],
     warnonly = true,
 )
