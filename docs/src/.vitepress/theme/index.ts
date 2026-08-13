@@ -23,6 +23,14 @@ export const Theme: ThemeConfig = {
   extends: DefaultTheme,
   Layout() {
     return h(DefaultTheme.Layout, null, {
+      // first-draft banner (launch window; remove after polish)
+      'layout-top': () => h('div', { class: 'gm-draft-banner' }, [
+        h('span', { class: 'gm-draft-pill' }, [
+          '🚧 First, heavily ',
+          h('strong', 'Claude assisted'),
+          ' draft — brand-new for JuliaCon 2026, still being polished.',
+        ]),
+      ]),
       'nav-bar-content-after': () => [
         h(NolebaseEnhancedReadabilitiesMenu), // Enhanced Readabilities menu
       ],

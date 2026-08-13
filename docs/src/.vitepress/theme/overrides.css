@@ -81,6 +81,11 @@
   --gm-syn-text: #7a5c00;
   --gm-syn-code: #096b4d;
   --gm-syn-com: #35690e;
+  /* master-detail nav-box colors (AA twins of the slide colors) */
+  --gm-tab-mint: #096b4d;
+  --gm-tab-gold: #7a5c00;
+  --gm-tab-cyan: #066374;
+  --gm-tab-viol: #5f2fd8;
   /* custom blocks: keep the warm palette (style.css ships julia-blue tip defaults) */
   --vp-custom-block-tip-border: #096b4d;
   --vp-custom-block-tip-text: var(--vp-c-text-1);
@@ -147,6 +152,11 @@
   --gm-syn-text: #ffe994;
   --gm-syn-code: #96efbe;
   --gm-syn-com: #5eb91e;
+  /* master-detail nav-box colors (slide-exact) */
+  --gm-tab-mint: #31edae;
+  --gm-tab-gold: #ffd21f;
+  --gm-tab-cyan: #0cc0df;
+  --gm-tab-viol: #cda8f0;
   --vp-custom-block-tip-border: #3cf0b5;
   --vp-custom-block-tip-text: var(--vp-c-text-1);
   --vp-custom-block-tip-bg: rgba(49, 237, 174, 0.14);
@@ -160,21 +170,28 @@
 
 /* ---- first-draft banner (launch window; remove after polish) --------------
    VP's fixed navbar honors --vp-layout-top-height: the nav and content shift
-   down and this fixed strip owns the freed space. */
-:root { --vp-layout-top-height: 34px; }
-.Layout::before {
-  content: "🚧 First draft — brand-new for JuliaCon 2026, still being polished.";
+   down and this fixed strip (the theme's layout-top slot) owns the freed space. */
+:root { --vp-layout-top-height: 56px; }
+.gm-draft-banner {
   position: fixed; top: 0; left: 0; right: 0;
   z-index: var(--vp-z-index-layout-top, 30);
   height: var(--vp-layout-top-height);
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; line-height: 1.35; padding: 0 14px; text-align: center;
-  background: var(--vp-c-bg-soft); color: var(--vp-c-warning-1);
-  border-bottom: 1px solid var(--vp-c-warning-3);
+  padding: 0 14px;
+  background: var(--vp-c-bg-alt);
+  border-bottom: 1px solid var(--vp-c-divider);
+  font-family: var(--vp-font-family-base);
 }
+.gm-draft-pill {
+  display: inline-block; padding: 7px 24px; border-radius: 999px;
+  border: 1.5px solid var(--vp-c-warning-1);
+  font-size: 16px; line-height: 1.45; text-align: center;
+  color: var(--vp-c-warning-1);
+}
+.gm-draft-pill strong { font-weight: 700; }
 @media (max-width: 700px) {
-  :root { --vp-layout-top-height: 50px; }
-  .Layout::before { font-size: 12px; }
+  :root { --vp-layout-top-height: 78px; }
+  .gm-draft-pill { font-size: 13.5px; padding: 5px 16px; }
 }
 
 /* ---- readability (R1, measured): real ~60ch prose, 14px code ------------- */
@@ -241,12 +258,12 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
 .gm-hero-title { font-size: 38px; line-height: 1.25; font-weight: 700; margin: 22px 0 0; letter-spacing: -0.01em; color: var(--vp-c-text-1); }
 .gm-hero-tagline { margin: 16px 0 0; font-size: 18px; line-height: 1.6; color: var(--vp-c-text-2); max-width: 34em; }
 .gm-hero-tagline code { font-family: var(--vp-font-family-mono); color: var(--vp-code-color); background: var(--vp-code-bg); border-radius: 4px; padding: 2px 6px; }
-.gm-metaline { margin-top: 30px; font-family: var(--vp-font-family-mono); font-size: 23px; font-weight: 700; white-space: nowrap; overflow: hidden;
+.gm-metaline { margin-top: 30px; font-family: var(--vp-font-family-mono); font-size: 23px; font-weight: 700; white-space: normal; line-height: 1.5;
   display: inline-block; border: 2px solid var(--gm-hero-box); border-radius: 16px; padding: 14px 22px; color: var(--gm-hero-ink); }
 .gm-metaline .h { color: var(--gm-signature); }
 .gm-metaline .t { color: var(--gm-signature); }
 .gm-metaline .r { color: var(--gm-hero-ink); font-weight: 700; }
-.gm-metaline-inner { display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom; }
+.gm-metaline-inner { display: inline-block; vertical-align: bottom; }
 .gm-chips { margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; }
 .gm-chip { font-family: var(--vp-font-family-mono); font-size: 13px; padding: 5px 14px; border-radius: 999px; border: 1.5px solid; }
 .gm-chip-mint { color: var(--gm-chip-mint); border-color: var(--gm-chip-mint); }
@@ -315,6 +332,67 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
   .m-line { margin-top: -52px; font-size: 15px; }
   .m-frame { padding: 22px 14px 26px; }
   .m-mami { margin-top: 0; }
+}
+
+/* ---- hero v2 (owner 2026-08-13): mark beside the wordmark, smaller, SVG;
+   the metaLine box then spans the full container width ---------------------- */
+.gm-hero-v2 { display: block; }
+.gm-hero-v2 .gm-hero-text { max-width: none; }
+.gm-hero-v2 .gm-hero-top { display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+.gm-mark-top { width: clamp(110px, 15vw, 200px); height: auto; flex: 0 0 auto; }
+.gm-metaline-full { display: block; width: 100%; text-align: center; }
+@media (max-width: 640px) {
+  .gm-hero-v2 .gm-hero-top { gap: 18px; }
+  .gm-hero-v2 .gm-wordmark { height: 42px; }
+}
+
+/* ==========================================================================
+   Master-detail section (owner's website slides 4-8): left column of colored
+   nav boxes, click opens the matching-colored panel. Pure CSS (radio tabs).
+   ========================================================================== */
+.gm-tabs { max-width: 1152px; margin: 0 auto; padding: 8px 32px 48px; }
+.gm-tabs > input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+.gm-tabs-grid { display: grid; grid-template-columns: 310px 1fr; gap: 26px; align-items: start; }
+.gm-tabs-nav { display: flex; flex-direction: column; gap: 18px; }
+.gm-tabbox { display: block; border: 2px solid; border-radius: 16px; padding: 15px 18px;
+  cursor: pointer; font-size: 15px; line-height: 1.5; background: transparent;
+  text-decoration: none; transition: background 0.15s; }
+.gm-tabbox strong { display: block; font-size: 16.5px; }
+.gm-tabbox:hover { background: rgba(255, 255, 255, 0.04); }
+html:not(.dark) .gm-tabbox:hover { background: rgba(75, 52, 33, 0.06); }
+.gm-tabpanel { display: none; border: 2px solid; border-radius: 18px;
+  padding: 26px 30px 30px; min-height: 360px; color: var(--vp-c-text-1);
+  font-size: 15.5px; line-height: 1.65; }
+.gm-tabpanel p { max-width: 62ch; margin: 0 0 12px; }
+.gm-tabpanel .gm-tp-title { display: block; font-weight: 700; font-size: 17px; margin-bottom: 14px; }
+.gm-tabpanel ul { margin: 0 0 12px; padding-left: 1.2em; }
+.gm-tabpanel li { margin: 0 0 8px; max-width: 60ch; }
+/* the five box colors (dark = slide-exact, light = AA twins) */
+.gm-tb-mint  { border-color: var(--gm-tab-mint);  color: var(--gm-tab-mint); }
+.gm-tb-gold  { border-color: var(--gm-tab-gold);  color: var(--gm-tab-gold); }
+.gm-tb-cyan  { border-color: var(--gm-tab-cyan);  color: var(--gm-tab-cyan); }
+.gm-tb-viol  { border-color: var(--gm-tab-viol);  color: var(--gm-tab-viol); }
+.gm-tb-merci { border-color: var(--gm-signature); color: var(--gm-signature); text-align: center; }
+.gm-tp-core   { border-color: var(--gm-tab-mint); } .gm-tp-core   .gm-tp-title { color: var(--gm-tab-mint); }
+.gm-tp-syntax { border-color: var(--gm-tab-gold); } .gm-tp-syntax .gm-tp-title { color: var(--gm-tab-gold); }
+.gm-tp-blocks { border-color: var(--gm-tab-cyan); } .gm-tp-blocks .gm-tp-title { color: var(--gm-tab-cyan); }
+.gm-tp-cases  { border-color: var(--gm-tab-viol); } .gm-tp-cases  .gm-tp-title { color: var(--gm-tab-viol); }
+#gmt-core:checked   ~ .gm-tabs-grid .gm-tp-core   { display: block; }
+#gmt-syntax:checked ~ .gm-tabs-grid .gm-tp-syntax { display: block; }
+#gmt-blocks:checked ~ .gm-tabs-grid .gm-tp-blocks { display: block; }
+#gmt-cases:checked  ~ .gm-tabs-grid .gm-tp-cases  { display: block; }
+#gmt-core:checked   ~ .gm-tabs-grid label[for="gmt-core"],
+#gmt-syntax:checked ~ .gm-tabs-grid label[for="gmt-syntax"],
+#gmt-blocks:checked ~ .gm-tabs-grid label[for="gmt-blocks"],
+#gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"] { background: rgba(255, 255, 255, 0.07); }
+html:not(.dark) #gmt-core:checked   ~ .gm-tabs-grid label[for="gmt-core"],
+html:not(.dark) #gmt-syntax:checked ~ .gm-tabs-grid label[for="gmt-syntax"],
+html:not(.dark) #gmt-blocks:checked ~ .gm-tabs-grid label[for="gmt-blocks"],
+html:not(.dark) #gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"] { background: rgba(75, 52, 33, 0.08); }
+.gm-tabs > input:focus-visible + .gm-tabs-grid label { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
+@media (max-width: 860px) {
+  .gm-tabs-grid { grid-template-columns: 1fr; }
+  .gm-tabpanel { min-height: 0; }
 }
 
 /* the small Merci button at the bottom of the landing page */
