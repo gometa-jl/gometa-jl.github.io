@@ -26,9 +26,18 @@ export const Theme: ThemeConfig = {
       // first-draft banner (launch window; remove after polish)
       'layout-top': () => h('div', { class: 'gm-draft-banner' }, [
         h('span', { class: 'gm-draft-pill' }, [
-          '🚧 First, heavily ',
-          h('strong', 'Claude assisted'),
-          ' draft — brand-new for JuliaCon 2026, still being polished.',
+          '🚧 First, ',
+          h('strong', 'heavily Claude assisted'),
+          ' draft — brand-new for JuliaCon 2026.',
+          h('br'),
+          'Will be updated gradually. For now, check out the ',
+          h('strong', [
+            'JuliaCon slides ',
+            // target=_self is LOAD-BEARING: /talk/ is a public/ asset, not a
+            // VitePress page; without it the SPA router eats the click (404).
+            h('a', { href: '/talk/', target: '_self' }, 'here'),
+          ]),
+          '.',
         ]),
       ]),
       'nav-bar-content-after': () => [
