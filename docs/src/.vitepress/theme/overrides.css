@@ -214,6 +214,11 @@ pre, code, kbd, samp { font-family: var(--vp-font-family-mono); }
 /* Canvas hardening: paint the root, so mobile overscroll/URL-bar regions never
    show the UA's default (black) canvas behind the page. */
 html { background-color: var(--vp-c-bg); }
+/* Nav wordmark text: the brand's own typewriter face (= the wordmark font),
+   color inherited unchanged. 73KB TTF, OFL 1.1, served locally. */
+@font-face{font-family:'Courier Prime';font-weight:700;font-style:normal;font-display:swap;
+  src:url('/fonts/courier-prime/CourierPrime-Bold.ttf') format('truetype');}
+.VPNavBarTitle .title { font-family: 'Courier Prime', 'Courier New', monospace; font-weight: 700; }
 
 /* ---- ```gometa fences: flavor palette (rendered by the owned fence rule) -- */
 .vp-doc .gm-syn code { color: var(--gm-syn-meta); }
