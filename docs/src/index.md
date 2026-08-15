@@ -52,6 +52,7 @@ footer: true
         <label class="gm-tabbox gm-tb-gold" for="gmt-syntax"><strong>GoMeta Syntax:</strong> Examples</label>
         <label class="gm-tabbox gm-tb-cyan" for="gmt-blocks"><strong>GoMeta Building Blocks:</strong> How is it set up?</label>
         <label class="gm-tabbox gm-tb-viol" for="gmt-cases"><strong>Use Cases:</strong></label>
+        <a class="gm-tabbox gm-tb-talk" href="/talk/"><strong>JuliaCon2026 Talk:</strong> Web version of the official slides</a>
         <a class="gm-tabbox gm-tb-merci" href="/merci"><strong>Merci🌷</strong></a>
       </div>
       <div class="gm-tabs-panels">

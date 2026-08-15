@@ -372,6 +372,7 @@ html:not(.dark) .gm-tabbox:hover { background: rgba(75, 52, 33, 0.06); }
 .gm-tb-gold  { border-color: var(--gm-tab-gold);  color: var(--gm-tab-gold); }
 .gm-tb-cyan  { border-color: var(--gm-tab-cyan);  color: var(--gm-tab-cyan); }
 .gm-tb-viol  { border-color: var(--gm-tab-viol);  color: var(--gm-tab-viol); }
+.gm-tb-talk  { border-color: var(--vp-c-text-1); color: var(--vp-c-text-1); }
 .gm-tb-merci { border-color: var(--gm-signature); color: var(--gm-signature); text-align: center; }
 .gm-tp-core   { border-color: var(--gm-tab-mint); } .gm-tp-core   .gm-tp-title { color: var(--gm-tab-mint); }
 .gm-tp-syntax { border-color: var(--gm-tab-gold); } .gm-tp-syntax .gm-tp-title { color: var(--gm-tab-gold); }

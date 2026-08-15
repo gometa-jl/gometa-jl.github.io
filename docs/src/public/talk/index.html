@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GoMeta · JuliaCon 2026 Talk — Official Slides</title>
+<meta name="description" content="Web version of the official GoMeta slides presented at JuliaCon 2026.">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon_dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon_light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+<style>
+  /* The deck's own visual world (#201d1d) in both site modes — like /merci. */
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: #201d1d; color: #ffe3e1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans",
+                 "Liberation Sans", Arial, sans-serif;
+    overflow: hidden;
+  }
+  .stage {
+    position: fixed; inset: 0 0 52px 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .stage img {
+    max-width: 100%; max-height: 100%;
+    display: block; user-select: none; -webkit-user-drag: none;
+  }
+  .zone {
+    position: absolute; top: 0; bottom: 0; width: 50%;
+    background: transparent; border: 0; cursor: pointer; padding: 0;
+  }
+  /* Mouse-only affordances: never focusable, never show a focus ring
+     (keyboard users have the bar buttons + arrow keys). */
+  .zone:focus, .zone:focus-visible { outline: none; }
+  .zone-prev { left: 0; }
+  .zone-next { right: 0; }
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 52px;
+    display: flex; align-items: center; gap: 14px; padding: 0 16px;
+    box-sizing: border-box;
+    background: #201d1d; border-top: 1px solid rgba(255, 227, 225, 0.22);
+    font-size: 14px;
+  }
+  .bar a, .bar button {
+    color: #ffe3e1; background: transparent;
+    border: 1px solid rgba(255, 227, 225, 0.4); border-radius: 10px;
+    padding: 6px 12px; font-size: 14px; line-height: 1;
+    text-decoration: none; cursor: pointer; font-family: inherit;
+  }
+  .bar a:hover, .bar button:hover { border-color: #ffe3e1; background: rgba(255, 227, 225, 0.08); }
+  .bar a:focus-visible, .bar button:focus-visible { outline: 2px solid #ffe3e1; outline-offset: 1px; }
+  .bar button:disabled { opacity: 0.35; cursor: default; }
+  .bar button:disabled:hover { border-color: rgba(255, 227, 225, 0.4); background: transparent; }
+  .counter {
+    min-width: 72px; text-align: center; font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+  .spacer { flex: 1; }
+  .deck-title { opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 640px) {
+    .deck-title { display: none; }
+    .bar { gap: 10px; padding: 0 10px; }
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <img id="slide" alt="Slide 1 of 41 — GoMeta, JuliaCon 2026 talk">
+    <button class="zone zone-prev" id="zoneprev" aria-hidden="true" tabindex="-1"></button>
+    <button class="zone zone-next" id="zonenext" aria-hidden="true" tabindex="-1"></button>
+  </div>
+  <nav class="bar" aria-label="Slide navigation">
+    <a href="/">&larr; gometa.dev</a>
+    <span class="spacer"></span>
+    <button id="prev" aria-label="Previous slide">&lsaquo;</button>
+    <span class="counter" id="counter" aria-live="polite">1 / 41</span>
+    <button id="next" aria-label="Next slide">&rsaquo;</button>
+    <span class="spacer"></span>
+    <span class="deck-title">JuliaCon 2026 &middot; GoMeta &mdash; official slides</span>
+  </nav>
+  <noscript>
+    <div style="position:fixed;top:0;left:0;right:0;padding:10px 16px;background:#3a2330;color:#ffe3e1;font-size:14px;">
+      JavaScript is off &mdash; navigation is disabled. The slides are plain images:
+      <a style="color:#ffe3e1" href="slides/slide-01.svg">slide 1</a> &hellip;
+      <a style="color:#ffe3e1" href="slides/slide-41.svg">slide 41</a>.
+    </div>
+  </noscript>
+<script>
+  (function () {
+    var N = 41;
+    var img = document.getElementById('slide');
+    var counter = document.getElementById('counter');
+    var prev = document.getElementById('prev');
+    var next = document.getElementById('next');
+    var cur = clamp(parseInt((location.hash || '').replace('#', ''), 10) || 1);
+
+    function clamp(n) { return Math.min(N, Math.max(1, isNaN(n) ? 1 : n)); }
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function src(n) { return 'slides/slide-' + pad(n) + '.svg'; }
+    function preload(n) { if (n >= 1 && n <= N) { (new Image()).src = src(n); } }
+
+    function render(pushHash) {
+      img.src = src(cur);
+      img.alt = 'Slide ' + cur + ' of ' + N + ' — GoMeta, JuliaCon 2026 talk';
+      counter.textContent = cur + ' / ' + N;
+      prev.disabled = (cur === 1);
+      next.disabled = (cur === N);
+      if (pushHash !== false) {
+        history.replaceState(null, '', '#' + cur);
+      }
+      preload(cur + 1); preload(cur - 1);
+    }
+    function go(d) { var t = clamp(cur + d); if (t !== cur) { cur = t; render(); } }
+
+    prev.addEventListener('click', function () { go(-1); });
+    next.addEventListener('click', function () { go(1); });
+    var zp = document.getElementById('zoneprev');
+    var zn = document.getElementById('zonenext');
+    zp.addEventListener('click', function () { go(-1); });
+    zn.addEventListener('click', function () { go(1); });
+    /* preventDefault on mousedown keeps the zones from ever taking focus
+       (click still fires) — no focus ring, and Space stays "next". */
+    zp.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    zn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.altKey || e.ctrlKey || e.metaKey) { return; }
+      var t = e.target;
+      if (t && (t.tagName === 'BUTTON' || t.tagName === 'A') &&
+          (e.key === ' ' || e.key === 'Enter')) { return; }
+      switch (e.key) {
+        case 'ArrowRight': case 'PageDown': go(1); e.preventDefault(); break;
+        case ' ': go(e.shiftKey ? -1 : 1); e.preventDefault(); break;
+        case 'ArrowLeft': case 'PageUp': go(-1); e.preventDefault(); break;
+        case 'Home': cur = 1; render(); e.preventDefault(); break;
+        case 'End': cur = N; render(); e.preventDefault(); break;
+      }
+    });
+
+    var tx = null;
+    document.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 1) { tx = e.touches[0].clientX; }
+    }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+      if (tx === null) { return; }
+      var dx = e.changedTouches[0].clientX - tx;
+      tx = null;
+      if (Math.abs(dx) > 45) { go(dx < 0 ? 1 : -1); }
+    }, { passive: true });
+
+    window.addEventListener('hashchange', function () {
+      var t = clamp(parseInt(location.hash.replace('#', ''), 10));
+      if (t !== cur) { cur = t; render(false); }
+    });
+
+    render(false);
+  })();
+</script>
+</body>
+</html>
