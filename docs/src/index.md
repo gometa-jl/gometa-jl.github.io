@@ -36,7 +36,9 @@ footer: true
         <span class="gm-chip gm-chip-mint">ships today: <code>:julia</code> &middot; <code>:c</code> &middot; <code>:latex</code></span>
       </div>
       <div class="gm-hero-actions">
-        <a class="gm-btn gm-btn-talk" href="/talk/"><strong>JuliaCon2026 Talk:</strong> <span>Web version of the official slides</span></a>
+        <!-- target=_self is LOAD-BEARING: /talk/ is a public/ asset, not a VitePress page;
+             without a target attribute the SPA router intercepts the click into its 404. -->
+        <a class="gm-btn gm-btn-talk" href="/talk/" target="_self"><strong>JuliaCon2026 Talk:</strong> <span>Web version of the official slides</span></a>
         <a class="gm-btn gm-btn-alt" href="/concepts/metalines">What is a metaLine?</a>
       </div>
     </div>
