@@ -36,6 +36,10 @@ export default defineConfig({
   outDir: 'REPLACE_ME_DOCUMENTER_VITEPRESS', // This is required for MarkdownVitepress to work correctly...
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
+    // Declares light+dark support to the UA. LOAD-BEARING for Android Chrome's
+    // "Darken websites" auto-dark: without it Chrome inverts the light theme into
+    // near-black instead of letting the site serve its own brown dark theme.
+    ['meta', { name: 'color-scheme', content: 'light dark' }],
     ['meta', { property: 'og:title', content: 'GoMeta — interpretable metadata for source files' }],
     ['meta', { property: 'og:description', content: 'One #~ comment line makes a file retrievable, interlinkable, re-renderable, and shareable on your terms — read by tools, never run by them.' }],
     ['meta', { property: 'og:image', content: 'https://gometa.dev/og-card.jpg' }],

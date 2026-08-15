@@ -211,6 +211,9 @@
 /* Brand mono everywhere: style.css hard-sets JuliaMono (CDN) on pre/code;
    this later element-level rule wins and keeps the CDN font unused. */
 pre, code, kbd, samp { font-family: var(--vp-font-family-mono); }
+/* Canvas hardening: paint the root, so mobile overscroll/URL-bar regions never
+   show the UA's default (black) canvas behind the page. */
+html { background-color: var(--vp-c-bg); }
 
 /* ---- ```gometa fences: flavor palette (rendered by the owned fence rule) -- */
 .vp-doc .gm-syn code { color: var(--gm-syn-meta); }
