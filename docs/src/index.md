@@ -36,7 +36,7 @@ footer: true
         <span class="gm-chip gm-chip-mint">ships today: <code>:julia</code> &middot; <code>:c</code> &middot; <code>:latex</code></span>
       </div>
       <div class="gm-hero-actions">
-        <a class="gm-btn gm-btn-brand" href="/tutorials/getting-started">Write your first metaLine</a>
+        <a class="gm-btn gm-btn-talk" href="/talk/"><strong>JuliaCon2026 Talk:</strong> <span>Web version of the official slides</span></a>
         <a class="gm-btn gm-btn-alt" href="/concepts/metalines">What is a metaLine?</a>
       </div>
     </div>
@@ -52,7 +52,6 @@ footer: true
         <label class="gm-tabbox gm-tb-gold" for="gmt-syntax"><strong>GoMeta Syntax:</strong> Examples</label>
         <label class="gm-tabbox gm-tb-cyan" for="gmt-blocks"><strong>GoMeta Building Blocks:</strong> How is it set up?</label>
         <label class="gm-tabbox gm-tb-viol" for="gmt-cases"><strong>Use Cases:</strong></label>
-        <a class="gm-tabbox gm-tb-talk" href="/talk/"><strong>JuliaCon2026 Talk:</strong> Web version of the official slides</a>
         <a class="gm-tabbox gm-tb-merci" href="/merci"><strong>Merci🌷</strong></a>
       </div>
       <div class="gm-tabs-panels">

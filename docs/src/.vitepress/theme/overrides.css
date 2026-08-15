@@ -274,8 +274,17 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
 .gm-btn-brand { background: var(--vp-button-brand-bg); color: #fff; }
 .gm-btn-brand:hover { background: var(--vp-button-brand-hover-bg); color: #fff; }
 .gm-btn-brand:active { background: var(--vp-button-brand-active-bg); }
-.gm-btn-alt { background: transparent; color: var(--vp-c-text-1); border: 1.5px solid var(--vp-c-border); }
+.gm-btn-alt { background: transparent; color: var(--vp-c-text-1); border: 2px solid var(--vp-c-border);
+  border-radius: 16px; display: flex; align-items: center; font-size: 16px; }
 .gm-btn-alt:hover { border-color: var(--vp-c-brand-1); color: var(--vp-c-text-1); }
+/* Hero talk CTA: the tabbox-family outline promoted to primary action; the flex row's
+   default stretch keeps it and gm-btn-alt the same height. */
+.gm-btn-talk { background: transparent; border: 2px solid var(--vp-c-text-1); color: var(--vp-c-text-1);
+  border-radius: 16px; padding: 12px 26px; text-align: center; }
+.gm-btn-talk strong { display: block; font-size: 17px; }
+.gm-btn-talk span { display: block; font-size: 14.5px; font-weight: 500; opacity: 0.92; }
+.gm-btn-talk:hover { background: rgba(255, 255, 255, 0.06); }
+html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .gm-hero-image { flex: 0 0 340px; display: flex; justify-content: center; }
 .gm-hero-image img { width: 330px; height: auto; }
 
@@ -372,7 +381,6 @@ html:not(.dark) .gm-tabbox:hover { background: rgba(75, 52, 33, 0.06); }
 .gm-tb-gold  { border-color: var(--gm-tab-gold);  color: var(--gm-tab-gold); }
 .gm-tb-cyan  { border-color: var(--gm-tab-cyan);  color: var(--gm-tab-cyan); }
 .gm-tb-viol  { border-color: var(--gm-tab-viol);  color: var(--gm-tab-viol); }
-.gm-tb-talk  { border-color: var(--vp-c-text-1); color: var(--vp-c-text-1); }
 .gm-tb-merci { border-color: var(--gm-signature); color: var(--gm-signature); text-align: center; }
 .gm-tp-core   { border-color: var(--gm-tab-mint); } .gm-tp-core   .gm-tp-title { color: var(--gm-tab-mint); }
 .gm-tp-syntax { border-color: var(--gm-tab-gold); } .gm-tp-syntax .gm-tp-title { color: var(--gm-tab-gold); }
