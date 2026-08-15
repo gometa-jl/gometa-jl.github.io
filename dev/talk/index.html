@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
+<html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GoMeta · JuliaCon 2026 Talk — Official Slides</title>
 <meta name="description" content="Web version of the official GoMeta slides presented at JuliaCon 2026.">
@@ -9,155 +7,354 @@
 <link rel="icon" href="/favicon_dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="/favicon_light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
 <style>
-  /* The deck's own visual world (#201d1d) in both site modes — like /merci. */
-  html, body {
-    margin: 0; padding: 0; height: 100%;
-    background: #201d1d; color: #ffe3e1;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans",
-                 "Liberation Sans", Arial, sans-serif;
-    overflow: hidden;
-  }
-  .stage {
-    position: fixed; inset: 0 0 52px 0;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .stage img {
-    max-width: 100%; max-height: 100%;
-    display: block; user-select: none; -webkit-user-drag: none;
-  }
-  .zone {
-    position: absolute; top: 0; bottom: 0; width: 50%;
-    background: transparent; border: 0; cursor: pointer; padding: 0;
-  }
-  /* Mouse-only affordances: never focusable, never show a focus ring
-     (keyboard users have the bar buttons + arrow keys). */
-  .zone:focus, .zone:focus-visible { outline: none; }
-  .zone-prev { left: 0; }
-  .zone-next { right: 0; }
-  .bar {
-    position: fixed; left: 0; right: 0; bottom: 0; height: 52px;
-    display: flex; align-items: center; gap: 14px; padding: 0 16px;
-    box-sizing: border-box;
-    background: #201d1d; border-top: 1px solid rgba(255, 227, 225, 0.22);
-    font-size: 14px;
-  }
-  .bar a, .bar button {
-    color: #ffe3e1; background: transparent;
-    border: 1px solid rgba(255, 227, 225, 0.4); border-radius: 10px;
-    padding: 6px 12px; font-size: 14px; line-height: 1;
-    text-decoration: none; cursor: pointer; font-family: inherit;
-  }
-  .bar a:hover, .bar button:hover { border-color: #ffe3e1; background: rgba(255, 227, 225, 0.08); }
-  .bar a:focus-visible, .bar button:focus-visible { outline: 2px solid #ffe3e1; outline-offset: 1px; }
-  .bar button:disabled { opacity: 0.35; cursor: default; }
-  .bar button:disabled:hover { border-color: rgba(255, 227, 225, 0.4); background: transparent; }
-  .counter {
-    min-width: 72px; text-align: center; font-variant-numeric: tabular-nums;
-    letter-spacing: 0.04em;
-  }
-  .spacer { flex: 1; }
-  .deck-title { opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  @media (max-width: 640px) {
-    .deck-title { display: none; }
-    .bar { gap: 10px; padding: 0 10px; }
-  }
-</style>
-</head>
+  html,body{margin:0;padding:0;height:100%;background:#201d1d;color:#ffe3e1;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",Arial,sans-serif;overflow:hidden;}
+  .stage{position:fixed;inset:0 0 138px 0;display:flex;align-items:center;justify-content:center;
+    background:#201d1d;touch-action:none;overflow:hidden;}
+  .stage img.slide{max-width:100%;max-height:100%;display:block;user-select:none;-webkit-user-drag:none;
+    transform-origin:0 0;}
+  .stage img.slide.animate{transition:transform .18s ease-out;}
+  .stage.zoomed img.slide{cursor:grab;}
+  .stage.zoomed.panning img.slide{cursor:grabbing;}
+  /* While zoomed past fit, the band auto-collapses so nothing covers slide
+     content and the fill computation gets the whole area (toggle overrides). */
+  body.zoomhide .strip{display:none;}
+  body.zoomhide .stage{inset:0 0 52px 0;}
+  body.stripless .stage{inset:0 0 52px 0;}
+  /* winfill must win over zoomhide/stripless — keep these rules LAST */
+  body.winfill .stage{inset:0;}
+  body.winfill .bar,body.winfill .strip{display:none;}
+  .fsexit{position:absolute;top:14px;right:14px;display:none;z-index:9;
+    color:#ffe3e1;background:rgba(32,29,29,.75);border:1px solid rgba(255,227,225,.5);
+    border-radius:10px;padding:8px 14px;font-size:14px;font-family:inherit;cursor:pointer;}
+  body.winfill .fsexit{display:block;}
+  .fsexit:hover{border-color:#ffe3e1;background:rgba(32,29,29,.95);}
+  .zoombadge{position:absolute;top:14px;left:14px;display:none;z-index:9;
+    color:#ffe3e1;background:rgba(32,29,29,.75);border:1px solid rgba(255,227,225,.35);
+    border-radius:10px;padding:8px 12px;font-size:13px;font-variant-numeric:tabular-nums;}
+  .stage.zoomed .zoombadge{display:block;cursor:pointer;}
+  .zoombadge:hover{border-color:#ffe3e1;}
+  .strip{position:fixed;left:0;right:0;bottom:52px;height:86px;display:flex;gap:8px;align-items:center;
+    overflow-x:auto;overflow-y:hidden;padding:6px 10px;box-sizing:border-box;background:#1a1717;
+    border-top:1px solid rgba(255,227,225,.18);-webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;scrollbar-color:rgba(255,227,225,.28) #1a1717;}
+  .strip::-webkit-scrollbar{height:7px;}
+  .strip::-webkit-scrollbar-track{background:#1a1717;}
+  .strip::-webkit-scrollbar-thumb{background:rgba(255,227,225,.28);border-radius:4px;}
+  .strip::-webkit-scrollbar-thumb:hover{background:rgba(255,227,225,.5);}
+  .strip.hidden{display:none;}
+  .th{position:relative;flex:0 0 auto;padding:0;border:2px solid rgba(255,227,225,.25);border-radius:6px;
+    background:none;cursor:pointer;line-height:0;}
+  .th img{width:118px;height:66px;border-radius:4px;display:block;}
+  .th span{position:absolute;right:3px;bottom:3px;font-size:10px;line-height:1;color:#ffe3e1;
+    background:rgba(32,29,29,.85);border-radius:4px;padding:2px 4px;}
+  .th.cur{border-color:#ff41a9;}
+  .th:hover{border-color:rgba(255,227,225,.7);}
+  .bar{position:fixed;left:0;right:0;bottom:0;height:52px;display:flex;align-items:center;gap:12px;
+    padding:0 16px;box-sizing:border-box;background:#201d1d;border-top:1px solid rgba(255,227,225,.22);font-size:14px;}
+  .bar a,.bar button{color:#ffe3e1;background:transparent;border:1px solid rgba(255,227,225,.4);
+    border-radius:10px;padding:6px 12px;font-size:14px;line-height:1;text-decoration:none;cursor:pointer;font-family:inherit;}
+  .bar a:hover,.bar button:hover{border-color:#ffe3e1;background:rgba(255,227,225,.08);}
+  .bar button:disabled{opacity:.35;cursor:default;}
+  .counter{min-width:64px;text-align:center;font-variant-numeric:tabular-nums;}
+  .spacer{flex:1}
+  .vlabel{opacity:.75;white-space:nowrap;}
+  @media(max-width:640px){.bar{gap:8px;padding:0 10px;}}
+  @media(max-width:640px),(max-height:480px){.vlabel{display:none}}
+</style></head>
 <body>
-  <div class="stage">
-    <img id="slide" alt="Slide 1 of 41 — GoMeta, JuliaCon 2026 talk">
-    <button class="zone zone-prev" id="zoneprev" aria-hidden="true" tabindex="-1"></button>
-    <button class="zone zone-next" id="zonenext" aria-hidden="true" tabindex="-1"></button>
+  <div class="stage" id="stage">
+    <img id="slide" class="slide" alt="Slide 1 of 41">
+    <button class="zoombadge" id="zoombadge" title="Back to fit">100%</button>
+    <button class="fsexit" id="fsexit">Exit full screen &#10005;</button>
   </div>
+  <div class="strip" id="strip"></div>
   <nav class="bar" aria-label="Slide navigation">
     <a href="/">&larr; gometa.dev</a>
-    <!-- TEMPORARY decision aid: remove together with /talk/variants/ once the
-         jump-to-slide candidate is chosen. -->
-    <a href="variants/">Variants</a>
     <span class="spacer"></span>
     <button id="prev" aria-label="Previous slide">&lsaquo;</button>
     <span class="counter" id="counter" aria-live="polite">1 / 41</span>
     <button id="next" aria-label="Next slide">&rsaquo;</button>
+    <button id="fsbtn" aria-label="Fill the window" title="Fill the browser window (F)">&#9974;</button>
+    <button id="striptoggle" aria-pressed="true" title="Show/hide the slide band">&#9646;&#9646;&#9646;</button>
     <span class="spacer"></span>
-    <span class="deck-title">JuliaCon 2026 &middot; GoMeta &mdash; official slides</span>
+    <span class="vlabel">JuliaCon 2026 &middot; GoMeta &mdash; official slides &middot; double-click = enlarge</span>
   </nav>
-  <noscript>
-    <div style="position:fixed;top:0;left:0;right:0;padding:10px 16px;background:#3a2330;color:#ffe3e1;font-size:14px;">
-      JavaScript is off &mdash; navigation is disabled. The slides are plain images:
-      <a style="color:#ffe3e1" href="slides/slide-01.svg">slide 1</a> &hellip;
-      <a style="color:#ffe3e1" href="slides/slide-41.svg">slide 41</a>.
-    </div>
-  </noscript>
-<script>
-  (function () {
-    var N = 41;
-    var img = document.getElementById('slide');
-    var counter = document.getElementById('counter');
-    var prev = document.getElementById('prev');
-    var next = document.getElementById('next');
-    var cur = clamp(parseInt((location.hash || '').replace('#', ''), 10) || 1);
+<script>(function(){
+    var N=41, img=document.getElementById('slide'), counter=document.getElementById('counter');
+    var prev=document.getElementById('prev'), next=document.getElementById('next');
+    var stage=document.getElementById('stage'), strip=document.getElementById('strip');
+    var fsbtn=document.getElementById('fsbtn'), fsexit=document.getElementById('fsexit');
+    var tgl=document.getElementById('striptoggle'), badge=document.getElementById('zoombadge');
 
-    function clamp(n) { return Math.min(N, Math.max(1, isNaN(n) ? 1 : n)); }
-    function pad(n) { return (n < 10 ? '0' : '') + n; }
-    function src(n) { return 'slides/slide-' + pad(n) + '.svg'; }
-    function preload(n) { if (n >= 1 && n <= N) { (new Image()).src = src(n); } }
-
-    function render(pushHash) {
-      img.src = src(cur);
-      img.alt = 'Slide ' + cur + ' of ' + N + ' — GoMeta, JuliaCon 2026 talk';
-      counter.textContent = cur + ' / ' + N;
-      prev.disabled = (cur === 1);
-      next.disabled = (cur === N);
-      if (pushHash !== false) {
-        history.replaceState(null, '', '#' + cur);
-      }
-      preload(cur + 1); preload(cur - 1);
+    var html='';
+    for(var i=1;i<=N;i++){
+      var p=(i<10?'0':'')+i;
+      html+='<button class="th" data-n="'+i+'"><img loading="lazy" src="thumbs/slide-'+p+'.webp" alt="Slide '+i+'"><span>'+i+'</span></button>';
     }
-    function go(d) { var t = clamp(cur + d); if (t !== cur) { cur = t; render(); } }
+    strip.innerHTML=html;
 
-    prev.addEventListener('click', function () { go(-1); });
-    next.addEventListener('click', function () { go(1); });
-    var zp = document.getElementById('zoneprev');
-    var zn = document.getElementById('zonenext');
-    zp.addEventListener('click', function () { go(-1); });
-    zn.addEventListener('click', function () { go(1); });
-    /* preventDefault on mousedown keeps the zones from ever taking focus
-       (click still fires) — no focus ring, and Space stays "next". */
-    zp.addEventListener('mousedown', function (e) { e.preventDefault(); });
-    zn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    function clamp(n){return Math.min(N,Math.max(1,isNaN(n)?1:n));}
+    function pad(n){return (n<10?'0':'')+n;}
+    function src(n){return 'slides/slide-'+pad(n)+'.svg';}
+    function preload(n){if(n>=1&&n<=N){(new Image()).src=src(n);}}
+    var cur=clamp(parseInt((location.hash||'').replace('#',''),10)||1);
 
-    document.addEventListener('keydown', function (e) {
-      if (e.altKey || e.ctrlKey || e.metaKey) { return; }
-      var t = e.target;
-      if (t && (t.tagName === 'BUTTON' || t.tagName === 'A') &&
-          (e.key === ' ' || e.key === 'Enter')) { return; }
-      switch (e.key) {
+    /* ===== zoom & pan (SVG slides stay sharp at any scale) ===== */
+    var Z={s:1,tx:0,ty:0}, SMAX=4;
+    function coverScale(){ // the scale at which the slide exactly FILLS the stage
+      var f=fitBox();
+      return Math.min(SMAX,Math.max(f.sw/f.w,f.sh/f.h));
+    }
+    function fitBox(){ // the img's untransformed (fit) box inside the stage
+      var r=stage.getBoundingClientRect();
+      var w=img.clientWidth,h=img.clientHeight;
+      return {sw:r.width,sh:r.height,w:w,h:h,ox:(r.width-w)/2,oy:(r.height-h)/2,left:r.left,top:r.top};
+    }
+    function clampPan(){
+      var f=fitBox(),W=f.w*Z.s,H=f.h*Z.s;
+      if(W<=f.sw){Z.tx=(f.sw-W)/2-f.ox;}
+      else{Z.tx=Math.min(-f.ox,Math.max(f.sw-W-f.ox,Z.tx));}
+      if(H<=f.sh){Z.ty=(f.sh-H)/2-f.oy;}
+      else{Z.ty=Math.min(-f.oy,Math.max(f.sh-H-f.oy,Z.ty));}
+    }
+    var zoomedPrev=false;
+    function applyZ(animate){
+      if(animate){img.classList.add('animate');setTimeout(function(){img.classList.remove('animate');},200);}
+      img.style.transform=(Z.s===1)?'':'translate('+Z.tx+'px,'+Z.ty+'px) scale('+Z.s+')';
+      stage.classList.toggle('zoomed',Z.s>1.001);
+      badge.textContent=Math.round(Z.s*100)+'%';
+    }
+    function resetZ(animate){
+      Z={s:1,tx:0,ty:0};
+      if(zoomedPrev){zoomedPrev=false;document.body.classList.remove('zoomhide');}
+      applyZ(animate);layout();centerCur();
+    }
+    function zoomAt(cx,cy,sNew,animate){ // keep the content point under (cx,cy) fixed
+      sNew=Math.min(SMAX,Math.max(1,sNew));
+      var willZoom=sNew>1.001;
+      if(willZoom!==zoomedPrev){ // collapse/restore the band BEFORE measuring
+        zoomedPrev=willZoom;
+        document.body.classList.toggle('zoomhide',willZoom);
+        layout();
+      }
+      var f=fitBox();
+      var px=cx-f.left-f.ox, py=cy-f.top-f.oy;      // point in fit-box coords
+      var ux=(px-Z.tx)/Z.s, uy=(py-Z.ty)/Z.s;       // content coords
+      Z.s=sNew; Z.tx=px-sNew*ux; Z.ty=py-sNew*uy;
+      if(sNew===1){Z.tx=0;Z.ty=0;}
+      clampPan(); applyZ(animate);
+      if(!willZoom)centerCur();
+    }
+    badge.addEventListener('click',function(){resetZ(true);});
+
+    /* double-click / double-tap: FILL the available area at that point, or back to fit.
+       The band is collapsed BEFORE computing the fill scale, so the freed space counts. */
+    stage.addEventListener('dblclick',function(e){
+      if(e.target.closest('.fsexit,.zoombadge'))return;
+      if(Date.now()-tapToggledAt<500)return; // manual double-tap already handled it
+      if(Z.s>1.001){resetZ(true);}
+      else{
+        document.body.classList.add('zoomhide'); zoomedPrev=true; layout();
+        zoomAt(e.clientX,e.clientY,coverScale(),true);
+      }
+      e.preventDefault();
+    });
+
+    /* wheel: zoom at cursor */
+    stage.addEventListener('wheel',function(e){
+      var k=(e.deltaY<0)?1.2:1/1.2;
+      var t=Z.s*k; if(t<1.05)t=1;
+      zoomAt(e.clientX,e.clientY,t,false);
+      e.preventDefault();
+    },{passive:false});
+
+    /* mouse pan when zoomed */
+    var pan=null;
+    stage.addEventListener('mousedown',function(e){
+      if(Z.s>1.001&&e.button===0&&!e.target.closest('.fsexit,.zoombadge')){
+        pan={x:e.clientX,y:e.clientY};stage.classList.add('panning');e.preventDefault();}
+    });
+    window.addEventListener('mousemove',function(e){
+      if(!pan)return;
+      Z.tx+=e.clientX-pan.x; Z.ty+=e.clientY-pan.y;
+      pan={x:e.clientX,y:e.clientY};
+      clampPan();applyZ(false);
+    });
+    window.addEventListener('mouseup',function(){pan=null;stage.classList.remove('panning');});
+
+    /* touch: 1 finger = pan when zoomed / swipe-nav when fit; 2 fingers = pinch */
+    var t1=null, pinch=null;
+    stage.addEventListener('touchstart',function(e){
+      if(e.target.closest('.fsexit,.zoombadge'))return;
+      if(e.touches.length===1){
+        t1={x:e.touches[0].clientX,y:e.touches[0].clientY,moved:false};
+      }else if(e.touches.length===2){
+        var a=e.touches[0],b=e.touches[1];
+        pinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),
+               mx:(a.clientX+b.clientX)/2,my:(a.clientY+b.clientY)/2,s:Z.s};
+        t1=null;
+      }
+    },{passive:true});
+    stage.addEventListener('touchmove',function(e){
+      if(pinch&&e.touches.length===2){
+        var a=e.touches[0],b=e.touches[1];
+        var d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+        var mx=(a.clientX+b.clientX)/2,my=(a.clientY+b.clientY)/2;
+        var t=pinch.s*(d/pinch.d); if(t<1.05)t=1;
+        zoomAt(mx,my,t,false);
+        Z.tx+=mx-pinch.mx; Z.ty+=my-pinch.my; pinch.mx=mx; pinch.my=my;
+        clampPan();applyZ(false);
+        e.preventDefault();
+      }else if(t1&&e.touches.length===1&&Z.s>1.001){
+        var x=e.touches[0].clientX,y=e.touches[0].clientY;
+        Z.tx+=x-t1.x; Z.ty+=y-t1.y; t1.x=x; t1.y=y; t1.moved=true;
+        if(tapStart)tapStart.moved=true;
+        clampPan();applyZ(false);
+        e.preventDefault();
+      }
+    },{passive:false});
+    stage.addEventListener('touchend',function(e){
+      if(pinch&&e.touches.length===1){ // pinch -> continue as one-finger pan
+        pinch=null;
+        t1={x:e.touches[0].clientX,y:e.touches[0].clientY,moved:true};
+      }else if(pinch&&e.touches.length===0){pinch=null;}
+      if(t1&&e.touches.length===0)t1=null;
+    },{passive:true});
+    /* manual double-tap (iOS Safari does not synthesize dblclick reliably).
+       A lift only counts as a TAP if the finger neither travelled (<15px)
+       nor lingered (<300ms) — swipe/pan/pinch lifts never qualify. */
+    var lastTap={t:0,x:0,y:0}, tapToggledAt=0, tapStart=null;
+    stage.addEventListener('touchstart',function(e){
+      if(e.touches.length===1&&!e.target.closest('.fsexit,.zoombadge')){
+        tapStart={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()};
+      }else{tapStart=null;}
+    },{passive:true});
+    stage.addEventListener('touchend',function(e){
+      if(!tapStart||e.touches.length!==0||e.changedTouches.length!==1)return;
+      var x=e.changedTouches[0].clientX,y=e.changedTouches[0].clientY,now=Date.now();
+      var travel=Math.hypot(x-tapStart.x,y-tapStart.y), dur=now-tapStart.t;
+      var moved=!!tapStart.moved; tapStart=null;
+      if(travel>=15||dur>=300||moved){lastTap.t=0;return;}
+      if(now-lastTap.t<300&&Math.abs(x-lastTap.x)<30&&Math.abs(y-lastTap.y)<30){
+        lastTap.t=0; tapToggledAt=now;
+        if(Z.s>1.001){resetZ(true);}
+        else{document.body.classList.add('zoomhide');zoomedPrev=true;layout();
+             zoomAt(x,y,coverScale(),true);}
+        e.preventDefault();
+      }else{lastTap={t:now,x:x,y:y};}
+    },{passive:false});
+    stage.addEventListener('touchcancel',function(){
+      pinch=null;t1=null;tapStart=null;swx=null;
+    },{passive:true});
+    /* swipe-to-navigate (only when NOT zoomed) — horizontal-dominant only */
+    var swx=null, swy=null;
+    stage.addEventListener('touchstart',function(e){
+      if(e.touches.length===1&&Z.s<=1.001&&!e.target.closest('.fsexit,.zoombadge')){
+        swx=e.touches[0].clientX;swy=e.touches[0].clientY;
+      }else{swx=null;}
+    },{passive:true});
+    stage.addEventListener('touchend',function(e){
+      if(swx===null||Z.s>1.001){swx=null;return;}
+      var dx=e.changedTouches[0].clientX-swx, dy=e.changedTouches[0].clientY-swy; swx=null;
+      if(Math.abs(dx)>45&&Math.abs(dx)>1.5*Math.abs(dy))go(dx<0?1:-1);
+    },{passive:true});
+
+    /* ===== fill-the-window mode (bar + strip hidden; combinable with zoom) ===== */
+    function isFs(){return document.body.classList.contains('winfill');}
+    function enterFs(){document.body.classList.add('winfill');clampPan();applyZ(false);}
+    function exitFs(){
+      document.body.classList.remove('winfill');
+      clampPan();applyZ(false);centerCur();
+    }
+    function toggleFs(){if(isFs()){exitFs();}else{enterFs();}}
+    fsbtn.addEventListener('click',toggleFs);
+    fsexit.addEventListener('click',exitFs);
+
+    /* ===== slides / strip ===== */
+    function stripVisible(){return !strip.classList.contains('hidden')&&!isFs()
+      &&!document.body.classList.contains('zoomhide');}
+    function centerCur(){
+      if(!stripVisible())return;
+      var c=strip.querySelector('.th.cur');
+      if(c)c.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+    }
+    function render(){
+      /* zoom + pan deliberately PERSIST across slides (all slides share one
+         aspect) — reset only via badge / 0 / Esc / double-click. */
+      img.src=src(cur);
+      img.alt='Slide '+cur+' of '+N;
+      counter.textContent=cur+' / '+N;
+      prev.disabled=(cur===1); next.disabled=(cur===N);
+      history.replaceState(null,'','#'+cur);
+      preload(cur+1);preload(cur-1);
+      strip.querySelectorAll('.th').forEach(function(b){
+        b.classList.toggle('cur',parseInt(b.dataset.n,10)===cur);});
+      centerCur();
+    }
+    function go(d){var t=clamp(cur+d);if(t!==cur){cur=t;render();}}
+    function jump(n){var t=clamp(n);if(t!==cur){cur=t;render();}}
+    function layout(){
+      document.body.classList.toggle('stripless',strip.classList.contains('hidden'));
+      tgl.setAttribute('aria-pressed',String(!strip.classList.contains('hidden')
+        &&!document.body.classList.contains('zoomhide')));}
+    tgl.addEventListener('click',function(){
+      if(zoomedPrev){ // zoomed: override the auto-collapse (clearing BOTH hiders), or re-collapse
+        if(document.body.classList.contains('zoomhide')||strip.classList.contains('hidden')){
+          document.body.classList.remove('zoomhide');
+          strip.classList.remove('hidden');
+        }else{
+          document.body.classList.add('zoomhide');
+        }
+        layout();clampPan();applyZ(false);centerCur();
+        return;
+      }
+      strip.classList.toggle('hidden');layout();centerCur();
+    });
+    strip.addEventListener('click',function(e){
+      var b=e.target.closest('.th');if(b)jump(parseInt(b.dataset.n,10));});
+    prev.addEventListener('click',function(){go(-1);});
+    next.addEventListener('click',function(){go(1);});
+
+    document.addEventListener('keydown',function(e){
+      if(e.altKey||e.ctrlKey||e.metaKey)return;
+      var t=e.target, tag=t?t.tagName:'';
+      if(tag==='INPUT'||tag==='TEXTAREA')return;
+      if((tag==='BUTTON'||tag==='A')&&(e.key===' '||e.key==='Enter'))return;
+      switch(e.key){
         case 'ArrowRight': case 'PageDown': go(1); e.preventDefault(); break;
-        case ' ': go(e.shiftKey ? -1 : 1); e.preventDefault(); break;
+        case ' ': go(e.shiftKey?-1:1); e.preventDefault(); break;
         case 'ArrowLeft': case 'PageUp': go(-1); e.preventDefault(); break;
-        case 'Home': cur = 1; render(); e.preventDefault(); break;
-        case 'End': cur = N; render(); e.preventDefault(); break;
+        case 'Home': jump(1); e.preventDefault(); break;
+        case 'End': jump(N); e.preventDefault(); break;
+        case 'Escape':
+          if(Z.s>1.001){resetZ(true);e.preventDefault();}
+          else if(document.body.classList.contains('winfill')){exitFs();e.preventDefault();}
+          break;
+        case 'f': case 'F': toggleFs(); e.preventDefault(); break;
+        case '+': case '=':
+          if(Z.s<=1.001){document.body.classList.add('zoomhide');zoomedPrev=true;layout();}
+          var rp=stage.getBoundingClientRect();
+          zoomAt(rp.left+rp.width/2,rp.top+rp.height/2,Z.s*1.25,true); e.preventDefault(); break;
+        case '-': var rm=stage.getBoundingClientRect();
+          zoomAt(rm.left+rm.width/2,rm.top+rm.height/2,Z.s/1.25,true); e.preventDefault(); break;
+        case '0': resetZ(true); e.preventDefault(); break;
       }
     });
 
-    var tx = null;
-    document.addEventListener('touchstart', function (e) {
-      if (e.touches.length === 1) { tx = e.touches[0].clientX; }
-    }, { passive: true });
-    document.addEventListener('touchend', function (e) {
-      if (tx === null) { return; }
-      var dx = e.changedTouches[0].clientX - tx;
-      tx = null;
-      if (Math.abs(dx) > 45) { go(dx < 0 ? 1 : -1); }
-    }, { passive: true });
-
-    window.addEventListener('hashchange', function () {
-      var t = clamp(parseInt(location.hash.replace('#', ''), 10));
-      if (t !== cur) { cur = t; render(false); }
+    window.addEventListener('hashchange',function(){
+      var t=clamp(parseInt(location.hash.replace('#',''),10));
+      if(t!==cur){cur=t;render();}
     });
-
-    render(false);
-  })();
-</script>
-</body>
-</html>
+    window.addEventListener('resize',function(){clampPan();applyZ(false);centerCur();});
+    layout();
+    render();
+})();</script>
+<noscript>
+  <div style="position:fixed;top:0;left:0;right:0;padding:10px 16px;background:#3a2330;color:#ffe3e1;font-size:14px;">
+    JavaScript is off &mdash; navigation is disabled. The slides are plain images:
+    <a style="color:#ffe3e1" href="slides/slide-01.svg">slide 1</a> &hellip;
+    <a style="color:#ffe3e1" href="slides/slide-41.svg">slide 41</a>.
+  </div>
+</noscript>
+</body></html>
