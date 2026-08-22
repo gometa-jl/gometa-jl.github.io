@@ -40,13 +40,14 @@ footer: false
           <p>Diä wüchentlechi Freud vo dä Summer 🌞 het möge ufhäue 😛</p>
         </div>
         <div class="m-box m-berg">
-          <p class="m-h">🏔️ &amp; 🧗🏻‍♀️🧗🏽‍♂️ -Fründe:</p>
+          <p class="m-h">🏔️&nbsp;&nbsp;&amp;&nbsp;&nbsp;&nbsp;🧗🏻‍♀️🧗🏽‍♂️-Fründe:</p>
           <p>Wenn'i euch mau gseh ha, isch's amigs churz gsi aber</p>
           <p>Het henn gfägt 🤗</p>
         </div>
         <div class="m-box m-dots m-violet">&hellip;</div>
       </div>
     </div>
+    <div class="m-fineprint">This project will go on <strong>DESPITE</strong> Bern's tax authorities</div>
   </div>
 </div>
 ```
