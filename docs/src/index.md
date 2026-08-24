@@ -16,30 +16,33 @@ footer: true
   <section class="gm-hero gm-hero-v2">
     <div class="gm-hero-text">
       <div class="gm-hero-top">
-        <div class="gm-hero-brand">
-          <h1 class="gm-sr">GoMeta</h1>
-          <img class="gm-wordmark gm-only-dark" src="/wordmark-dark.png" alt="">
-          <img class="gm-wordmark gm-only-light" src="/wordmark-light.png" alt="">
-        </div>
+        <!-- Hero v3 (owner's Figma sketch 2026-08-24, frame 46:2): typed Courier Prime
+             wordmark replaces the wordmark PNGs; title/taglines/chips leave the hero. -->
+        <h1 class="gm-hero-word">GoMeta</h1>
         <img class="gm-mark-top gm-only-dark" src="/mark-dark.svg" alt="GoMeta mark — two notebooks spelling /#/~">
         <img class="gm-mark-top gm-only-light" src="/mark-light.svg" alt="GoMeta mark — two notebooks spelling /#/~">
       </div>
-      <p class="gm-hero-title">Embed formalized meaning into comments.</p>
-      <p class="gm-hero-tagline">The core idea of GoMeta is to embed formalized meaning within all kinds of
-        comments and provide Extensions with its interpretations so they can act on them.</p>
-      <p class="gm-hero-tagline">So on the one hand, GoMeta is a domain specific language for metadata and on
-        the other a framework with facilities which Extensions can build on.</p>
       <div class="gm-metaline gm-metaline-full" role="img" aria-label="Example metaLine"><span class="gm-metaline-inner"><span class="h">#</span><span class="t">~</span><span class="r"> This is a metaLine: How to embed meaning into comments.</span></span></div>
-      <div class="gm-chips">
-        <span class="gm-chip gm-chip-mint">v0.3.0</span>
-        <span class="gm-chip gm-chip-cyan">FSL-1.1-MIT &middot; Fair Source</span>
-        <span class="gm-chip gm-chip-mint">ships today: <code>:julia</code> &middot; <code>:c</code> &middot; <code>:latex</code></span>
+      <!-- "What is GoMeta?" ensemble — deck slide 8, converted per the owner's Figma
+           sketch (geometry = sketch coordinates relative to the 1088px content column). -->
+      <div class="gm-s8" role="group" aria-label="What is GoMeta — key points">
+        <div class="gm-s8-box gm-s8-key"><span><strong>THE</strong> key <em>distinguishing</em> feature</span></div>
+        <div class="gm-s8-box gm-s8-mint"><span><span class="gm8-m">GoMeta</span> can be <span class="gm8-a">embedded</span> in all kinds of other <br><span class="gm8-a">programming languages</span> as well as <br>in <span class="gm8-a">Word documents</span> or be <br><span class="gm8-a">attached to files</span> themselves.</span></div>
+        <div class="gm-s8-box gm-s8-gold"><span>This allows <span class="gm8-m">GoMeta</span> to <br><span class="gm8-a">connect</span> content of one <br><span class="gm8-a">programming language</span>, <br>one <span class="gm8-a">file format</span> <br>with that of another.</span></div>
+        <div class="gm-s8-box gm-s8-mag"><span><span class="gm8-m">GoMeta</span> works <br><span class="gm8-a">in between</span> them, <br><span class="gm8-a">behind</span> them, <br><span class="gm8-a">within</span> them.</span></div>
+        <div class="gm-s8-box gm-s8-viol"><span>That is the <strong>reason why</strong> it is called '<span class="gm8-go">Go</span><span class="gm8-meta">Meta</span>'.</span></div>
+        <div class="gm-s8-box gm-s8-rose"><span>What other languages can do that&nbsp;?</span></div><!-- nbsp: keeps the slide's pre-? space from orphaning the ? on narrow screens -->
       </div>
       <div class="gm-hero-actions">
         <!-- target=_self is LOAD-BEARING: /talk/ is a public/ asset, not a VitePress page;
              without a target attribute the SPA router intercepts the click into its 404. -->
         <a class="gm-btn gm-btn-talk" href="/talk/" target="_self"><strong>JuliaCon2026 Talk:</strong> <span>Web version of the official slides</span></a>
-        <a class="gm-btn gm-btn-alt" href="/concepts/metalines">What is a metaLine?</a>
+      </div>
+      <div class="gm-intro">
+        <p class="gm-hero-tagline">The core idea of GoMeta is to embed formalized meaning within all kinds of
+          comments and provide Extensions with its interpretations so they can act on them.</p>
+        <p class="gm-hero-tagline">So on the one hand, GoMeta is a domain specific language for metadata and on
+          the other a framework with facilities which Extensions can build on.</p>
       </div>
     </div>
   </section>

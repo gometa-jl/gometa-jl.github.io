@@ -86,6 +86,11 @@
   --gm-tab-gold: #7a5c00;
   --gm-tab-cyan: #066374;
   --gm-tab-viol: #5f2fd8;
+  /* slide-8 ensemble accent inks — light twins follow the tab tokens (brown-ink law:
+     base text stays text-1; only accents carry flavor) */
+  --gm-s8-mint-ink: #096b4d;
+  --gm-s8-gold-ink: #7a5c00;
+  --gm-s8-mag-ink: #b80074; /* AA at 16px on #f7eedf (5.55:1); #ea0094 was 3.70:1 */
   /* custom blocks: keep the warm palette (style.css ships julia-blue tip defaults) */
   --vp-custom-block-tip-border: #096b4d;
   --vp-custom-block-tip-text: var(--vp-c-text-1);
@@ -107,7 +112,7 @@
   --vp-c-divider: #3a3126;
   --vp-c-border: #5b4935;
   --vp-c-gutter: #191512;
-  --vp-c-text-1: #ffd6d6;
+  --vp-c-text-1: #ffe2e0; /* was #ffd6d6; owner 2026-08-24: default ink slightly more white */
   --vp-c-text-2: #cbb7b4;
   --vp-c-text-3: #a89693;
   --vp-c-brand-1: #9777ef;
@@ -157,6 +162,10 @@
   --gm-tab-gold: #ffd21f;
   --gm-tab-cyan: #0cc0df;
   --gm-tab-viol: #cda8f0;
+  /* slide-8 ensemble accent inks — deck slide 8's pale accent runs (dark mode) */
+  --gm-s8-mint-ink: #a9edd6;
+  --gm-s8-gold-ink: #e9d997;
+  --gm-s8-mag-ink: #eab5b5;
   --vp-custom-block-tip-border: #3cf0b5;
   --vp-custom-block-tip-text: var(--vp-c-text-1);
   --vp-custom-block-tip-bg: rgba(49, 237, 174, 0.14);
@@ -183,7 +192,7 @@
   font-family: var(--vp-font-family-base);
 }
 .gm-draft-pill {
-  display: inline-block; padding: 7px 24px; border-radius: 999px;
+  display: inline-block; padding: 7px 24px; border-radius: 12px; /* was 999 — radius normalization, owner 2026-08-24 */
   border: 1.5px solid var(--vp-c-warning-1);
   font-size: 16px; line-height: 1.45; text-align: center;
   color: var(--vp-c-warning-1);
@@ -203,7 +212,7 @@
 
 /* ---- deck adoption: headings, outlined panels, literal inline code ------- */
 .vp-doc h1, .vp-doc h2, .vp-doc h3, .vp-doc h4 { color: var(--gm-head); }
-.vp-doc div[class*='language-'] { border: 1.5px solid var(--gm-card-outline); border-radius: 14px; }
+.vp-doc div[class*='language-'] { border: 1.5px solid var(--gm-card-outline); border-radius: 12px; }
 .dark .vp-doc :not(pre) > code,
 .dark .gm-home code { background: transparent; padding: 0; color: inherit; }
 /* keep-all: no intra-token break in short chips (":🔥" stays whole) while long
@@ -269,7 +278,7 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
 .gm-hero-tagline { margin: 16px 0 0; font-size: 18px; line-height: 1.6; color: var(--vp-c-text-2); max-width: 34em; }
 .gm-hero-tagline code { font-family: var(--vp-font-family-mono); color: var(--vp-code-color); background: var(--vp-code-bg); border-radius: 4px; padding: 2px 6px; }
 .gm-metaline { margin-top: 30px; font-family: var(--vp-font-family-mono); font-size: 23px; font-weight: 700; white-space: normal; line-height: 1.5;
-  display: inline-block; border: 2px solid var(--gm-hero-box); border-radius: 16px; padding: 14px 22px; color: var(--gm-hero-ink); }
+  display: inline-block; border: 1.5px solid var(--gm-hero-box); border-radius: 12px; padding: 14px 22px; color: var(--gm-hero-ink); } /* border was 2px; owner thinned it in the sketch */
 .gm-metaline .h { color: var(--gm-signature); }
 .gm-metaline .t { color: var(--gm-signature); }
 .gm-metaline .r { color: var(--gm-hero-ink); font-weight: 700; }
@@ -279,18 +288,20 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
 .gm-chip-mint { color: var(--gm-chip-mint); border-color: var(--gm-chip-mint); }
 .gm-chip-cyan { color: var(--gm-chip-cyan); border-color: var(--gm-chip-cyan); }
 .gm-hero-actions { margin-top: 34px; display: flex; gap: 16px; flex-wrap: wrap; }
-.gm-btn { display: inline-block; border-radius: 22px; padding: 11px 24px; font-size: 15px; font-weight: 600; text-decoration: none; transition: background 0.15s, border-color 0.15s; }
+.gm-btn { display: inline-block; border-radius: 12px; padding: 11px 24px; font-size: 15px; font-weight: 600; text-decoration: none; transition: background 0.15s, border-color 0.15s; }
 .gm-btn:hover { text-decoration: none; }
 .gm-btn-brand { background: var(--vp-button-brand-bg); color: #fff; }
 .gm-btn-brand:hover { background: var(--vp-button-brand-hover-bg); color: #fff; }
 .gm-btn-brand:active { background: var(--vp-button-brand-active-bg); }
 .gm-btn-alt { background: transparent; color: var(--vp-c-text-1); border: 2px solid var(--vp-c-border);
-  border-radius: 16px; display: flex; align-items: center; font-size: 16px; }
+  border-radius: 12px; display: flex; align-items: center; font-size: 16px; }
 .gm-btn-alt:hover { border-color: var(--vp-c-brand-1); color: var(--vp-c-text-1); }
-/* Hero talk CTA: the tabbox-family outline promoted to primary action; the flex row's
-   default stretch keeps it and gm-btn-alt the same height. */
+/* Hero talk CTA: the tabbox-family outline promoted to primary action; sole hero
+   action since the 2026-08-24 redesign (gm-btn-alt left the page). */
 .gm-btn-talk { background: transparent; border: 2px solid var(--vp-c-text-1); color: var(--vp-c-text-1);
-  border-radius: 16px; padding: 12px 26px; text-align: center; }
+  border-radius: 12px; padding: 12px 26px; text-align: center;
+  /* true two-axis centering (owner 2026-08-24: text must sit centered vertically too) */
+  display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .gm-btn-talk strong { display: block; font-size: 17px; }
 .gm-btn-talk span { display: block; font-size: 14.5px; font-weight: 500; opacity: 0.92; }
 .gm-btn-talk:hover { background: rgba(255, 255, 255, 0.06); }
@@ -300,7 +311,7 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 
 .gm-features { max-width: 1152px; margin: 0 auto; padding: 0 32px 56px; }
 .gm-features-inner { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px; }
-.gm-card { background: transparent; border: 1.5px solid var(--gm-card-outline); border-radius: 14px; padding: 28px 26px; }
+.gm-card { background: transparent; border: 1.5px solid var(--gm-card-outline); border-radius: 12px; padding: 28px 26px; }
 .gm-eyebrow { font-family: var(--vp-font-family-mono); font-size: 12.5px; letter-spacing: 0.06em; color: #7a5c00; margin-bottom: 12px; }
 .dark .gm-eyebrow { color: #ffd21f; }
 .gm-eyebrow .h { color: var(--gm-hero-hash); }
@@ -372,6 +383,57 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 }
 
 /* ==========================================================================
+   Hero v3 + slide-8 ensemble (owner's Figma sketch 2026-08-24, frame 46:2).
+   - typed Courier Prime wordmark (white in dark; brown ink in light — light
+     never got a sketch, so it follows the brown-ink law)
+   - six "What is GoMeta" boxes from deck slide 8; desktop geometry = sketch
+     coordinates in the 1088px content column; mobile stacks them
+   - radii normalized: 12px standard, 10px for the two slim bars
+   ========================================================================== */
+.gm-hero-word { margin: 0; padding: 0; border: none;
+  font-family: 'Courier Prime', 'Courier New', monospace; font-weight: 700;
+  font-size: clamp(54px, 6.7vw, 96px); line-height: 1.05; letter-spacing: 0.01em;
+  color: #fff2f0; } /* was pure white; owner 2026-08-24: slightly more rose */
+html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
+.gm-s8 { position: relative; height: 477px; margin-top: 29px; }
+.gm-s8-box { position: absolute; box-sizing: border-box; border: 1px solid;
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 8px 12px; line-height: 1.35; color: var(--vp-c-text-1); }
+.gm-s8-box .gm8-a { font-weight: 700; }
+.gm-s8-box .gm8-m { font-family: var(--vp-font-family-mono); font-weight: 700; }
+.gm-s8-key  { left: 590px; top: 0;     width: 323px; height: 41px;  font-size: 16px; /* 550 in sketch; +40 restores the 26px clearance the mint wrap-fix consumed */
+  border-color: var(--vp-c-text-1); border-radius: 10px; }
+.gm-s8-mint { left: 60px;  top: 41px;  width: 504px; height: 167px; font-size: 20px;
+  border-color: var(--gm-tab-mint); }
+.gm-s8-mint .gm8-a, .gm-s8-mint .gm8-m { color: var(--gm-s8-mint-ink); }
+.gm-s8-gold { left: 594px; top: 109px; width: 273px; height: 158px; font-size: 19px;
+  border-color: var(--gm-tab-gold); }
+.gm-s8-gold .gm8-a, .gm-s8-gold .gm8-m { color: var(--gm-s8-gold-ink); }
+.gm-s8-mag  { left: 244px; top: 248px; width: 335px; height: 158px; font-size: 24px;
+  border-color: var(--gm-signature); border-width: 2px; }
+.gm-s8-mag .gm8-a, .gm-s8-mag .gm8-m { color: var(--gm-s8-mag-ink); }
+.gm-s8-viol { left: 612px; top: 329px; width: 294px; height: 89px;  font-size: 20px;
+  border-color: var(--gm-tab-viol); }
+.gm-s8-rose { left: 670px; top: 440px; width: 328px; height: 37px;  font-size: 15px;
+  border-color: var(--vp-c-text-1); border-radius: 10px; }
+.gm-s8 .gm8-go   { font-family: var(--vp-font-family-mono); font-weight: 700; color: var(--gm-s8-mint-ink); }
+.gm-s8 .gm8-meta { font-family: var(--vp-font-family-mono); font-weight: 700; font-style: italic; color: var(--gm-tab-viol); }
+.gm-hero-v2 .gm-hero-actions { margin-top: 10px; }
+.gm-intro { margin: 32px 0 0 238px; max-width: 612px; }
+@media (max-width: 1120px) {
+  /* the fixed scatter needs the full 1088px column; below that, stack */
+  .gm-s8 { height: auto; display: flex; flex-direction: column; gap: 14px; }
+  .gm-s8-box { position: static; width: auto; height: auto; font-size: 16px; padding: 14px 18px; }
+  .gm-s8-box br { display: none; } /* sketch line breaks are desktop-only; stacked boxes flow */
+  .gm-intro { margin-left: 0; max-width: 34em; }
+}
+@media (max-width: 420px) {
+  /* keep the hero row inside very narrow phones (min-content would force page scroll) */
+  .gm-hero-word { font-size: clamp(40px, 13vw, 54px); }
+  .gm-mark-top { width: 90px; }
+}
+
+/* ==========================================================================
    Master-detail section (owner's website slides 4-8): left column of colored
    nav boxes, click opens the matching-colored panel. Pure CSS (radio tabs).
    ========================================================================== */
@@ -379,13 +441,13 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .gm-tabs > input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
 .gm-tabs-grid { display: grid; grid-template-columns: 310px 1fr; gap: 26px; align-items: start; }
 .gm-tabs-nav { display: flex; flex-direction: column; gap: 18px; }
-.gm-tabbox { display: block; border: 2px solid; border-radius: 16px; padding: 15px 18px;
+.gm-tabbox { display: block; border: 2px solid; border-radius: 12px; padding: 15px 18px;
   cursor: pointer; font-size: 15px; line-height: 1.5; background: transparent;
   text-decoration: none; transition: background 0.15s; }
 .gm-tabbox strong { display: block; font-size: 16.5px; }
 .gm-tabbox:hover { background: rgba(255, 255, 255, 0.04); }
 html:not(.dark) .gm-tabbox:hover { background: rgba(75, 52, 33, 0.06); }
-.gm-tabpanel { display: none; border: 2px solid; border-radius: 18px;
+.gm-tabpanel { display: none; border: 2px solid; border-radius: 12px;
   padding: 26px 30px 30px; min-height: 360px; color: var(--vp-c-text-1);
   font-size: 15.5px; line-height: 1.65; }
 .gm-tabpanel p { max-width: 62ch; margin: 0 0 12px; }
