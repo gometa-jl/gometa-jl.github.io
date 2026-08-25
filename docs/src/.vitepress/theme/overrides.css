@@ -29,7 +29,7 @@
   --vp-c-bg-soft: #f1e6d2;
   --vp-c-bg-elv: #faf3e8;
   --vp-c-divider: #d6bf9a;
-  --vp-c-border: #c3a77d;
+  --vp-c-border: #8e7345; /* grounded outlines (VAR L1): 3.89:1, was #c3a77d 2.00:1 */
   --vp-c-gutter: #d6bf9a;
   --vp-c-text-1: #4b3421;
   --vp-c-text-2: #6a533c;
@@ -65,14 +65,14 @@
   --vp-button-brand-active-bg: #4f27c4;
   --vp-button-brand-active-text: #ffffff;
   --vp-home-hero-name-color: #7043e9;
-  --gm-signature: #ea0094;
+  --gm-signature: #b80074; /* magenta unified at all widths (VAR L1): 5.55:1 fixes the 16.5px Merci AA fail; was #ea0094 3.70:1 */
   --gm-glow: rgba(234, 0, 148, 0.18);
-  --gm-hero-hash: #7043e9;
+  --gm-hero-hash: #5f2fd8; /* eyebrow sigil joins flavor violet (VAR L1); was rogue #7043e9 */
   /* deck adoption (L4): headings/hero-ink stay brown; motif + flavor tokens */
   --gm-head: #4b3421;
-  --gm-hero-box: #ea0094;
+  --gm-hero-box: #b80074; /* follows the unified light magenta (VAR L1) */
   --gm-hero-ink: #4b3421;
-  --gm-card-outline: #c3a77d;
+  --gm-card-outline: #8e7345; /* grounded outlines (VAR L1); was #c3a77d */
   --gm-chip-mint: #096b4d;
   --gm-chip-cyan: #066374;
   /* flavor twins darkened to >=4.5:1 on the code-block bg #ece0c8 (AA, 14px) */
@@ -144,7 +144,7 @@
   --vp-home-hero-name-color: #9777ef;
   --gm-signature: #ff1fa9;
   --gm-glow: #ff1fa92e;
-  --gm-hero-hash: #9777ef;
+  --gm-hero-hash: #cda8f0; /* eyebrow sigil joins flavor violet (D2); was rogue #9777ef */
   /* deck adoption (D2): deck inks + flavor palette on the kept warm-brown ground */
   --gm-head: #f7d1d5;
   --gm-hero-box: #ff1fa9;
@@ -159,7 +159,7 @@
   --gm-syn-com: #5eb91e;
   /* master-detail nav-box colors (slide-exact) */
   --gm-tab-mint: #31edae;
-  --gm-tab-gold: #ffd21f;
+  --gm-tab-gold: #e69f00; /* one gold per component (owner 2026-08-25, VAR D2); was #ffd21f */
   --gm-tab-cyan: #0cc0df;
   --gm-tab-viol: #cda8f0;
   /* slide-8 ensemble accent inks — deck slide 8's pale accent runs (dark mode) */
@@ -313,7 +313,7 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .gm-features-inner { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px; }
 .gm-card { background: transparent; border: 1.5px solid var(--gm-card-outline); border-radius: 12px; padding: 28px 26px; }
 .gm-eyebrow { font-family: var(--vp-font-family-mono); font-size: 12.5px; letter-spacing: 0.06em; color: #7a5c00; margin-bottom: 12px; }
-.dark .gm-eyebrow { color: #ffd21f; }
+.dark .gm-eyebrow { color: #e69f00; } /* joins --gm-tab-gold: one gold (D2) */
 .gm-eyebrow .h { color: var(--gm-hero-hash); }
 .gm-card h2 { font-size: 16.5px; font-weight: 700; margin: 0 0 10px; padding: 0; border: none; color: var(--vp-c-text-1); }
 .gm-card p { font-size: 14px; line-height: 1.6; margin: 0; color: var(--vp-c-text-2); }
@@ -321,6 +321,7 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .gm-status { max-width: 1152px; margin: 0 auto; padding: 0 32px 72px; }
 .gm-status p { max-width: 62em; margin: 0 0 10px; font-size: 14.5px; line-height: 1.65; color: var(--vp-c-text-2); }
 .gm-status strong { color: var(--vp-c-text-1); }
+.dark .gm-status strong { color: var(--vp-c-text-2); } /* quiet footer stratum (VAR D2) */
 .gm-license-note { font-size: 13px; color: var(--vp-c-text-3); }
 .gm-license-note a { text-decoration: underline; }
 
@@ -516,8 +517,7 @@ html:not(.dark) #gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"] { bac
   .gm-hero-tagline { margin-left: auto; margin-right: auto; }
   .gm-hero-actions { justify-content: center; }
   .gm-metaline { font-size: 17px; }
-  /* below the bold large-text threshold the light hero magenta needs its AA twin */
-  .gm-metaline .h, .gm-metaline .t { color: var(--gm-syn-sig); }
+  /* (the former --gm-syn-sig swap is gone: --gm-signature is #b80074 at every width now) */
 }
 @media (max-width: 640px) {
   .gm-hero-image img { width: 250px; }
