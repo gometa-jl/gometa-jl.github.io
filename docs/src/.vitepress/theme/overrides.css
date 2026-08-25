@@ -276,6 +276,7 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
 .gm-wordmark { height: 58px; width: auto; display: block; }
 .gm-hero-title { font-size: 38px; line-height: 1.25; font-weight: 700; margin: 22px 0 0; letter-spacing: -0.01em; color: var(--vp-c-text-1); }
 .gm-hero-tagline { margin: 16px 0 0; font-size: 18px; line-height: 1.6; color: var(--vp-c-text-2); max-width: 34em; }
+.dark .gm-hero-tagline { color: var(--vp-c-text-1); } /* bright body per agreed D2 frame (owner 2026-08-25) */
 .gm-hero-tagline code { font-family: var(--vp-font-family-mono); color: var(--vp-code-color); background: var(--vp-code-bg); border-radius: 4px; padding: 2px 6px; }
 .gm-metaline { margin-top: 30px; font-family: var(--vp-font-family-mono); font-size: 23px; font-weight: 700; white-space: normal; line-height: 1.5;
   display: inline-block; border: 1.5px solid var(--gm-hero-box); border-radius: 12px; padding: 14px 22px; color: var(--gm-hero-ink); } /* border was 2px; owner thinned it in the sketch */
@@ -317,6 +318,7 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .gm-eyebrow .h { color: var(--gm-hero-hash); }
 .gm-card h2 { font-size: 16.5px; font-weight: 700; margin: 0 0 10px; padding: 0; border: none; color: var(--vp-c-text-1); }
 .gm-card p { font-size: 14px; line-height: 1.6; margin: 0; color: var(--vp-c-text-2); }
+.dark .gm-card p { color: var(--vp-c-text-1); } /* bright body per agreed D2 frame (owner 2026-08-25) */
 
 .gm-status { max-width: 1152px; margin: 0 auto; padding: 0 32px 72px; }
 .gm-status p { max-width: 62em; margin: 0 0 10px; font-size: 14.5px; line-height: 1.65; color: var(--vp-c-text-2); }
