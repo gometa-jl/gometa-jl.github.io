@@ -112,7 +112,7 @@
   --vp-c-divider: #3a3126;
   --vp-c-border: #5b4935;
   --vp-c-gutter: #191512;
-  --vp-c-text-1: #ffe2e0; /* was #ffd6d6; owner 2026-08-24: default ink slightly more white */
+  --vp-c-text-1: #fff2f0; /* owner 2026-08-25: default ink joins the hero white (was #ffe2e0) */
   --vp-c-text-2: #cbb7b4;
   --vp-c-text-3: #a89693;
   --vp-c-brand-1: #9777ef;
@@ -148,7 +148,7 @@
   /* deck adoption (D2): deck inks + flavor palette on the kept warm-brown ground */
   --gm-head: #f7d1d5;
   --gm-hero-box: #ff1fa9;
-  --gm-hero-ink: #ffe3e3;
+  --gm-hero-ink: #fff2f0; /* kept in step with the hero hardcode */
   --gm-card-outline: rgba(247, 209, 213, 0.5);
   --gm-chip-mint: #3cf0b5;
   --gm-chip-cyan: #7bc4dc;

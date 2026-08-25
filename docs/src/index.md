@@ -31,7 +31,7 @@ footer: true
         <div class="gm-s8-box gm-s8-gold"><span>This allows <span class="gm8-m">GoMeta</span> to <br><span class="gm8-a">connect</span> content of one <br><span class="gm8-a">programming language</span>, <br>one <span class="gm8-a">file format</span> <br>with that of another.</span></div>
         <div class="gm-s8-box gm-s8-mag"><span><span class="gm8-m">GoMeta</span> works <br><span class="gm8-a">in between</span> them, <br><span class="gm8-a">behind</span> them, <br><span class="gm8-a">within</span> them.</span></div>
         <div class="gm-s8-box gm-s8-viol"><span>That is the <strong>reason why</strong> it is called '<span class="gm8-go">Go</span><span class="gm8-meta">Meta</span>'.</span></div>
-        <div class="gm-s8-box gm-s8-rose"><span>What other languages can do that&nbsp;?</span></div><!-- nbsp: keeps the slide's pre-? space from orphaning the ? on narrow screens -->
+        <div class="gm-s8-box gm-s8-rose"><span>What other language can do that&nbsp;?</span></div><!-- nbsp: keeps the slide's pre-? space from orphaning the ? on narrow screens -->
       </div>
       <div class="gm-hero-actions">
         <!-- target=_self is LOAD-BEARING: /talk/ is a public/ asset, not a VitePress page;
