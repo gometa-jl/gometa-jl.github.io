@@ -26,16 +26,17 @@ export const Theme: ThemeConfig = {
       // first-draft banner (launch window; remove after polish)
       'layout-top': () => h('div', { class: 'gm-draft-banner' }, [
         h('span', { class: 'gm-draft-pill' }, [
-          '🚧 First, ',
-          h('strong', 'heavily Claude assisted'),
-          ' draft — brand-new for JuliaCon 2026.',
+          '🚧 ',
+          h('strong', "ATTENTION: GoMeta's current docs & Co. are largely written by Claude due to limited resources and to get them done in time for JuliaCon2026."),
           h('br'),
-          'Will be updated gradually. For now, check out the ',
+          'They are comprehensive and correct. However, even I get confused by them and the emphasis is often not where I would lay it.',
+          h('br'),
+          'They will be updated gradually. For now, ',
           h('strong', [
-            'JuliaCon slides ',
+            'check out the JuliaCon slides ',
             // target=_self is LOAD-BEARING: /talk/ is a public/ asset, not a
             // VitePress page; without it the SPA router eats the click (404).
-            h('a', { href: '/talk/', target: '_self' }, 'here'),
+            h('a', { href: '/talk/', target: '_self' }, 'here 🔗'),
           ]),
           '.',
         ]),

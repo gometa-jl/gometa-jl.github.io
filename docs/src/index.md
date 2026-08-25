@@ -36,7 +36,7 @@ footer: true
       <div class="gm-hero-actions">
         <!-- target=_self is LOAD-BEARING: /talk/ is a public/ asset, not a VitePress page;
              without a target attribute the SPA router intercepts the click into its 404. -->
-        <a class="gm-btn gm-btn-talk" href="/talk/" target="_self"><strong>JuliaCon2026 Talk:</strong> <span>Web version of the official slides</span></a>
+        <a class="gm-btn gm-btn-talk" href="/talk/" target="_self"><strong>JuliaCon2026 Talk 🔗</strong> <span>Web version of the official slides</span></a>
       </div>
       <div class="gm-intro">
         <p class="gm-hero-tagline">The core idea of GoMeta is to embed formalized meaning within all kinds of
