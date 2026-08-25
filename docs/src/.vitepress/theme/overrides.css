@@ -180,11 +180,13 @@
 /* ---- first-draft banner (launch window; remove after polish) --------------
    VP's fixed navbar honors --vp-layout-top-height: the nav and content shift
    down and this fixed strip (the theme's layout-top slot) owns the freed space. */
-:root { --vp-layout-top-height: 80px; }
+:root { --vp-layout-top-height: 92px; } /* no-JS fallback; theme JS measures the pill and
+  keeps this exact (and sets it to 0 once the reader scrolls — collapse-on-scroll) */
 .gm-draft-banner {
   position: fixed; top: 0; left: 0; right: 0;
   z-index: var(--vp-z-index-layout-top, 30);
   height: var(--vp-layout-top-height);
+  overflow: hidden; /* the strip clips cleanly while collapsing */
   display: flex; align-items: center; justify-content: center;
   padding: 0 14px;
   background: var(--vp-c-bg-alt);
@@ -192,17 +194,17 @@
   font-family: var(--vp-font-family-base);
 }
 .gm-draft-pill {
-  display: inline-block; padding: 7px 24px; border-radius: 12px; /* was 999 — radius normalization, owner 2026-08-24 */
+  display: inline-block; padding: 6px 20px; border-radius: 12px; /* was 999 — radius normalization, owner 2026-08-24 */
   border: 1.5px solid var(--vp-c-warning-1);
-  font-size: 16px; line-height: 1.45; text-align: center;
+  font-size: 14px; line-height: 1.4; text-align: center; /* 16px -> 14px, owner 2026-08-25 */
   color: var(--vp-c-warning-1);
 }
 .gm-draft-pill strong { font-weight: 700; }
 .gm-draft-pill a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .gm-draft-pill a:hover { color: var(--vp-c-warning-2, var(--vp-c-warning-1)); }
 @media (max-width: 700px) {
-  :root { --vp-layout-top-height: 118px; }
-  .gm-draft-pill { font-size: 13.5px; padding: 5px 16px; }
+  :root { --vp-layout-top-height: 170px; } /* no-JS fallback for the wrapped text */
+  .gm-draft-pill { font-size: 12.5px; padding: 5px 14px; }
 }
 
 /* ---- readability (R1, measured): real ~60ch prose, 14px code ------------- */

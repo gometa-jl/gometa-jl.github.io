@@ -95,6 +95,22 @@ export const Theme: ThemeConfig = {
       // widening past the breakpoint with everything closed would leave the
       // desktop column empty — re-apply the desktop default on that crossing
       mobileMq.addEventListener('change', (e) => { if (!e.matches) applyInitialState() })
+
+      // draft-banner sizing (owner 2026-08-25): the fixed strip's height used
+      // to be hardcoded and the grown text overflowed it (clipped on mobile).
+      // Measure the pill instead, and COLLAPSE the banner once the reader
+      // scrolls (frees the small screens; the info returns at scroll-top).
+      const bannerSync = () => {
+        const pill = document.querySelector<HTMLElement>('.gm-draft-banner .gm-draft-pill')
+        if (!pill) return
+        const collapsed = window.scrollY > 60
+        const h = collapsed ? 0 : pill.offsetHeight + 16
+        document.documentElement.style.setProperty('--vp-layout-top-height', h + 'px')
+      }
+      window.addEventListener('scroll', bannerSync, { passive: true })
+      window.addEventListener('resize', bannerSync)
+      requestAnimationFrame(bannerSync)
+      setTimeout(bannerSync, 150)
     }
   }
 }
