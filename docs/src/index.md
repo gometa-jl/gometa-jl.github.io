@@ -47,20 +47,16 @@ footer: true
     </div>
   </section>
   <div class="gm-tabs">
-    <input type="radio" name="gmt" id="gmt-core" checked>
+    <input type="radio" name="gmt" id="gmt-core">
     <input type="radio" name="gmt" id="gmt-syntax">
     <input type="radio" name="gmt" id="gmt-blocks">
     <input type="radio" name="gmt" id="gmt-cases">
+    <!-- Labels and panels are INTERLEAVED siblings: on desktop the grid re-assembles
+         the two-column master-detail; on mobile the single column becomes an accordion
+         (each panel opens directly under its label — owner 2026-08-25 mobile fix). -->
     <div class="gm-tabs-grid">
-      <div class="gm-tabs-nav">
-        <label class="gm-tabbox gm-tb-mint" for="gmt-core"><strong>Core Concept:</strong> Why embed metadata into comments?</label>
-        <label class="gm-tabbox gm-tb-gold" for="gmt-syntax"><strong>GoMeta Syntax:</strong> Examples</label>
-        <label class="gm-tabbox gm-tb-cyan" for="gmt-blocks"><strong>GoMeta Building Blocks:</strong> How is it set up?</label>
-        <label class="gm-tabbox gm-tb-viol" for="gmt-cases"><strong>Use Cases:</strong></label>
-        <a class="gm-tabbox gm-tb-merci" href="/merci"><strong>Merci🌷</strong></a>
-      </div>
-      <div class="gm-tabs-panels">
-        <div class="gm-tabpanel gm-tp-core">
+      <label class="gm-tabbox gm-tb-mint" for="gmt-core"><strong>Core Concept:</strong> Why embed metadata into comments?</label>
+      <div class="gm-tabpanel gm-tp-core">
           <span class="gm-tp-title">Core Concept: Why embed metadata into comments?</span>
           <p>Language agnostic, since the metadata remains &ldquo;hidden&rdquo; within the comments &mdash; the host file stays an ordinary file, and the host language sees nothing but a comment.</p>
           <p>One source file, all kinds of output formats &mdash; and webs of atomic data units instead of hierarchies: a folder must place an item at a single position; labels weave a web.</p>
@@ -68,6 +64,7 @@ footer: true
           <p>And the safety posture is part of the idea: GoMeta <strong>evaluates</strong> metadata &mdash; it never executes the file it processes.</p>
           <p><a href="/concepts/what-is-gometa">What is GoMeta? &rarr;</a></p>
         </div>
+        <label class="gm-tabbox gm-tb-gold" for="gmt-syntax"><strong>GoMeta Syntax:</strong> Examples</label>
         <div class="gm-tabpanel gm-tp-syntax">
           <span class="gm-tp-title">GoMeta Syntax: Examples</span>
           <p>Any line starting with <code>#~</code> is a metaLine &mdash; it will be processed as metadata. Contiguous metaLines constitute a metaBlock; positioned just above a block of code or text, it gets attached &mdash; similar to how docstrings get associated with Julia structures following them.</p>
@@ -79,6 +76,7 @@ footer: true
 <span class="gm-cd">b = 2 </span><span class="gm-sg">#~</span><span class="gm-mt"> discard{ :label1 }</span></code></pre></div>
           <p><a href="/concepts/metalines">The metaLine syntax in full &rarr;</a></p>
         </div>
+        <label class="gm-tabbox gm-tb-cyan" for="gmt-blocks"><strong>GoMeta Building Blocks:</strong> How is it set up?</label>
         <div class="gm-tabpanel gm-tp-blocks">
           <span class="gm-tp-title">GoMeta Building Blocks: How is it set up?</span>
           <ul>
@@ -89,6 +87,7 @@ footer: true
           </ul>
           <p><a href="/reference/syntax-and-semantics">The full reference &rarr;</a></p>
         </div>
+        <label class="gm-tabbox gm-tb-viol" for="gmt-cases"><strong>Use Cases:</strong></label>
         <div class="gm-tabpanel gm-tp-cases">
           <span class="gm-tp-title">Use Cases:</span>
           <p>Four, seemingly unrelated use cases illustrate what GoMeta <strong>can</strong> be used for &mdash; but they are <strong>not</strong> GoMeta: Extensions serve them.</p>
@@ -100,7 +99,7 @@ footer: true
           </ul>
           <p><a href="/examples/">Examples &rarr;</a></p>
         </div>
-      </div>
+        <a class="gm-tabbox gm-tb-merci" href="/merci"><strong>Merci🌷</strong></a>
     </div>
   </div>
   <section class="gm-features">

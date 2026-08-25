@@ -439,8 +439,22 @@ html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
    ========================================================================== */
 .gm-tabs { max-width: 1152px; margin: 0 auto; padding: 8px 32px 48px; }
 .gm-tabs > input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
-.gm-tabs-grid { display: grid; grid-template-columns: 310px 1fr; gap: 26px; align-items: start; }
-.gm-tabs-nav { display: flex; flex-direction: column; gap: 18px; }
+/* labels+panels are FLAT siblings (mobile accordion); the grid re-assembles the
+   desktop master-detail: labels stack in col 1, panels overlay col 2 rows 1-5 */
+.gm-tabs-grid { display: grid; grid-template-columns: 310px 1fr; gap: 18px 26px; align-items: start; }
+.gm-tabs-grid > .gm-tabbox { grid-column: 1; }
+.gm-tabs-grid > .gm-tabpanel { grid-column: 2; grid-row: 1 / span 5; }
+/* clickability affordance (owner 2026-08-25): triangle on the tab labels
+   (rotates when open), arrow on the Merci page link */
+label.gm-tabbox { position: relative; padding-right: 40px; }
+label.gm-tabbox::after { content: ""; position: absolute; right: 16px; top: 50%;
+  margin-top: -5px; width: 0; height: 0; border-left: 7px solid currentColor;
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  }
+a.gm-tb-merci { position: relative; padding-right: 40px; }
+a.gm-tb-merci::after { content: ""; position: absolute; right: 16px; top: 50%;
+  margin-top: -5px; width: 0; height: 0; border-left: 7px solid currentColor;
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
 .gm-tabbox { display: block; border: 2px solid; border-radius: 12px; padding: 15px 18px;
   cursor: pointer; font-size: 15px; line-height: 1.5; background: transparent;
   text-decoration: none; transition: background 0.15s; }
@@ -476,9 +490,16 @@ html:not(.dark) #gmt-core:checked   ~ .gm-tabs-grid label[for="gmt-core"],
 html:not(.dark) #gmt-syntax:checked ~ .gm-tabs-grid label[for="gmt-syntax"],
 html:not(.dark) #gmt-blocks:checked ~ .gm-tabs-grid label[for="gmt-blocks"],
 html:not(.dark) #gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"] { background: rgba(75, 52, 33, 0.08); }
+#gmt-core:checked   ~ .gm-tabs-grid label[for="gmt-core"]::after,
+#gmt-syntax:checked ~ .gm-tabs-grid label[for="gmt-syntax"]::after,
+#gmt-blocks:checked ~ .gm-tabs-grid label[for="gmt-blocks"]::after,
+#gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"]::after { transform: rotate(90deg); }
 .gm-tabs > input:focus-visible + .gm-tabs-grid label { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
 @media (max-width: 860px) {
+  /* accordion: single column, each open panel sits DIRECTLY under its label
+     (DOM order does the work; the desktop col-2 pinning is undone here) */
   .gm-tabs-grid { grid-template-columns: 1fr; }
+  .gm-tabs-grid > .gm-tabpanel { grid-column: 1; grid-row: auto; }
   .gm-tabpanel { min-height: 0; }
 }
 
