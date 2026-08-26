@@ -144,17 +144,18 @@
   --vp-button-brand-hover-bg: #5f2fd8;
   --vp-button-brand-active-bg: #4f27c4;
   --vp-home-hero-name-color: #9777ef;
-  --gm-signature: #ff1fa9;
-  --gm-glow: #ff1fa92e;
+  --gm-signature: #f562b2; /* owner 2026-08-26 (Figma 758:2); 5.98:1, was #ff1fa9 4.95:1 */
+  --gm-glow: #f562b22e;
   --gm-hero-hash: #cda8f0; /* eyebrow sigil joins flavor violet (D2); was rogue #9777ef */
   /* deck adoption (D2): deck inks + flavor palette on the kept warm-brown ground */
   --gm-head: #f7d1d5;
-  --gm-hero-box: #ff1fa9;
+  --gm-hero-box: #f562b2; /* follows the dark pink (owner 2026-08-26) */
   --gm-hero-ink: #fff2f0; /* kept in step with the hero hardcode */
   --gm-card-outline: rgba(247, 209, 213, 0.5);
   --gm-chip-mint: #3cf0b5;
   --gm-chip-cyan: #7bc4dc;
-  --gm-syn-sig: #ff1fa9;
+  --gm-syn-sig: #f562b2; /* the metaLine sigil inside the front page's code sample — same
+      pink, same meaning: kept in step so one page never shows two pinks (owner 2026-08-26) */
   --gm-syn-meta: #ffd6d6;
   --gm-syn-text: #ffe994;
   --gm-syn-code: #96efbe;
