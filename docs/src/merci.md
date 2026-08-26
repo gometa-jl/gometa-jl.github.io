@@ -22,8 +22,15 @@ footer: false
           <p>geiht natürlech a</p>
           <p>mis Mami!</p>
         </div>
-        <div class="m-box m-dots m-cyan">&hellip;</div>
-        <div class="m-box m-dots m-green">&hellip;</div>
+        <div class="m-box m-cyan m-welli">
+          <p class="m-h">@My dearest Welli friends:<br>🌬️🏔️🍹☕🏡🇳🇿</p>
+          <p>I still often think of you ...<br>... like now for instance</p>
+          <p class="m-tiny">[I&rsquo;m just 💩 at staying in touch🌹]</p>
+        </div>
+        <div class="m-box m-green m-leuven">
+          <p class="m-h">... and the same goes for my<br>beloved Leuven Crew 🇧🇪🇬🇷🇵🇹🇹🇷</p>
+          <p class="m-tiny">[I&rsquo;ll be better organized the next time 🐒😜 ... I was too late]</p>
+        </div>
       </div>
       <div class="m-col">
         <div class="m-box m-note">
@@ -32,19 +39,23 @@ footer: false
           <p>Verpasse … äs het eifach zytlech für nüme glängt ⌛</p>
           <p>Drum isch das Projektli <strong>euch aune hiä gwidmet</strong><br>– aber <strong>am meischte mim Mami</strong> 😜</p>
         </div>
-        <div class="m-box m-dots m-orange">&hellip;&ensp;&hellip;</div>
+        <div class="m-box m-violet m-bb">
+          <p class="m-h">@ d&rsquo;BB&rsquo;s [<span class="m-bigemoji">🍻</span>- Brüeder] 😜:</p>
+          <p>äs wär schön euch<br>wiider chlei hüfiger<br>chönne z&rsquo;gseh 🍀</p>
+        </div>
+        <!-- deliberately empty: a spare box, styled like the others, ready for text -->
+        <div class="m-box m-blank"></div>
       </div>
       <div class="m-col">
         <div class="m-box m-beach">
-          <p class="m-h">🏖️🏐 -Fründe:</p>
+          <p class="m-h">🏖️🏐 - Fründe:</p>
           <p>Diä wüchentlechi Freud vo dä Summer 🌞 het möge ufhäue 😛</p>
         </div>
         <div class="m-box m-berg">
-          <p class="m-h">🏔️&nbsp;&nbsp;&amp;&nbsp;&nbsp;&nbsp;🧗🏻‍♀️🧗🏽‍♂️-Fründe:</p>
+          <p class="m-h">🏔️&nbsp;&nbsp;&amp;&nbsp;&nbsp;🧗🏻‍♀️🧗🏽‍♂️ - Fründe:</p>
           <p>Wenn'i euch mau gseh ha, isch's amigs churz gsi aber</p>
           <p>Het henn gfägt 🤗</p>
         </div>
-        <div class="m-box m-dots m-violet">&hellip;</div>
       </div>
     </div>
     <div class="m-fineprint">This project will go on <strong>DESPITE</strong> Bern's tax authorities</div>

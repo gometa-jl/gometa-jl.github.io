@@ -118,6 +118,8 @@
   --gm-m-viol-ink: var(--gm-tab-viol);
   --gm-m-fine: #dfd2bc; /* 1.30:1 on the light ground — matches the 1.37:1 the #333 joke
       has on the dark ground, so the fineprint stays a whisper in BOTH modes */
+  --gm-m-blank: #8e7345; /* the spare box: the light counterpart of dark's warm off-white —
+      one step softer than the neutral note box, as the owner asked ("a bit browner") */
   /* custom blocks: keep the warm palette (style.css ships julia-blue tip defaults) */
   --vp-custom-block-tip-border: #096b4d;
   --vp-custom-block-tip-text: var(--vp-c-text-1);
@@ -202,6 +204,7 @@
   --gm-m-orange-ink: #ffc099;
   --gm-m-viol-ink: #cea8f0;
   --gm-m-fine: #333333;
+  --gm-m-blank: #e8d9cc; /* whitish like the note box, warmed a step browner */
   --vp-custom-block-tip-border: #3cf0b5;
   --vp-custom-block-tip-text: var(--vp-c-text-1);
   --vp-custom-block-tip-bg: rgba(49, 237, 174, 0.14);
@@ -397,12 +400,23 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .m-mami { border-color: var(--gm-signature); font-size: 16.5px; margin-top: 26px; }
 .m-note { border-color: var(--vp-c-text-1); font-size: 14.5px; }
 .m-note p { margin-bottom: 14px; }
-.m-beach { border-color: var(--gm-tab-gold); color: var(--gm-m-gold-ink); font-weight: 600; }
+.m-beach { border-color: var(--gm-tab-gold); color: var(--gm-m-gold-ink); font-weight: 500; }
 .m-berg { border-color: var(--gm-tab-mint); color: var(--gm-m-mint-ink); margin-top: 10px; }
 .m-h { font-weight: 700; }
+/* owner 2026-08-26 (Figma 1039:2): the cyan / green / violet boxes stopped being "…" dot
+   placeholders and now carry real messages, each with its own weight + size as drawn. */
+.m-welli { font-weight: 600; }              /* body SemiBold under the 700 .m-h heading */
+.m-bb    { font-weight: 500; }              /* body Medium */
+.m-leuven { font-size: 14px; }              /* this one is set a step smaller */
+.m-tiny  { font-size: 8px; font-weight: 600; }   /* the muttered-aside lines */
+.m-bigemoji { font-size: 1.33em; }          /* the 🍻 the owner enlarged (20px on a 15px line) */
+/* a spare box, deliberately empty and styled like the rest, ready to take text */
+.m-blank { border-color: var(--gm-m-blank); min-height: 46px; }
+/* .m-dots / .m-orange are unused since the boxes gained content and the orange one was
+   dropped — kept so a dot-box can return in one line of markup. */
 .m-dots { padding: 10px 18px; font-weight: 700; letter-spacing: 0.3em; width: 60%; }
 .m-cyan { border-color: var(--gm-tab-cyan); color: var(--gm-m-cyan-ink); }
-.m-green { border-color: var(--gm-syn-com); color: var(--gm-m-green-ink); width: 42%; }
+.m-green { border-color: var(--gm-syn-com); color: var(--gm-m-green-ink); }
 .m-orange { border-color: var(--vp-c-warning-1); color: var(--gm-m-orange-ink); width: 52%; }
 .m-violet { border-color: var(--gm-tab-viol); color: var(--gm-m-viol-ink); }
 /* fine print, tucked into the frame's bottom-right corner. Slide-exact dim-by-design:
