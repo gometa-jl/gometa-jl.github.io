@@ -82,21 +82,29 @@
   --gm-syn-text: #7a5c00;
   --gm-syn-code: #096b4d;
   --gm-syn-com: #35690e;
-  /* master-detail nav-box colors — owner's vivid light palette, rev2 (Figma 759:2, 2026-08-26).
-     Measured on #f7eedf / on the checked-tab ground #e9dfd0:
-       mint #00a377 2.81/2.45 · gold #c34b00 4.22/3.68 · cyan #009bc6 2.81/2.45
-       viol #5c0ac7 7.86/6.86 · magenta #db15ba 3.78/3.30
-     rev2 improved every one (mint +0.72, gold +1.08, cyan +0.20, viol +1.53, mag +0.57).
-     Still under the 4.5 AA floor at the 16.5px label size for all but violet — deliberate,
-     appearance-led; checked-safe twins that clear both grounds are on record in the
-     research log (mint #047251, gold #9b4f04, cyan #026d81, magenta #b60f9b). */
-  --gm-tab-mint: #00a377;
+  /* master-detail nav-box colors — the owner's light palette, rev3 "variant A" (2026-08-26).
+     Ratios given as: on the page #f7eedf / on the checked-tab ground #e9dfd0 (8% brown over
+     the page). The checked ground is the BINDING one, because one tab opens on every desktop
+     load — solving against the page alone is ~0.87x short there.
+       mint    #00916a  3.47 / 3.03
+       gold    #c34b00  4.22 / 3.68
+       cyan    #008ab1  3.46 / 3.02
+       violet  #5c0ac7  7.86 / 6.86   (the only flavor passing AA at every use site)
+       magenta #db15ba  3.78 / 3.30
+     rev3 deepened mint + cyan only: `label.gm-tabbox::after` draws the open/closed triangle in
+     `currentColor`, i.e. the label's own text color, so those two sat under the 3:1
+     state-indicator floor (2.81/2.45). rev3 clears it with saturation unchanged — lightness
+     alone was lowered. All five still sit under 4.5 at the 16.5px label size except violet;
+     that is a deliberate, appearance-led choice by the owner. Full-AA twins on record in
+     research/2026-08-03-gometa-website-launch/visibility-2026-08-26/ (mint #007254,
+     cyan #006c8b, gold #ac4200, magenta #b6119a — all >=4.5 on BOTH grounds). */
+  --gm-tab-mint: #00916a;
   --gm-tab-gold: #c34b00;
-  --gm-tab-cyan: #009bc6;
+  --gm-tab-cyan: #008ab1;
   --gm-tab-viol: #5c0ac7;
   /* slide-8 ensemble accent inks — light twins follow the tab tokens (brown-ink law:
      base text stays text-1; only accents carry flavor) */
-  --gm-s8-mint-ink: #00a377;
+  --gm-s8-mint-ink: #00916a;
   --gm-s8-gold-ink: #c34b00;
   --gm-s8-mag-ink: #db15ba; /* 3.78:1 — passes at the 24px-bold desktop size; the <=1120px
       rule collapses these boxes to 16px, where 4.5 would be required */
