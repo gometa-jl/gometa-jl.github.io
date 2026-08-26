@@ -120,17 +120,17 @@ footer: true
         <p>GoMeta passes its evaluations on to Extensions, which act on them. Like languages, GoMeta by itself is not producing anything &mdash; it provides the means, the metadata-Blocks, to build something. Speedily retrieving a long-forgotten snippet, linking fragments across files, one source file for all kinds of output formats, automated removal of private passages before sharing: illustrations of what GoMeta can be used for &mdash; but they are <strong>not</strong> GoMeta. A web of atomic data units, for one, requires not only an Extension but also a database as back end.</p>
       </div>
       <div class="gm-card">
-        <div class="gm-eyebrow"><span class="h">#~</span> alterants</div>
+        <div class="gm-eyebrow"><span class="h">#~</span> 4 &middot; alterants</div>
         <h2>Registered kinds of metadata</h2>
         <p>As a Julia Type declares a kind of value, an Alterant declares a kind of metadata &mdash; with its actions and rules. Visib, labels, id and heading ship built in. What GoMeta evaluates per Component are their values: the altValues.</p>
       </div>
       <div class="gm-card">
-        <div class="gm-eyebrow"><span class="h">#~</span> syntax</div>
+        <div class="gm-eyebrow"><span class="h">#~</span> 5 &middot; syntax</div>
         <h2>There is a GoMeta syntax</h2>
         <p>It is very essential to GoMeta. Any line starting with <code>#~</code> is a metaLine &mdash; it will be processed as metadata. Contiguous metaLines constitute a metaBlock; positioned just above a block of code or text, the metaBlock gets attached &mdash; similar to how docstrings get associated with Julia structures following them. Three content flavors at 0.3.0: <code>:julia</code> for <code>#</code>, <code>:c</code> for <code>//</code>, <code>:latex</code> for <code>%</code> &mdash; selected explicitly, never inferred. The same principles are easily extended to other programming languages or project data in general.</p>
       </div>
       <div class="gm-card">
-        <div class="gm-eyebrow"><span class="h">#~</span> secure</div>
+        <div class="gm-eyebrow"><span class="h">#~</span> 6 &middot; secure</div>
         <h2>Its own little parser</h2>
         <p>For security reasons GoMeta provides its own little parser: condition text is parsed into a bounded AST and evaluated by GoMeta&rsquo;s own closed interpreter &mdash; in a default-configured run, no condition text ever reaches Julia&rsquo;s <code>eval</code>. More general parsing via Julia&rsquo;s parser is allowed through opt-in. GoMeta does not execute the instructions inscribed in the metadata.</p>
       </div>

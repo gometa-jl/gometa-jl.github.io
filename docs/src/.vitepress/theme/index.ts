@@ -29,7 +29,9 @@ export const Theme: ThemeConfig = {
           '🚧 ',
           h('strong', "ATTENTION: GoMeta's current docs & Co. are largely written by Claude due to limited resources and to get them done in time for JuliaCon2026."),
           h('br'),
-          'They are comprehensive and correct. However, even I get confused by them and the emphasis is often not where I would lay it.',
+          'They are quite comprehensive and ',
+          h('strong', 'mostly'),
+          ' correct. However, even I get confused by them and the emphasis is often not where I would lay it.',
           h('br'),
           'They will be updated gradually. For now, ',
           h('strong', [
