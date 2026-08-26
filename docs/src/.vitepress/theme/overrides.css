@@ -65,12 +65,13 @@
   --vp-button-brand-active-bg: #4f27c4;
   --vp-button-brand-active-text: #ffffff;
   --vp-home-hero-name-color: #7043e9;
-  --gm-signature: #ed21cb; /* owner 2026-08-26 (Figma 759:2); 3.21:1 — large-text only, was #b80074 5.55:1 */
+  --gm-signature: #db15ba; /* owner 2026-08-26 rev2 (Figma 759:2); 3.78:1 page / 3.30 checked-tab
+      — clears 3:1 for borders + >=18.66px bold, still under 4.5 at 16.5px label size */
   --gm-glow: rgba(234, 0, 148, 0.18);
-  --gm-hero-hash: #5f2fd8; /* eyebrow sigil joins flavor violet (VAR L1); was rogue #7043e9 */
+  --gm-hero-hash: #5c0ac7; /* joins the flavor violet (owner 2026-08-26 rev2); 7.86:1 */
   /* deck adoption (L4): headings/hero-ink stay brown; motif + flavor tokens */
   --gm-head: #4b3421;
-  --gm-hero-box: #ed21cb; /* follows the light magenta (owner 2026-08-26) */
+  --gm-hero-box: #db15ba; /* follows the light magenta (owner 2026-08-26 rev2) */
   --gm-hero-ink: #4b3421;
   --gm-card-outline: #8e7345; /* grounded outlines (VAR L1); was #c3a77d */
   --gm-chip-mint: #096b4d;
@@ -81,18 +82,24 @@
   --gm-syn-text: #7a5c00;
   --gm-syn-code: #096b4d;
   --gm-syn-com: #35690e;
-  /* master-detail nav-box colors — owner's vivid light palette (Figma 759:2, 2026-08-26).
-     NOTE: these sit below the WCAG AA text floor on #f7eedf (mint 2.09:1, gold 3.14:1,
-     cyan 2.61:1) — chosen for appearance; same-hue AA twins on record in the research log. */
-  --gm-tab-mint: #06be86;
-  --gm-tab-gold: #d16b05;
-  --gm-tab-cyan: #03a3c0;
-  --gm-tab-viol: #5f2fd8;
+  /* master-detail nav-box colors — owner's vivid light palette, rev2 (Figma 759:2, 2026-08-26).
+     Measured on #f7eedf / on the checked-tab ground #e9dfd0:
+       mint #00a377 2.81/2.45 · gold #c34b00 4.22/3.68 · cyan #009bc6 2.81/2.45
+       viol #5c0ac7 7.86/6.86 · magenta #db15ba 3.78/3.30
+     rev2 improved every one (mint +0.72, gold +1.08, cyan +0.20, viol +1.53, mag +0.57).
+     Still under the 4.5 AA floor at the 16.5px label size for all but violet — deliberate,
+     appearance-led; checked-safe twins that clear both grounds are on record in the
+     research log (mint #047251, gold #9b4f04, cyan #026d81, magenta #b60f9b). */
+  --gm-tab-mint: #00a377;
+  --gm-tab-gold: #c34b00;
+  --gm-tab-cyan: #009bc6;
+  --gm-tab-viol: #5c0ac7;
   /* slide-8 ensemble accent inks — light twins follow the tab tokens (brown-ink law:
      base text stays text-1; only accents carry flavor) */
-  --gm-s8-mint-ink: #06be86;
-  --gm-s8-gold-ink: #d16b05;
-  --gm-s8-mag-ink: #ed21cb; /* owner 2026-08-26; 3.21:1 (large-text only) */
+  --gm-s8-mint-ink: #00a377;
+  --gm-s8-gold-ink: #c34b00;
+  --gm-s8-mag-ink: #db15ba; /* 3.78:1 — passes at the 24px-bold desktop size; the <=1120px
+      rule collapses these boxes to 16px, where 4.5 would be required */
   /* custom blocks: keep the warm palette (style.css ships julia-blue tip defaults) */
   --vp-custom-block-tip-border: #096b4d;
   --vp-custom-block-tip-text: var(--vp-c-text-1);
@@ -285,8 +292,15 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
 .gm-hero-tagline code { font-family: var(--vp-font-family-mono); color: var(--vp-code-color); background: var(--vp-code-bg); border-radius: 4px; padding: 2px 6px; }
 .gm-metaline { margin-top: 30px; font-family: var(--vp-font-family-mono); font-size: 23px; font-weight: 700; white-space: normal; line-height: 1.5;
   display: inline-block; border: 1.5px solid var(--gm-hero-box); border-radius: 12px; padding: 14px 22px; color: var(--gm-hero-ink); } /* border was 2px; owner thinned it in the sketch */
-.gm-metaline .h { color: var(--gm-signature); }
-.gm-metaline .t { color: var(--gm-signature); }
+/* The #~ sigil is set larger than the sentence it heads, with tracking between the two
+   glyphs (owner 2026-08-26: 32px on a 23px line = 1.391em, 3px/5px = 0.094/0.156em).
+   Kept in em so it scales with the 23 -> 17 -> 15px responsive steps below — which also
+   keeps it above the 18.66px-bold large-text threshold at every width (32 / 23.6 / 20.9px),
+   so the vivid magenta clears its 3:1 floor on phones too, not just on desktop. */
+.gm-metaline .h,
+.gm-metaline .t { font-size: 1.391em; line-height: 0; vertical-align: -0.06em; }
+.gm-metaline .h { color: var(--gm-signature); letter-spacing: 0.094em; }
+.gm-metaline .t { color: var(--gm-signature); letter-spacing: 0.156em; }
 .gm-metaline .r { color: var(--gm-hero-ink); font-weight: 700; }
 .gm-metaline-inner { display: inline-block; vertical-align: bottom; }
 .gm-chips { margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; }
@@ -318,7 +332,7 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .gm-features { max-width: 1152px; margin: 0 auto; padding: 0 32px 56px; }
 .gm-features-inner { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px; }
 .gm-card { background: transparent; border: 1.5px solid var(--gm-card-outline); border-radius: 12px; padding: 28px 26px; }
-.gm-eyebrow { font-family: var(--vp-font-family-mono); font-size: 12.5px; letter-spacing: 0.06em; color: #d16b05; margin-bottom: 12px; } /* light gold, owner 2026-08-26 */
+.gm-eyebrow { font-family: var(--vp-font-family-mono); font-size: 12.5px; letter-spacing: 0.06em; color: #c34b00; margin-bottom: 12px; } /* light gold, owner 2026-08-26 */
 .dark .gm-eyebrow { color: #ffcb1a; } /* joins --gm-tab-gold: one gold (owner 2026-08-26) */
 .gm-eyebrow .h { color: var(--gm-hero-hash); }
 .gm-card h2 { font-size: 16.5px; font-weight: 700; margin: 0 0 10px; padding: 0; border: none; color: var(--vp-c-text-1); }
