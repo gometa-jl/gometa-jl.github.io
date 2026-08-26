@@ -393,15 +393,32 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .m-sig { font-weight: 700; font-size: 1.15em; }
 .m-bigl { font-size: 1.2em; }
 .m-big { font-size: 1.08em; }
-.m-grid { display: grid; grid-template-columns: 1fr 1.4fr 1.15fr; gap: 22px; align-items: start; }
-.m-col { display: flex; flex-direction: column; gap: 22px; align-items: center; }
-.m-box { border: 2px solid; border-radius: 16px; padding: 20px 22px; width: 100%;
+/* FREE POSITIONING (owner 2026-08-26) — the merci boxes work exactly like the front page's
+   slide-8 ensemble: .m-grid is the coordinate space and every box carries its own left/top/width
+   taken straight from the Figma frame. Origin (0,0) = the top-left of the first row of boxes,
+   i.e. the frame's inner edge just under the merciLine. Move a box in Figma, read off its x/y,
+   subtract the origin, paste here — nothing else reflows.
+   HEIGHTS ARE DELIBERATELY NOT SET: they follow the text, so a longer message can never clip.
+   The usable inner width is 1125px (1180 frame - 3 border - 52 padding); keep left+width within
+   it. Below 1220px — the width at which the frame can no longer be full size — the whole thing
+   collapses to one stacked column in DOM order. */
+.m-grid { position: relative; height: 520px; }
+.m-box { position: absolute; box-sizing: border-box;
+  border: 2px solid; border-radius: 16px; padding: 20px 22px;
   text-align: center; font-size: 15px; line-height: 1.65; }
-.m-mami { border-color: var(--gm-signature); font-size: 16.5px; margin-top: 26px; }
+.m-mami   { left: 0;     top: 26px;  width: 305px; }
+.m-note   { left: 333px; top: 0;     width: 427px; }
+.m-beach  { left: 775px; top: 0;     width: 350px; }
+.m-cyan   { left: 0;     top: 196px; width: 305px; }
+.m-berg   { left: 775px; top: 161px; width: 350px; }
+.m-violet { left: 333px; top: 276px; width: 427px; }
+.m-green  { left: 0;     top: 395px; width: 305px; }
+.m-blank  { left: 366px; top: 452px; width: 362px; }
+.m-mami { border-color: var(--gm-signature); font-size: 16.5px; }
 .m-note { border-color: var(--vp-c-text-1); font-size: 14.5px; }
 .m-note p { margin-bottom: 14px; }
 .m-beach { border-color: var(--gm-tab-gold); color: var(--gm-m-gold-ink); font-weight: 500; }
-.m-berg { border-color: var(--gm-tab-mint); color: var(--gm-m-mint-ink); margin-top: 10px; }
+.m-berg { border-color: var(--gm-tab-mint); color: var(--gm-m-mint-ink); }
 .m-h { font-weight: 700; }
 /* owner 2026-08-26 (Figma 1039:2): the cyan / green / violet boxes stopped being "…" dot
    placeholders and now carry real messages, each with its own weight + size as drawn. */
@@ -412,6 +429,7 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .m-bigemoji { font-size: 1.33em; }          /* the 🍻 the owner enlarged (20px on a 15px line) */
 /* a spare box, deliberately empty and styled like the rest, ready to take text */
 .m-blank { border-color: var(--gm-m-blank); min-height: 46px; }
+.m-sac { font-size: 10px; font-weight: 600; }   /* the SAC aside, as drawn */
 /* .m-dots / .m-orange are unused since the boxes gained content and the orange one was
    dropped — kept so a dot-box can return in one line of markup. */
 .m-dots { padding: 10px 18px; font-weight: 700; letter-spacing: 0.3em; width: 60%; }
@@ -424,8 +442,13 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .m-fineprint { width: fit-content; margin: 26px -14px -26px auto; border: 1px solid var(--gm-m-fine);
   border-radius: 8px; padding: 3px 12px; color: var(--gm-m-fine); font-size: 10.5px; line-height: 1.6;
   font-family: Arial, Helvetica, sans-serif; text-align: center; white-space: nowrap; }
+@media (max-width: 1220px) {
+  /* below the frame's full width the absolute coordinates no longer fit — stack in DOM order */
+  .m-grid { position: static; height: auto; display: flex; flex-direction: column; gap: 22px;
+    align-items: center; }
+  .m-box { position: static; left: auto; top: auto; width: 100%; }
+}
 @media (max-width: 860px) {
-  .m-grid { grid-template-columns: 1fr; }
   .m-line { margin-top: -52px; font-size: 15px; }
   .m-frame { padding: 22px 14px 26px; }
   .m-mami { margin-top: 0; }
