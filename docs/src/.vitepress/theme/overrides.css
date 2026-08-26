@@ -299,7 +299,7 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
 .dark .gm-hero-tagline { color: var(--vp-c-text-1); } /* bright body per agreed D2 frame (owner 2026-08-25) */
 .gm-hero-tagline code { font-family: var(--vp-font-family-mono); color: var(--vp-code-color); background: var(--vp-code-bg); border-radius: 4px; padding: 2px 6px; }
 .gm-metaline { margin-top: 30px; font-family: var(--vp-font-family-mono); font-size: 23px; font-weight: 700; white-space: normal; line-height: 1.5;
-  display: inline-block; border: 1.5px solid var(--gm-hero-box); border-radius: 12px; padding: 14px 22px; color: var(--gm-hero-ink); } /* border was 2px; owner thinned it in the sketch */
+  display: inline-block; border: 2px solid var(--gm-hero-box); border-radius: 12px; padding: 14px 22px; color: var(--gm-hero-ink); } /* 1.5 -> 2px, owner 2026-08-26 */
 /* The #~ sigil is set larger than the sentence it heads, with tracking between the two
    glyphs (owner 2026-08-26: 32px on a 23px line = 1.391em, 3px/5px = 0.094/0.156em).
    Kept in em so it scales with the 23 -> 17 -> 15px responsive steps below — which also
@@ -426,7 +426,7 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
   color: #fff2f0; } /* was pure white; owner 2026-08-24: slightly more rose */
 html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
 .gm-s8 { position: relative; height: 477px; margin-top: 29px; }
-.gm-s8-box { position: absolute; box-sizing: border-box; border: 1px solid;
+.gm-s8-box { position: absolute; box-sizing: border-box; border: 2px solid;
   border-radius: 12px; display: flex; align-items: center; justify-content: center;
   text-align: center; padding: 8px 12px; line-height: 1.35; color: var(--vp-c-text-1); }
 .gm-s8-box .gm8-a { font-weight: 700; }
@@ -441,7 +441,8 @@ html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
 .gm-s8 .gm8-go,
 .gm-s8 .gm8-meta { font-size: 1.15em; line-height: 1.174; }
 .gm-s8-key  { left: 590px; top: 0;     width: 323px; height: 41px;  font-size: 16px; /* 550 in sketch; +40 restores the 26px clearance the mint wrap-fix consumed */
-  border-color: var(--vp-c-text-1); border-radius: 10px; }
+  border-color: var(--vp-c-text-1); border-radius: 10px; border-width: 1px; } /* the two whitish
+    boxes stay at the thin weight so the coloured ones carry the emphasis (owner 2026-08-26) */
 .gm-s8-mint { left: 60px;  top: 41px;  width: 504px; height: 167px; font-size: 20px;
   border-color: var(--gm-tab-mint); }
 .gm-s8-mint .gm8-a, .gm-s8-mint .gm8-m { color: var(--gm-s8-mint-ink); }
@@ -449,12 +450,13 @@ html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
   border-color: var(--gm-tab-gold); }
 .gm-s8-gold .gm8-a, .gm-s8-gold .gm8-m { color: var(--gm-s8-gold-ink); }
 .gm-s8-mag  { left: 244px; top: 248px; width: 335px; height: 158px; font-size: 24px;
-  border-color: var(--gm-signature); border-width: 2px; }
+  border-color: var(--gm-signature); border-width: 3px; } /* one step above the rest */
 .gm-s8-mag .gm8-a, .gm-s8-mag .gm8-m { color: var(--gm-s8-mag-ink); }
-.gm-s8-viol { left: 612px; top: 329px; width: 294px; height: 89px;  font-size: 20px;
+.gm-s8-viol { left: 612px; top: 329px; width: 296px; height: 89px;  font-size: 20px; /* 294+2:
+    the 2px border eats 2px of inner width; this restores the original line break */
   border-color: var(--gm-tab-viol); }
 .gm-s8-rose { left: 670px; top: 440px; width: 328px; height: 37px;  font-size: 15px;
-  border-color: var(--vp-c-text-1); border-radius: 10px; }
+  border-color: var(--vp-c-text-1); border-radius: 10px; border-width: 1px; }
 .gm-s8 .gm8-go   { font-family: var(--vp-font-family-mono); font-weight: 700; color: var(--gm-s8-mint-ink); }
 .gm-s8 .gm8-meta { font-family: var(--vp-font-family-mono); font-weight: 700; font-style: italic; color: var(--gm-tab-viol); }
 .gm-hero-v2 .gm-hero-actions { margin-top: 10px; }
