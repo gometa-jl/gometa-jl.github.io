@@ -431,6 +431,15 @@ html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
   text-align: center; padding: 8px 12px; line-height: 1.35; color: var(--vp-c-text-1); }
 .gm-s8-box .gm8-a { font-weight: 700; }
 .gm-s8-box .gm8-m { font-family: var(--vp-font-family-mono); font-weight: 700; }
+/* "GoMeta" is set one step larger than the body text of whichever coloured box it sits in
+   (owner 2026-08-26). 1.15em resolves to +3.0px in the mint and violet boxes (20 -> 23),
+   +2.85 in gold (19 -> 21.9), +3.6 in magenta (24 -> 27.6) and +2.4 in the <=1120px stacked
+   state (16 -> 18.4) — i.e. the requested 2-4px band, centred on 3, from ONE rule.
+   line-height 1.174 = 1.35 / 1.15 makes the enlarged word's line box exactly equal to the
+   box's own 1.35 line box, so nothing grows vertically inside these fixed-height boxes. */
+.gm-s8-box .gm8-m,
+.gm-s8 .gm8-go,
+.gm-s8 .gm8-meta { font-size: 1.15em; line-height: 1.174; }
 .gm-s8-key  { left: 590px; top: 0;     width: 323px; height: 41px;  font-size: 16px; /* 550 in sketch; +40 restores the 26px clearance the mint wrap-fix consumed */
   border-color: var(--vp-c-text-1); border-radius: 10px; }
 .gm-s8-mint { left: 60px;  top: 41px;  width: 504px; height: 167px; font-size: 20px;
