@@ -409,7 +409,7 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
    The usable inner width is 1125px (1180 frame - 3 border - 52 padding); keep left+width within
    it. Below 1220px — the width at which the frame can no longer be full size — the whole thing
    collapses to one stacked column in DOM order. */
-.m-grid { position: relative; height: 620px; }
+.m-grid { position: relative; height: 640px; }   /* tallest box bottom is 624 */
 .m-box { position: absolute; box-sizing: border-box;
   border: 2px solid; border-radius: 16px; padding: 20px 16px;   /* 22 -> 16: matches the text
      width inside the owner's Figma boxes, so lines wrap at the same words */
@@ -418,7 +418,10 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .m-mami   { left: -12px; top: 39px;  width: 305px; }
 .m-beach  { left: 813px; top: 62px;  width: 333px; }
 .m-cyan   { left: 8px;   top: 248px; width: 305px; }
-.m-berg   { left: 757px; top: 259px; width: 340px; }
+.m-berg   { left: 769px; top: 259px; width: 340px; }   /* 757 -> 769: the note box renders
+     26px taller here than in the sketch, and its right edge sat 10px inside this box —
+     harmless in Figma where they did not share vertical space, a real overlap on the page.
+     Shifting this box right clears it without touching the note box or reflowing anything. */
 .m-violet { left: 413px; top: 299px; width: 265px; }
 .m-green  { left: 45px;  top: 468px; width: 305px; }
 .m-blank  { left: 508px; top: 530px; width: 310px; }
