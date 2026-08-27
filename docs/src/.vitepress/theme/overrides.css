@@ -121,7 +121,10 @@
   --gm-m-green: #25480a;   /* 9.08:1 (was #35690e at 5.74) */
   --gm-m-orange-ink: var(--vp-c-warning-1);
   --gm-m-viol-ink: var(--gm-tab-viol);
-  --gm-m-fine: #e9dfcc; /* 1.15:1 on the light ground — matches the 1.37:1 the #333 joke
+  --gm-m-rose: #6d362c;   /* the mami-thread accent: same hue as dark's #f8d4ce and the
+      same relationship to the default ink (0.82x its contrast), so it reads as the same
+      gentle warm highlight rather than the same hex */
+  --gm-m-fine: #ede4d3; /* 1.10:1 on the light ground — matches the 1.37:1 the #333 joke
       has on the dark ground, so the fineprint stays a whisper in BOTH modes */
   --gm-m-blank: #8e7345; /* the spare box: the light counterpart of dark's warm off-white —
       one step softer than the neutral note box, as the owner asked ("a bit browner") */
@@ -208,7 +211,8 @@
   --gm-m-green-ink: #e4ffc2;
   --gm-m-orange-ink: #ffc099;
   --gm-m-viol-ink: #cea8f0;
-  --gm-m-fine: #2e2823;   /* 1.19:1 — a step quieter still (owner 2026-08-26) */
+  --gm-m-rose: #f8d4ce;   /* the mami-thread accent (12.57:1) */
+  --gm-m-fine: #28231e;   /* 1.11:1 — quieter again (owner 2026-08-27) */
   --gm-m-cyan: #4ad2e9;   /* owner's brightened merci cyan (9.60:1) */
   --gm-m-green: #84e53f;  /* owner's brightened merci green (10.90:1) */
   --gm-m-blank: #e8d9cc; /* whitish like the note box, warmed a step browner */
@@ -409,43 +413,53 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
    The usable inner width is 1125px (1180 frame - 3 border - 52 padding); keep left+width within
    it. Below 1220px — the width at which the frame can no longer be full size — the whole thing
    collapses to one stacked column in DOM order. */
-.m-grid { position: relative; height: 640px; }   /* tallest box bottom is 624 */
+.m-grid { position: relative; height: 700px; }
 .m-box { position: absolute; box-sizing: border-box;
   border: 2px solid; border-radius: 16px; padding: 20px 16px;   /* 22 -> 16: matches the text
      width inside the owner's Figma boxes, so lines wrap at the same words */
   text-align: center; font-size: 15px; line-height: 1.65; }
 .m-note   { left: 335px; top: -7px;  width: 432px; }
 .m-mami   { left: -12px; top: 39px;  width: 305px; }
-.m-beach  { left: 813px; top: 62px;  width: 333px; }
-.m-cyan   { left: 8px;   top: 248px; width: 305px; }
-.m-berg   { left: 769px; top: 259px; width: 340px; }   /* 757 -> 769: the note box renders
+.m-beach  { left: 822px; top: 75px;  width: 324px; }
+.m-cyan   { left: 6px;   top: 257px; width: 305px; }
+.m-berg   { left: 756px; top: 297px; width: 340px; }   /* 757 -> 769: the note box renders
      26px taller here than in the sketch, and its right edge sat 10px inside this box —
      harmless in Figma where they did not share vertical space, a real overlap on the page.
      Shifting this box right clears it without touching the note box or reflowing anything. */
-.m-violet { left: 413px; top: 299px; width: 265px; }
+.m-violet { left: 402px; top: 360px; width: 252px; }   /* 241 + 11: the browser sets the
+     🍻 wider than Figma does, so the heading needs 225px of inner width to stay on one
+     line as drawn; 252 with a 10px inset gives 228 */
 .m-green  { left: 45px;  top: 468px; width: 305px; }
-.m-blank  { left: 508px; top: 530px; width: 310px; }
-.m-mami { border-color: var(--gm-signature); font-size: 16.5px; }
+.m-blank  { left: 543px; top: 587px; width: 269px; }
+.m-mami { border-color: var(--gm-signature); font-size: 16.5px; color: var(--gm-m-rose); }
 .m-note { border-color: var(--vp-c-text-1); font-size: 14.5px; }
 .m-note p { margin-bottom: 14px; }
 .m-beach { border-color: var(--gm-tab-gold); color: var(--gm-m-gold-ink); font-weight: 500;
   }
-.m-berg { border-color: var(--gm-tab-mint); color: var(--gm-m-mint-ink); }
+.m-berg { border-color: var(--gm-tab-mint); color: var(--gm-m-mint-ink);
+  padding-left: 14px; padding-right: 14px; }   /* measured: the "zäme mit euch …" line needs
+     305px inside a 340 box — 16px insets left it 1px short */
 .m-h { font-weight: 700; }
 /* owner 2026-08-26 (Figma 1039:2): the cyan / green / violet boxes stopped being "…" dot
    placeholders and now carry real messages, each with its own weight + size as drawn. */
 .m-welli { font-weight: 600; }              /* body SemiBold under the 700 .m-h heading */
-.m-bb    { font-weight: 500; }              /* body Medium */
+.m-bb    { font-weight: 500; padding-left: 10px; padding-right: 10px; }   /* measured: the
+     heading needs 211px (the 🍻 runs at 1.33em) and the box is 241 wide, so the inset has to
+     be 12 to keep it on one line as drawn */
 .m-leuven { font-size: 14px; }              /* this one is set a step smaller */
 .m-tiny  { font-size: 8px; font-weight: 600; }   /* the muttered-aside lines */
 .m-bigemoji { font-size: 1.33em; }          /* the 🍻 the owner enlarged (20px on a 15px line) */
 /* a spare box, deliberately empty and styled like the rest, ready to take text */
 .m-blank { border-color: var(--gm-m-blank); min-height: 46px; }
-.m-sac { font-size: 10px; font-weight: 600; }   /* the SAC aside, as drawn */
+.m-sac { font-size: 9px; font-weight: 500; }   /* the SAC aside, as drawn */
 .m-small { font-size: 13px; }   /* the quieter second half of the mountain box */
-.m-aside { font-size: 10px; }        /* the bracketed line under "mis Mami!" */
+.m-aside { font-size: 10px; color: var(--vp-c-text-1); }   /* the bracketed line stays the
+     default ink while the rest of the mami box takes the rose accent */
+.m-rose { color: var(--gm-m-rose); }
+.m-welli-emoji { font-size: 16px; }
+.m-zaeme { font-size: 14px; font-weight: 600; }
 .m-drum { font-size: 15px; }         /* the closing paragraph of the big note box */
-.m-gwidmet { font-size: 18px; font-weight: 600; }   /* its emphasised middle line */
+.m-gwidmet { font-size: 18px; font-weight: 700; color: var(--gm-m-rose); }
 .m-bb-body { font-size: 14px; }
 .m-beach-body { font-size: 14px; font-weight: 500; }
 .m-semi { font-weight: 600; }

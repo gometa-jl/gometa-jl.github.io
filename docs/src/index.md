@@ -41,7 +41,7 @@ footer: true
       <div class="gm-intro">
         <p class="gm-hero-tagline">The core idea of GoMeta is to embed formalized meaning within all kinds of
           comments and provide Extensions with its interpretations so they can act on them.</p>
-        <p class="gm-hero-tagline">So on the one hand, GoMeta is a domain specific language for metadata and on
+        <p class="gm-hero-tagline">So on the one hand, GoMeta is a domain-specific language for metadata and on
           the other a framework with facilities which Extensions can build on.</p>
       </div>
     </div>
@@ -58,7 +58,7 @@ footer: true
       <label class="gm-tabbox gm-tb-mint" for="gmt-core"><strong>Core Concept:</strong> Why embed metadata into comments?</label>
       <div class="gm-tabpanel gm-tp-core">
           <span class="gm-tp-title">Core Concept: Why embed metadata into comments?</span>
-          <p>Language agnostic, since the metadata remains &ldquo;hidden&rdquo; within the comments &mdash; the host file stays an ordinary file, and the host language sees nothing but a comment.</p>
+          <p>Language-agnostic, since the metadata remains &ldquo;hidden&rdquo; within the comments &mdash; the host file stays an ordinary file, and the host language sees nothing but a comment.</p>
           <p>One source file, all kinds of output formats &mdash; and webs of atomic data units instead of hierarchies: a folder must place an item at a single position; labels weave a web.</p>
           <p>GoMeta provides the means; Extensions serve the use cases.</p>
           <p>And the safety posture is part of the idea: GoMeta <strong>evaluates</strong> metadata &mdash; it never executes the file it processes.</p>
@@ -90,10 +90,10 @@ footer: true
         <label class="gm-tabbox gm-tb-viol" for="gmt-cases"><strong>Use Cases:</strong></label>
         <div class="gm-tabpanel gm-tp-cases">
           <span class="gm-tp-title">Use Cases:</span>
-          <p>Four, seemingly unrelated use cases illustrate what GoMeta <strong>can</strong> be used for &mdash; but they are <strong>not</strong> GoMeta: Extensions serve them.</p>
+          <p>Four seemingly unrelated use cases illustrate what GoMeta <strong>can</strong> be used for &mdash; but they are <strong>not</strong> GoMeta: Extensions serve them.</p>
           <ul>
             <li><strong>Find it again</strong> &mdash; adding meaning to content can change the game; the shipped demo <code>find_by_label.jl</code> answers: which pieces of which files carry this label.</li>
-            <li><strong>Webs of atomic data units</strong> &mdash; link fragments across files, put things into context. This one requires not only an Extension but also a database as back end.</li>
+            <li><strong>Webs of atomic data units</strong> &mdash; link fragments across files, put things into context. This one requires not only an Extension but also a database as a back end.</li>
             <li><strong>One source file, all kinds of output formats</strong> &mdash; shipped today: four notebook editions, an executed twin and two Documenter pages from one marked file.</li>
             <li><strong>Share on your terms</strong> &mdash; marking private passages would allow automated removal before sharing; GoMeta&rsquo;s own source has been processed this way.</li>
           </ul>
@@ -117,7 +117,7 @@ footer: true
       <div class="gm-card">
         <div class="gm-eyebrow"><span class="h">#~</span> 3 &middot; extend</div>
         <h2>Extensions act</h2>
-        <p>GoMeta passes its evaluations on to Extensions, which act on them. Like languages, GoMeta by itself is not producing anything &mdash; it provides the means, the metadata-Blocks, to build something. Speedily retrieving a long-forgotten snippet, linking fragments across files, one source file for all kinds of output formats, automated removal of private passages before sharing: illustrations of what GoMeta can be used for &mdash; but they are <strong>not</strong> GoMeta. A web of atomic data units, for one, requires not only an Extension but also a database as back end.</p>
+        <p>GoMeta passes its evaluations on to Extensions, which act on them. Like languages, GoMeta by itself is not producing anything &mdash; it provides the means, the metadata-Blocks, to build something. Speedily retrieving a long-forgotten snippet, linking fragments across files, one source file for all kinds of output formats, automated removal of private passages before sharing: illustrations of what GoMeta can be used for &mdash; but they are <strong>not</strong> GoMeta. A web of atomic data units, for one, requires not only an Extension but also a database as a back end.</p>
       </div>
       <div class="gm-card">
         <div class="gm-eyebrow"><span class="h">#~</span> 4 &middot; alterants</div>
@@ -127,7 +127,7 @@ footer: true
       <div class="gm-card">
         <div class="gm-eyebrow"><span class="h">#~</span> 5 &middot; syntax</div>
         <h2>There is a GoMeta syntax</h2>
-        <p>It is very essential to GoMeta. Any line starting with <code>#~</code> is a metaLine &mdash; it will be processed as metadata. Contiguous metaLines constitute a metaBlock; positioned just above a block of code or text, the metaBlock gets attached &mdash; similar to how docstrings get associated with Julia structures following them. Three content flavors at 0.3.0: <code>:julia</code> for <code>#</code>, <code>:c</code> for <code>//</code>, <code>:latex</code> for <code>%</code> &mdash; selected explicitly, never inferred. The same principles are easily extended to other programming languages or project data in general.</p>
+        <p>It is essential to GoMeta. Any line starting with <code>#~</code> is a metaLine &mdash; it will be processed as metadata. Contiguous metaLines constitute a metaBlock; positioned just above a block of code or text, the metaBlock gets attached &mdash; similar to how docstrings get associated with Julia structures following them. Three content flavors at 0.3.0: <code>:julia</code> for <code>#</code>, <code>:c</code> for <code>//</code>, <code>:latex</code> for <code>%</code> &mdash; selected explicitly, never inferred. The same principles are easily extended to other programming languages or project data in general.</p>
       </div>
       <div class="gm-card">
         <div class="gm-eyebrow"><span class="h">#~</span> 6 &middot; secure</div>
