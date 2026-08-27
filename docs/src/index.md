@@ -137,7 +137,7 @@ footer: true
     </div>
   </section>
   <section class="gm-status">
-    <p><strong>Status: alpha.</strong> GoMeta.jl <code>0.3.0</code> implements the v0 subset of the
+    <p><strong>Status: alpha.</strong> GoMeta.jl <code>0.3.2</code> implements the v0 subset of the
     GoMeta language &mdash; a working, tested engine with a byte-exact example oracle: the seven
     committed example pairs render byte-identically, pinned by the shipped 1140-test suite.
     It&rsquo;s alpha &mdash; the surface may still move before <code>1.0</code>.

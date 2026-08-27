@@ -1,7 +1,7 @@
 # Getting started
 
 GoMeta.jl adds interpretable `#~` metadata to ordinary Julia source files — this page takes
-you from install to a first rendered share-view. Current release: **0.3.0** (alpha).
+you from install to a first rendered share-view. Current release: **0.3.2** (alpha).
 
 ## Install
 

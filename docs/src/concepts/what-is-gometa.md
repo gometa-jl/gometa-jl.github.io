@@ -78,7 +78,7 @@ Continue with [metaLines](metalines.md) for the syntax, or jump straight to
 
 ## Status
 
-GoMeta.jl `0.3.0` is **alpha**: a working, tested engine for the **v0 subset** of the GoMeta
+GoMeta.jl `0.3.2` is **alpha**: a working, tested engine for the **v0 subset** of the GoMeta
 language. The committed example corpus — seven input/output pairs — renders **byte-identically**
 under the shipped 1140-test suite, and malformed or extreme input on the witnessed metaLine
 action surface receives a stable, documented refusal (the few remaining edges — including one

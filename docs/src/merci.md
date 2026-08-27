@@ -31,7 +31,7 @@ footer: false
       </div>
       <div class="m-box m-green m-leuven">
         <p class="m-h m-track1">... and the same goes for my<br>beloved Leuven Crew <span class="m-track3">🇧🇪🇬🇷🇵🇹🇹🇷</span></p>
-        <p class="m-tiny">[I shall be better organized the next time I&rsquo;m in the neighborhood 😜 ... I was too late🐒]</p>
+        <p class="m-tiny">[I shall be better organized the next time I&rsquo;m in the neighborhood 😜 ... I&nbsp;was too late🐒]</p>
       </div>
       <div class="m-box m-note">
         <p>Diä 📝 hiä richtet sich a aui won&rsquo;i so "schaamlos" vernachlässigt ha: Äs isch mir äbe aues angere aus rächt – sicher nid ohni Schaam 🙈🐛! Mi nid mäude,</p>
