@@ -537,13 +537,13 @@ html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
 .gm-s8-box .gm8-a { font-weight: 700; }
 /* the slide-8 boxes were the first place "GoMeta" got the enlarged treatment; they
    now carry the wordmark face too, so every GoMeta on the site reads the same
-   (owner 2026-08-27 - was var(--vp-font-family-mono), i.e. the code face). */
-.gm-s8-box .gm8-m, .gm-s8 .gm8-go, .gm-s8 .gm8-meta {
-  font-family: 'Courier Prime', 'Courier New', monospace; font-weight: 700; }
-/* "it is called 'Go/Meta'" - the owner set the Meta half italic in the sketch.
-   Only CourierPrime-Bold.ttf is self-hosted, so this is a SYNTHESIZED oblique;
-   shipping the real OFL Bold Italic face is a one-file follow-up. */
-.gm-s8 .gm8-meta { font-style: italic; }
+   (owner 2026-08-27 - was var(--vp-font-family-mono), i.e. the code face).
+   .gm8-go / .gm8-meta are DELIBERATELY not listed here: the violet box's two
+   halves are owned further down, next to their two-tone colour. Listing them in
+   both places is what silently lost the face once - the later rule has the same
+   specificity and simply won. */
+.gm-s8-box .gm8-m { font-family: 'Courier Prime', 'Courier New', monospace;
+  font-weight: 700; }
 /* "GoMeta" is set one step larger than the body text of whichever coloured box it sits in
    (owner 2026-08-26). 1.15em resolves to +3.0px in the mint and violet boxes (20 -> 23),
    +2.85 in gold (19 -> 21.9), +3.6 in magenta (24 -> 27.6) and +2.4 in the <=1120px stacked
@@ -570,8 +570,17 @@ html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
   border-color: var(--gm-tab-viol); }
 .gm-s8-rose { left: 670px; top: 440px; width: 328px; height: 37px;  font-size: 15px;
   border-color: var(--vp-c-text-1); border-radius: 10px; border-width: 1px; }
-.gm-s8 .gm8-go   { font-family: var(--vp-font-family-mono); font-weight: 700; color: var(--gm-s8-mint-ink); }
-.gm-s8 .gm8-meta { font-family: var(--vp-font-family-mono); font-weight: 700; font-style: italic; color: var(--gm-tab-viol); }
+/* SOLE OWNER of the violet box's "Go" + "Meta" typography and two-tone colour.
+   The face is the wordmark's Courier Prime, like every other GoMeta on the site
+   (owner 2026-08-27; these two were still on the code face because this pair of
+   rules sits AFTER the wordmark rule above and wins on equal specificity).
+   The italic on the "Meta" half is long-standing, not new. Only
+   CourierPrime-Bold.ttf is self-hosted, so it is a SYNTHESIZED oblique; shipping
+   the real OFL Bold Italic face is a one-file follow-up. */
+.gm-s8 .gm8-go   { font-family: 'Courier Prime', 'Courier New', monospace;
+  font-weight: 700; color: var(--gm-s8-mint-ink); }
+.gm-s8 .gm8-meta { font-family: 'Courier Prime', 'Courier New', monospace;
+  font-weight: 700; font-style: italic; color: var(--gm-tab-viol); }
 .gm-hero-v2 .gm-hero-actions { margin-top: 10px; }
 .gm-intro { margin: 32px 0 0 238px; max-width: 612px; }
 @media (max-width: 1120px) {
