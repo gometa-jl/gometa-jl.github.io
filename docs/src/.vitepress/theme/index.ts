@@ -27,7 +27,13 @@ export const Theme: ThemeConfig = {
       'layout-top': () => h('div', { class: 'gm-draft-banner' }, [
         h('span', { class: 'gm-draft-pill' }, [
           '🚧 ',
-          h('strong', "ATTENTION: GoMeta\u2019s current docs & Co. are largely written by Claude due to limited resources and to get them done in time for JuliaCon2026."),
+          // the banner is Vue-rendered, so the wordmark span is built here rather
+          // than by the markdown text rule (owner 2026-08-27)
+          h('strong', [
+            'ATTENTION: ',
+            h('span', { class: 'gm-name' }, 'GoMeta'),
+            "\u2019s current docs & Co. are largely written by Claude due to limited resources and to get them done in time for JuliaCon2026.",
+          ]),
           h('br'),
           'They are quite comprehensive and ',
           h('strong', 'mostly'),
@@ -87,13 +93,53 @@ export const Theme: ThemeConfig = {
           if (core) core.checked = true
         }
       }
+      // VitePress chrome — sidebar, prev/next, nav menu, outline — renders its labels
+      // from PLAIN STRINGS in the config, so neither the markdown text rule nor a
+      // literal span can reach them ("What is GoMeta?" is the only such label today).
+      // Wrap them after hydration instead, and again on every route change, because
+      // Vue re-renders those lists and would drop the spans. Idempotent by design: a
+      // word already wrapped has a .gm-name ancestor and is skipped.
+      // NOT covered: the search modal, which mounts its results on demand.
+      const CHROME = '.VPSidebarItem .text, .VPDocFooter .title, .VPNavBarMenuLink,'
+        + ' .VPNavScreenMenuLink, .VPDocAsideOutline .outline-link'
+      const nameChrome = () => {
+        for (const root of document.querySelectorAll<HTMLElement>(CHROME)) {
+          if (!root.textContent || !root.textContent.includes('GoMeta')) continue
+          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+          const targets: Text[] = []
+          let node: Node | null
+          while ((node = walker.nextNode())) {
+            const t = node as Text
+            if (!t.data.includes('GoMeta')) continue
+            if (t.parentElement && t.parentElement.closest('.gm-name')) continue
+            targets.push(t)
+          }
+          for (const t of targets) {
+            const frag = document.createDocumentFragment()
+            const re = /\bGoMeta\b/g
+            let last = 0, m: RegExpExecArray | null
+            while ((m = re.exec(t.data)) !== null) {
+              frag.append(t.data.slice(last, m.index))
+              const span = document.createElement('span')
+              span.className = 'gm-name'
+              span.textContent = 'GoMeta'
+              frag.append(span)
+              last = m.index + m[0].length
+            }
+            frag.append(t.data.slice(last))
+            t.replaceWith(frag)
+          }
+        }
+      }
+      const applyPasses = () => { applyInitialState(); nameChrome() }
+
       const prev = router.onAfterRouteChanged
       router.onAfterRouteChanged = (to: string) => {
         if (prev) prev(to)
-        requestAnimationFrame(applyInitialState)
+        requestAnimationFrame(applyPasses)
       }
-      requestAnimationFrame(applyInitialState)
-      setTimeout(applyInitialState, 150)
+      requestAnimationFrame(applyPasses)
+      setTimeout(applyPasses, 150)
       // widening past the breakpoint with everything closed would leave the
       // desktop column empty — re-apply the desktop default on that crossing
       mobileMq.addEventListener('change', (e) => { if (!e.matches) applyInitialState() })

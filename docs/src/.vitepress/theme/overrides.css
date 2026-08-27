@@ -283,6 +283,18 @@ html { background-color: var(--vp-c-bg); }
   src:url('/fonts/courier-prime/CourierPrime-Bold.ttf') format('truetype');}
 .VPNavBarTitle .title { font-family: 'Courier Prime', 'Courier New', monospace; font-weight: 700; }
 
+/* The WORD "GoMeta" carries the wordmark face wherever it appears in running text
+   (owner 2026-08-27, marked up on the dark front page in Figma): the nav wordmark's
+   Courier Prime Bold, one step larger than whatever it sits in. The owner's own runs
+   measured 1.14-1.21x their surrounding text; 1.15em is the single normalized step.
+   line-height:1 is LOAD-BEARING: an enlarged inline run would otherwise raise the line
+   box of just the lines that mention GoMeta, giving a paragraph uneven leading. At 1
+   the run's line box (1.15em) stays under every body context's strut (>=1.35em), so
+   nothing grows vertically and only the horizontal advance changes.
+   MUST stay display:inline - inline-block would break wrapping and the line probe. */
+.gm-name { font-family: 'Courier Prime', 'Courier New', monospace;
+  font-weight: 700; font-size: 1.15em; line-height: 1; }
+
 /* ---- ```gometa fences: flavor palette (rendered by the owned fence rule) -- */
 .vp-doc .gm-syn code { color: var(--gm-syn-meta); }
 .gm-syn .gm-sg { color: var(--gm-syn-sig); font-weight: 700; }
@@ -523,7 +535,15 @@ html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
   border-radius: 12px; display: flex; align-items: center; justify-content: center;
   text-align: center; padding: 8px 12px; line-height: 1.35; color: var(--vp-c-text-1); }
 .gm-s8-box .gm8-a { font-weight: 700; }
-.gm-s8-box .gm8-m { font-family: var(--vp-font-family-mono); font-weight: 700; }
+/* the slide-8 boxes were the first place "GoMeta" got the enlarged treatment; they
+   now carry the wordmark face too, so every GoMeta on the site reads the same
+   (owner 2026-08-27 - was var(--vp-font-family-mono), i.e. the code face). */
+.gm-s8-box .gm8-m, .gm-s8 .gm8-go, .gm-s8 .gm8-meta {
+  font-family: 'Courier Prime', 'Courier New', monospace; font-weight: 700; }
+/* "it is called 'Go/Meta'" - the owner set the Meta half italic in the sketch.
+   Only CourierPrime-Bold.ttf is self-hosted, so this is a SYNTHESIZED oblique;
+   shipping the real OFL Bold Italic face is a one-file follow-up. */
+.gm-s8 .gm8-meta { font-style: italic; }
 /* "GoMeta" is set one step larger than the body text of whichever coloured box it sits in
    (owner 2026-08-26). 1.15em resolves to +3.0px in the mint and violet boxes (20 -> 23),
    +2.85 in gold (19 -> 21.9), +3.6 in magenta (24 -> 27.6) and +2.4 in the <=1120px stacked

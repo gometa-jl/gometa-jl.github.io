@@ -80,6 +80,16 @@ export default defineConfig({
       md.use(tabsMarkdownPlugin),
       md.use(mathjax3),
       md.use(footnote)
+      // The WORD "GoMeta" carries the brand wordmark face in running text (owner
+      // 2026-08-27); .gm-name in overrides.css holds the type. Hooking the renderer's
+      // TEXT rule is what makes this safe: code spans (code_inline), fences (fence)
+      // and image alt / link titles (renderInlineAsText) never route through it, so
+      // no code sample and no attribute value can be rewritten. index.md is one big
+      // @raw html block and carries its spans literally instead.
+      const gmDefaultText = md.renderer.rules.text!
+      md.renderer.rules.text = (tokens, idx, options, env, self) =>
+        gmDefaultText(tokens, idx, options, env, self)
+          .replace(/\bGoMeta\b/g, '<span class="gm-name">GoMeta</span>')
       // ```gometa fences: deck-faithful flavor coloring (sigil/meta/text/code/comment)
       // via theme CSS tokens — shiki has no GoMeta grammar, and the flavor colors are
       // brand surface, so they must follow the light/dark token set, not a shiki theme.
@@ -175,7 +185,7 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/gometa-jl/GoMeta.jl' }
     ],
     footer: {
-      message: 'GoMeta evaluates — it never executes · <a href="mailto:hello@gometa.dev">hello@gometa.dev</a><br>Made with <a href="https://luxdl.github.io/DocumenterVitepress.jl/dev/" target="_blank"><strong>DocumenterVitepress.jl</strong></a>',
+      message: '<span class="gm-name">GoMeta</span> evaluates — it never executes · <a href="mailto:hello@gometa.dev">hello@gometa.dev</a><br>Made with <a href="https://luxdl.github.io/DocumenterVitepress.jl/dev/" target="_blank"><strong>DocumenterVitepress.jl</strong></a>',
       copyright: `© Copyright ${new Date().getUTCFullYear()}.`
     }
   }
