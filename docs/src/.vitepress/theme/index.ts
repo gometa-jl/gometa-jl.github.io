@@ -116,13 +116,13 @@ export const Theme: ThemeConfig = {
           }
           for (const t of targets) {
             const frag = document.createDocumentFragment()
-            const re = /\bGoMeta\b/g
+            const re = /\bGoMeta(?:\.jl)?\b/g   // package name takes it whole
             let last = 0, m: RegExpExecArray | null
             while ((m = re.exec(t.data)) !== null) {
               frag.append(t.data.slice(last, m.index))
               const span = document.createElement('span')
               span.className = 'gm-name'
-              span.textContent = 'GoMeta'
+              span.textContent = m[0]
               frag.append(span)
               last = m.index + m[0].length
             }

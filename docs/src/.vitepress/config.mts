@@ -86,10 +86,14 @@ export default defineConfig({
       // and image alt / link titles (renderInlineAsText) never route through it, so
       // no code sample and no attribute value can be rewritten. index.md is one big
       // @raw html block and carries its spans literally instead.
+      // "GoMeta.jl" is the PACKAGE NAME and takes the treatment whole - unlike
+      // "GoMeta's", where the possessive is grammar and stays in the body face
+      // (owner 2026-08-27). Package-name URLs and Pkg.add strings are unaffected:
+      // they live in link destinations and code spans, neither of which is text.
       const gmDefaultText = md.renderer.rules.text!
       md.renderer.rules.text = (tokens, idx, options, env, self) =>
         gmDefaultText(tokens, idx, options, env, self)
-          .replace(/\bGoMeta\b/g, '<span class="gm-name">GoMeta</span>')
+          .replace(/\bGoMeta(?:\.jl)?\b/g, m => `<span class="gm-name">${m}</span>`)
       // ```gometa fences: deck-faithful flavor coloring (sigil/meta/text/code/comment)
       // via theme CSS tokens — shiki has no GoMeta grammar, and the flavor colors are
       // brand surface, so they must follow the light/dark token set, not a shiki theme.
