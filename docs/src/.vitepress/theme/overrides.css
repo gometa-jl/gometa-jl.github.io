@@ -429,13 +429,15 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .m-violet { left: 402px; top: 360px; width: 252px; }   /* 241 + 11: the browser sets the
      🍻 wider than Figma does, so the heading needs 225px of inner width to stay on one
      line as drawn; 252 with a 10px inset gives 228 */
-.m-green  { left: 45px;  top: 468px; width: 305px; }
+.m-green  { left: 45px;  top: 468px; width: 318px; }   /* 305 + 13: with the owner's 3px emoji
+     tracking the flag line needs 291px, which a 305 box cannot hold without a cramped inset */
 .m-blank  { left: 543px; top: 587px; width: 269px; }
 .m-mami { border-color: var(--gm-signature); font-size: 16.5px; color: var(--gm-m-rose); }
 .m-note { border-color: var(--vp-c-text-1); font-size: 14.5px; }
 .m-note p { margin-bottom: 14px; }
 .m-beach { border-color: var(--gm-tab-gold); color: var(--gm-m-gold-ink); font-weight: 500;
-  }
+  padding-left: 9px; padding-right: 9px; }   /* measured: with the owner's 1px tracking its first
+     line needs 301px inside a 324 box, so the inset has to come down to 9 */
 .m-berg { border-color: var(--gm-tab-mint); color: var(--gm-m-mint-ink);
   padding-left: 14px; padding-right: 14px; }   /* measured: the "zäme mit euch …" line needs
      305px inside a 340 box — 16px insets left it 1px short */
@@ -446,7 +448,7 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .m-bb    { font-weight: 500; padding-left: 10px; padding-right: 10px; }   /* measured: the
      heading needs 211px (the 🍻 runs at 1.33em) and the box is 241 wide, so the inset has to
      be 12 to keep it on one line as drawn */
-.m-leuven { font-size: 14px; }              /* this one is set a step smaller */
+.m-leuven { font-size: 14px; padding-left: 10px; padding-right: 10px; }
 .m-tiny  { font-size: 8px; font-weight: 600; }   /* the muttered-aside lines */
 .m-bigemoji { font-size: 1.33em; }          /* the 🍻 the owner enlarged (20px on a 15px line) */
 /* a spare box, deliberately empty and styled like the rest, ready to take text */
@@ -456,7 +458,10 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
 .m-aside { font-size: 10px; color: var(--vp-c-text-1); }   /* the bracketed line stays the
      default ink while the rest of the mami box takes the rose accent */
 .m-rose { color: var(--gm-m-rose); }
-.m-welli-emoji { font-size: 16px; }
+.m-welli-emoji { font-size: 16px; letter-spacing: 3px; }
+/* the owner tracks emoji runs at 3px and prose at 1px — restored from the sketch */
+.m-track1 { letter-spacing: 1px; }
+.m-track3 { letter-spacing: 3px; }
 .m-zaeme { font-size: 14px; font-weight: 600; }
 .m-drum { font-size: 15px; }         /* the closing paragraph of the big note box */
 .m-gwidmet { font-size: 18px; font-weight: 700; color: var(--gm-m-rose); }

@@ -117,7 +117,7 @@ footer: true
       <div class="gm-card">
         <div class="gm-eyebrow"><span class="h">#~</span> 3 &middot; extend</div>
         <h2>Extensions act</h2>
-        <p>GoMeta passes its evaluations on to Extensions, which act on them. Like languages, GoMeta by itself is not producing anything &mdash; it provides the means, the metadata-Blocks, to build something. Speedily retrieving a long-forgotten snippet, linking fragments across files, one source file for all kinds of output formats, automated removal of private passages before sharing: illustrations of what GoMeta can be used for &mdash; but they are <strong>not</strong> GoMeta. A web of atomic data units, for one, requires not only an Extension but also a database as a back end.</p>
+        <p>GoMeta passes its evaluations on to Extensions, which act on them. Like languages, GoMeta by itself does not produce anything &mdash; it provides the means, the metadata-Blocks, to build something. Speedily retrieving a long-forgotten snippet, linking fragments across files, one source file for all kinds of output formats, automated removal of private passages before sharing: illustrations of what GoMeta can be used for &mdash; but they are <strong>not</strong> GoMeta. A web of atomic data units, for one, requires not only an Extension but also a database as a back end.</p>
       </div>
       <div class="gm-card">
         <div class="gm-eyebrow"><span class="h">#~</span> 4 &middot; alterants</div>
