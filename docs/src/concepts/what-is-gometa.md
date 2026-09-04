@@ -1,3 +1,9 @@
+```@raw html
+---
+u_version: "0.1"
+---
+```
+
 # What is GoMeta?
 
 GoMeta.jl is an *interpretable-metadata* engine for source files, written in Julia. A file

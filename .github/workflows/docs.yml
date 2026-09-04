@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: docs-${{ github.ref }}
@@ -23,7 +23,5 @@ jobs:
       - uses: julia-actions/cache@v2
       - name: Instantiate docs environment
         run: julia --project=docs -e 'using Pkg; Pkg.instantiate()'
-      - name: Build and deploy
+      - name: Build (check only — publishing happens through the GoMetaPublic gate, never from CI)
         run: julia --project=docs docs/make.jl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

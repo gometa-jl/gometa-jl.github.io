@@ -1,3 +1,9 @@
+```@raw html
+---
+u_version: "0.1"
+---
+```
+
 # Examples
 
 Every example here starts from one ordinary **Julia** file carrying `#~` metaLines in its

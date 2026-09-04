@@ -1,3 +1,9 @@
+```@raw html
+---
+u_version: "0.1"
+---
+```
+
 # Getting started
 
 GoMeta.jl adds interpretable `#~` metadata to ordinary Julia source files — this page takes

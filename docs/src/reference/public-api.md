@@ -1,3 +1,9 @@
+```@raw html
+---
+u_version: "0.1"
+---
+```
+
 ::: info Mirrored reference
 
 This page mirrors `docs/public-api.md` from the GoMeta.jl repository at `0.3.0`, verbatim.

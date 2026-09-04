@@ -29,9 +29,5 @@ makedocs(;
     warnonly = true,
 )
 
-DocumenterVitepress.deploydocs(;
-    repo = "github.com/gometa-jl/gometa-jl.github.io",
-    devbranch = "main",
-    branch = "gh-pages",
-    push_preview = false,
-)
+# No deploydocs: since 2026-09-03 nothing is published by CI. The site root on gh-pages is pushed only by the
+# owner through the GoMetaPublic publish gate (exactly the previewed local build). CI builds as a check only.

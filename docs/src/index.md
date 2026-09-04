@@ -1,5 +1,6 @@
 ```@raw html
 ---
+u_version: "0.1"
 layout: page
 navbar: true
 sidebar: false

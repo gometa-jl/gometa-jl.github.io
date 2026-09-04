@@ -18,11 +18,10 @@ const navTemp = {
   nav: 'REPLACE_ME_DOCUMENTER_VITEPRESS',
 }
 
+// No VersionPicker: since 2026-09-03 the site has one published version (the root); the CI-built
+// dev/ tree and versions.js are retired (GoMetaPublic publish gate, decision D13).
 const nav = [
   ...navTemp.nav,
-  {
-    component: 'VersionPicker'
-  }
 ]
 
 // https://vitepress.dev/reference/site-config
@@ -45,8 +44,7 @@ export default defineConfig({
     ['meta', { property: 'og:image', content: 'https://gometa.dev/og-card.jpg' }],
     ['meta', { property: 'og:url', content: 'https://gometa.dev/' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
-    ['script', {src: `${getBaseRepository(baseTemp.base)}versions.js`}],
-    // ['script', {src: '/versions.js'], for custom domains, I guess if deploy_url is available.
+    // versions.js is no longer served (single published version; see the nav comment above)
     ['script', {src: `${baseTemp.base}siteinfo.js`}]
   ],
   

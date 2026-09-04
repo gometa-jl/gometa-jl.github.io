@@ -1,3 +1,9 @@
+```@raw html
+---
+u_version: "0.1"
+---
+```
+
 # metaLines
 
 A metaLine is an ordinary Julia comment with one extra character: it starts with `#~`
