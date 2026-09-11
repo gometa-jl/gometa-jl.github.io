@@ -1,6 +1,7 @@
 ```@raw html
 ---
 u_version: "0.1"
+description: "GoMeta can be embedded in all kinds of other programming languages as well as in Word documents or be attached to files themselves."
 layout: page
 navbar: true
 sidebar: false

@@ -6,8 +6,9 @@ u_version: "0.1"
 
 # What is GoMeta?
 
-GoMeta.jl is an *interpretable-metadata* engine for source files, written in Julia. A file
-carries its ordinary content plus `#~` **metaLines** — comment lines with machine-interpretable
+GoMeta.jl is an *interpretable-metadata* engine, written in Julia, designed to work between,
+behind and within your data: in any programming language and any file format. A file carries
+its ordinary content plus `#~` **metaLines** — comment lines with machine-interpretable
 metadata (labels, visibility actions, conditions) sitting right beside the content they describe.
 
 GoMeta **absorbs** the metaLines, **evaluates** which *alterants* apply to each piece of

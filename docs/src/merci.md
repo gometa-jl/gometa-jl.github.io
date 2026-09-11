@@ -1,6 +1,7 @@
 ```@raw html
 ---
 u_version: "0.1"
+title: "Merci"
 layout: page
 navbar: true
 sidebar: false

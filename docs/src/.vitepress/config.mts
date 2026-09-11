@@ -28,20 +28,56 @@ const nav = [
 export default defineConfig({
   base: 'REPLACE_ME_DOCUMENTER_VITEPRESS',// TODO: replace this in makedocs!
   title: 'REPLACE_ME_DOCUMENTER_VITEPRESS',
-  // literal (not the REPLACE_ME slot): the builder's default is "Documentation for <sitename>"
-  description: 'One #~ comment line makes a file retrievable, interlinkable, re-renderable, and shareable on your terms — read by tools, never run by them.',
+  // literal (not the REPLACE_ME slot): the builder's default is "Documentation for <sitename>".
+  // The site-wide one-liner (owner ruling 2026-09-11, 74 chars, within WhatsApp's "80 characters
+  // will suffice"): the <meta name=description> of every page that carries no `description:`
+  // of its own and the og:description of every inner-page card (see transformHead below).
+  // The front page carries its own `description:` (the owner's full slide-8 sentence).
+  description: 'GoMeta — between, behind, within your data: any language, any file format.',
   lastUpdated: true,
   cleanUrls: true,
   outDir: 'REPLACE_ME_DOCUMENTER_VITEPRESS', // This is required for MarkdownVitepress to work correctly...
+  // Per-page link-preview tags for every page EXCEPT the front page (which keeps the
+  // hand-written card in `head` below) and the 404 page: a shared inner link previews as
+  // itself — its "<page title> | GoMeta" title, its own description (frontmatter
+  // `description:` if a page carries one, else the site description above) and its own
+  // clean URL, instead of the front page's card with og:url = the root (the state before
+  // 2026-09-11). Dedupe rule (VitePress 1.6.4 mergeHead/hasTag): a site-level meta is dropped
+  // when a returned entry carries the same value for the SITE entry's FIRST attribute — so
+  // `property`/`name` must stay the first key of the site-level og entries below, and each
+  // returned entry must carry that attribute. Verified in the built HTML: one og:title /
+  // og:description / og:url per page (previews/<id>/heads.txt).
+  // /talk/ is a verbatim public/ asset that no hook reaches: its tags live in
+  // docs/src/public/talk/index.html.
+  transformHead({ pageData, title, description }) {
+    const rel = pageData.relativePath
+    if (rel === 'index.md' || rel === '404.md') return []
+    const p = rel.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '')
+    return [
+      ['meta', { property: 'og:title', content: title }],
+      ['meta', { property: 'og:description', content: description }],
+      ['meta', { property: 'og:url', content: `https://gometa.dev/${p}` }],
+    ]
+  },
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
     // Declares light+dark support to the UA. LOAD-BEARING for Android Chrome's
     // "Darken websites" auto-dark: without it Chrome inverts the light theme into
     // near-black instead of letting the site serve its own brown dark theme.
     ['meta', { name: 'color-scheme', content: 'light dark' }],
-    ['meta', { property: 'og:title', content: 'GoMeta — interpretable metadata for source files' }],
-    ['meta', { property: 'og:description', content: 'One #~ comment line makes a file retrievable, interlinkable, re-renderable, and shareable on your terms — read by tools, never run by them.' }],
+    // Link-preview card of the FRONT PAGE (WhatsApp, Signal, iMessage, …): owner ruling
+    // 2026-09-11, card A — the owner's slide-8 words only. WhatsApp shows the title in at most
+    // 2 lines and "80 characters will suffice" for the description (Meta's link-preview doc);
+    // Signal reads og:title → <title>, og:description, og:image → favicon. Inner pages get
+    // their own og:title/og:description/og:url from transformHead (same-property entries
+    // replace these; og:image and the rest stay site-wide).
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:site_name', content: 'GoMeta' }],
+    ['meta', { property: 'og:title', content: 'GoMeta — embedded in programming languages, Word documents' }],
+    ['meta', { property: 'og:description', content: 'GoMeta works in between them, behind them, within them.' }],
     ['meta', { property: 'og:image', content: 'https://gometa.dev/og-card.jpg' }],
+    ['meta', { property: 'og:image:width', content: '2048' }],
+    ['meta', { property: 'og:image:height', content: '1339' }],
     ['meta', { property: 'og:url', content: 'https://gometa.dev/' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     // versions.js is no longer served (single published version; see the nav comment above)
