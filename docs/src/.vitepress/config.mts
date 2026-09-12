@@ -66,15 +66,17 @@ export default defineConfig({
     // near-black instead of letting the site serve its own brown dark theme.
     ['meta', { name: 'color-scheme', content: 'light dark' }],
     // Link-preview card of the FRONT PAGE (WhatsApp, Signal, iMessage, …): owner ruling
-    // 2026-09-11, card A — the owner's slide-8 words only. WhatsApp shows the title in at most
-    // 2 lines and "80 characters will suffice" for the description (Meta's link-preview doc);
+    // 2026-09-12, card F4 (title 42 / description 65 chars; supersedes card A of 2026-09-11) —
+    // the owner's own words, the same voice as the site-wide line above; no product names.
+    // WhatsApp shows the title in at most 2 lines and "80 characters will suffice" for the
+    // description (Meta's link-preview doc; a sent card showed 55 in full on 2026-09-12);
     // Signal reads og:title → <title>, og:description, og:image → favicon. Inner pages get
     // their own og:title/og:description/og:url from transformHead (same-property entries
     // replace these; og:image and the rest stay site-wide).
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'GoMeta' }],
-    ['meta', { property: 'og:title', content: 'GoMeta — embedded in programming languages, Word documents' }],
-    ['meta', { property: 'og:description', content: 'GoMeta works in between them, behind them, within them.' }],
+    ['meta', { property: 'og:title', content: 'GoMeta — between, behind, within your data' }],
+    ['meta', { property: 'og:description', content: 'Designed to work in any programming language and any file format.' }],
     ['meta', { property: 'og:image', content: 'https://gometa.dev/og-card.jpg' }],
     ['meta', { property: 'og:image:width', content: '2048' }],
     ['meta', { property: 'og:image:height', content: '1339' }],
