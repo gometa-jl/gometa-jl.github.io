@@ -64,12 +64,13 @@
   .bar{position:fixed;left:0;right:0;bottom:0;height:52px;display:flex;align-items:center;gap:12px;
     padding:0 16px;box-sizing:border-box;background:#201d1d;border-top:1px solid rgba(255,227,225,.22);font-size:14px;}
   .bar a,.bar button{color:#ffe3e1;background:transparent;border:1px solid rgba(255,227,225,.4);
-    border-radius:10px;padding:6px 12px;font-size:14px;line-height:1;text-decoration:none;cursor:pointer;font-family:inherit;}
+    border-radius:10px;padding:6px 12px;font-size:14px;line-height:1;text-decoration:none;cursor:pointer;font-family:inherit;
+    min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;}
   .bar a:hover,.bar button:hover{border-color:#ffe3e1;background:rgba(255,227,225,.08);}
   .bar button:disabled{opacity:.35;cursor:default;}
   .counter{min-width:64px;text-align:center;font-variant-numeric:tabular-nums;}
   .spacer{flex:1}
-  .vlabel{opacity:.75;white-space:nowrap;}
+  .vlabel{opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
   @media(max-width:640px){.bar{gap:8px;padding:0 10px;}}
   @media(max-width:640px),(max-height:480px){.vlabel{display:none}}
 </style></head>
