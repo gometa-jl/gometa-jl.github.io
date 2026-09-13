@@ -306,8 +306,10 @@ html { background-color: var(--vp-c-bg); }
 /* ---- navbar: pre-hydration-safe sidebar spacing (VP adds .has-sidebar to the
    navbar only at hydration; the SSR title already carries it — key off that so
    the search never paints under the title, before or after hydration) -------- */
-.VPNavBar:has(.VPNavBarTitle.has-sidebar):not(.has-sidebar) .content {
-  padding-left: var(--vp-sidebar-width, 272px);
+@media (min-width: 960px) { /* 2026-09-13: below 960 px VitePress shows no sidebar; the padding clipped the tablet nav */
+  .VPNavBar:has(.VPNavBarTitle.has-sidebar):not(.has-sidebar) .content {
+    padding-left: var(--vp-sidebar-width, 272px);
+  }
 }
 
 /* This site is unversioned — hide the package-docs version picker */

@@ -21,8 +21,8 @@ footer: true
         <!-- Hero v3 (owner's Figma sketch 2026-08-24, frame 46:2): typed Courier Prime
              wordmark replaces the wordmark PNGs; title/taglines/chips leave the hero. -->
         <h1 class="gm-hero-word">GoMeta</h1>
-        <img class="gm-mark-top gm-only-dark" src="/mark-dark.svg" alt="GoMeta mark — two notebooks spelling /#/~">
-        <img class="gm-mark-top gm-only-light" src="/mark-light.svg" alt="GoMeta mark — two notebooks spelling /#/~">
+        <img class="gm-mark-top gm-only-dark" src="/mark-dark.svg" loading="lazy" alt="GoMeta mark — two notebooks spelling /#/~">
+        <img class="gm-mark-top gm-only-light" src="/mark-light.svg" loading="lazy" alt="GoMeta mark — two notebooks spelling /#/~">
       </div>
       <div class="gm-metaline gm-metaline-full" role="img" aria-label="Example metaLine"><span class="gm-metaline-inner"><span class="h">#</span><span class="t">~</span><span class="r"> This is a metaLine: How to embed meaning into comments.</span></span></div>
       <!-- "What is GoMeta?" ensemble — deck slide 8, converted per the owner's Figma

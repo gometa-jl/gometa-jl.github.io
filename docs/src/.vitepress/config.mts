@@ -1,14 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
-import mathjax3 from "markdown-it-mathjax3";
 import footnote from "markdown-it-footnote";
 import path from 'path'
-
-function getBaseRepository(base: string): string {
-  if (!base || base === '/') return '/';
-  const parts = base.split('/').filter(Boolean);
-  return parts.length > 0 ? `/${parts[0]}/` : '/';
-}
 
 const baseTemp = {
   base: 'REPLACE_ME_DOCUMENTER_VITEPRESS',// TODO: replace this in makedocs!
@@ -34,7 +27,7 @@ export default defineConfig({
   // of its own and the og:description of every inner-page card (see transformHead below).
   // The front page carries its own `description:` (the owner's full slide-8 sentence).
   description: 'GoMeta — between, behind, within your data: any language, any file format.',
-  lastUpdated: true,
+  // lastUpdated: off (2026-09-13) — it rendered nothing: the gate builds from a copied tree without git dates.
   cleanUrls: true,
   outDir: 'REPLACE_ME_DOCUMENTER_VITEPRESS', // This is required for MarkdownVitepress to work correctly...
   // Per-page link-preview tags for every page EXCEPT the front page (which keeps the
@@ -111,10 +104,9 @@ export default defineConfig({
     },
   },
   markdown: {
-    math: true,
+    // math: off (2026-09-13) — no page needs it; with it on, the mirrored canonical-output page showed two MathJax error boxes.
     config(md) {
       md.use(tabsMarkdownPlugin),
-      md.use(mathjax3),
       md.use(footnote)
       // The WORD "GoMeta" carries the brand wordmark face in running text (owner
       // 2026-08-27); .gm-name in overrides.css holds the type. Hooking the renderer's
