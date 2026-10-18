@@ -7,98 +7,87 @@ u_version: "0.1"
 # What is GoMeta?
 
 GoMeta.jl is an *interpretable-metadata* engine, written in Julia, designed to work between,
-behind and within your data: in any programming language and any file format. A file carries
-its ordinary content plus `#~` **metaLines** — comment lines with machine-interpretable
-metadata (labels, visibility actions, conditions) sitting right beside the content they describe.
+behind and within your data: in any programming language and any file format. In the words of
+GoMeta's author: "The concept/idea of GoMeta is to embed its formalized metadata within all
+kinds of comments and enable Extensions to do something based on its output." His proposal for
+JuliaCon 2026 puts it this way: "The core concept remains the same: Add interpretable meaning to
+comments within a Julia file by means of brief, simple, expressive and extendable metadata. The
+crux of the idea lies in its potential to serve a wider variety of different packages and even
+facilitating interactions between them." — "However, in order to truly fulfill what had been
+promised, in particular to allow for the desired expressiveness and extensibility, language-like
+features had to be incorporated in the proposed schema." A file carries
+its ordinary content plus `#~`
+**[metaLines](../reference/syntax-and-semantics.md#metaLine)** — comment lines with
+machine-interpretable metadata (e.g. labels, visibility actions, conditions, etc.) sitting right
+beside the content they describe. GoMeta evaluates the metadata — more precisely, the
+[GoMeta Engine](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension) evaluates it
+— but does not act on those evaluations: that is the
+[Extensions](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension)' role; they
+receive the evaluations through GoMeta's interface, `altValues_evals`.
 
-GoMeta **absorbs** the metaLines, **evaluates** which *alterants* apply to each piece of
-content, and a renderer **applies** the result:
-
-```
-parse (BLS) → absorb (read metaLines) → evaluate (which alterants apply) → render (apply Visib)
-```
-
-::: tip GoMeta evaluates — it never executes
-
-Conditions run in GoMeta's own closed interpreter, never through Julia's `eval`. A metaLine
-can describe, label, and select; it cannot run anything. (One deliberate, explicitly opt-in
-extension mode exists — see the SECURITY notes in the repository.)
-
-:::
-
-## Why metadata — and why in comments?
-
-- **One source file, many output formats.** A file never has to be forked per audience: in
-  this release, one marked Julia source file derives four notebook editions (full · student ·
-  report · slides) plus one executed twin, a pair of Documenter manual pages generated as
-  views of the same source — and, as for every file GoMeta processes, the share-view render
-  of the file itself.
-- **Webs instead of hierarchies.** A folder tree or a chapter outline forces each item into a
-  single position — a stringent limitation. Labels weave webs of meaning instead: the same
-  piece of content carries as many labels as apply, and one query brings it back (the shipped
-  `find_by_label.jl` demo answers "which cells carry `:label5`?" over the committed corpus).
-- **Language-agnostic, because comments.** The metadata hides inside ordinary comments, so
-  the host language never sees it — and the same idea travels beyond Julia: `0.3.0` ships
-  three content flavors, `:julia` (the `#` comment lead, the default), `:c` (the `//`
-  line-comment family), and `:latex` (`%`) — selected explicitly, never inferred.
+GoMeta's author explains GoMeta by asking and answering three questions. This page answers the
+first — what GoMeta is. [Why use GoMeta?](why-use-gometa.md) answers the second, and
+[How does GoMeta work?](how-does-gometa-work.md) the third.
 
 ## The idea
 
-1. **Embed** formalized meaning [metadata] into comments — brief, simple, expressive,
-   extendable metadata riding where every language already has room.
-2. **Absorb & evaluate** — GoMeta absorbs that metadata (parses and interprets it) and
-   evaluates which alterants apply to each piece of content, producing the evaluated values:
-   the **evals** (evaluated metadata — unrelated to Julia's `eval`).
-3. **Pass the evaluations on** — the evals are the deliverable. **Extensions** — scripts,
-   downstream tools, consumer packages — read them and act; GoMeta's own renderer, which
-   applies **Visib** to produce the share-view, is simply the act built in.
+1. **Embed** formalized meaning — metadata — into comments: brief, simple, expressive and
+   extendable metadata, riding where every language already has room for a comment.
+2. **Absorb and evaluate.** GoMeta absorbs that metadata — parses and interprets it — and
+   evaluates which value of which
+   [Alterant](../reference/syntax-and-semantics.md#Alterant) applies to each piece of the file.
+   Two main products come out of one run: the BLS Component tree — the file as
+   [BLS](../reference/syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File),
+   GoMeta's parser, recorded it — and the evaluated Alterant values, `altValues_evals`.
+3. **Pass the evaluations on to the Extensions, which act on them.** An Extension — a
+   renderer, an Extension that produces a notebook or documentation, a program of your own —
+   reads the two products through GoMeta's public surface and executes the task it was designed
+   for. In the author's words, "Extensions are called 'Extensions' because they EXTEND THE CORE
+   of GoMeta." The package ships a basic renderer as a development tool for looking at a run —
+   strictly speaking no Extension, though it behaves like one: it lives under the package's development tools, and it is there because it serves a vital purpose for the package's development.
 
-## What it is for
+## A language and a framework
 
-Everything in GoMeta serves four concrete uses of your accumulated files:
+In the words of GoMeta's author: "On the one hand, GoMeta is a domain specific language for
+metadata and on the other a framework with facilities on which Extensions can build." The
+language is the notation of the metaLines (e.g. statements, labels, conditions, the meta hierarchy, etc.)
+written in the comments of an ordinary file; the
+[Syntax & semantics](../reference/syntax-and-semantics.md) page is its reference. The framework
+is the one run that reads a file and delivers the two main products, and the public surface
+through which the Extensions read them; [How does GoMeta work?](how-does-gometa-work.md) follows
+that run, and the [Public API](../reference/public-api.md) page names what a program calls.
 
-1. **Find it again** — name and tag a file where it lives, and retrieve it by meaning later.
-2. **Link and swap** — files reference each other by meaning, not by path.
-3. **One source, many outputs** — render the same file into different views without forking it.
-4. **Share on your terms** — strip what is private and publish the rest, by applying one
-   simple function to GoMeta's output.
+## In what files
 
-## The pieces
-
-- Before GoMeta can absorb and evaluate anything, **BLS** parses the file into a tree of
-  **Components**: **File → Block → Line → Segment**. Every Component carries one of three
-  flavors — **Meta**, **Text**, or **Code**: a line is Meta if it starts with a delimited
-  `#~` head (`#~` followed by whitespace, a depth marker, or end of line), Code if it is
-  executable source, Text otherwise.
-- **Every flavor can carry comments.** A `## ` opens a human comment whether the line is
-  meta, text, or code — the comment rides its own Segment, and on a metaLine the meta-parser
-  ignores it.
-- A **metaBlock** — one or more contiguous metaLines — is the unit that carries metadata
-  scope for the content attached below it.
-- An **alterant** is a directive GoMeta applies to a Component. The **Visib** (visibility)
-  alterant decides each Component's fate when rendered: **show**, **hide**, or **discard**.
-- **State-refs** are built-in predicates (`isCode`, `isText`, `isMeta`, `containsMeta`)
-  used inside `{ … }` conditions to decide whether an alterant applies.
-
-Continue with [metaLines](metalines.md) for the syntax, or jump straight to
-[Getting started](../tutorials/getting-started.md).
+GoMeta's metadata lives in comments, so the file stays an ordinary file of its format and the
+host language never sees the metadata. At this release GoMeta reads three
+[comment markers](../reference/syntax-and-semantics.md#comment-marker): Julia's `#`, the C family's `//` (e.g. C, Rust, etc.), and LaTeX's `%` — the marker is named when GoMeta is called (Julia is the
+default), never inferred from the file. The author intends GoMeta for all kinds of comments: his
+talk lists Julia and Python, C and Rust, and LaTeX as implemented, Word documents (the `.fodt`
+format to start with), and, not yet, spreadsheets and metadata attached to images, video and the
+like. That reach is the reason for the name — GoMeta works in between them, behind them, within them — stated in the author's words on the [front page](../index.md).
 
 ## Status
 
-GoMeta.jl `0.3.2` is **alpha**: a working, tested engine for the **v0 subset** of the GoMeta
-language. The committed example corpus — seven input/output pairs — renders **byte-identically**
-under the shipped 1140-test suite, and malformed or extreme input on the witnessed metaLine
-action surface receives a stable, documented refusal (the few remaining edges — including one
-documented crash edge — are catalogued honestly in the repository's API reference). The
-language grows by design; the v0 subset forecloses none of it.
+GoMeta was presented and released at JuliaCon 2026; in the author's words, the package "finally
+implements a vastly matured offspring of a [my] half-baked idea proposed at JuliaCon2025."
+GoMeta.jl `0.4.0` is **alpha**: a working, tested engine for the **v0 subset** of the GoMeta
+language. The seven committed example pairs render byte for byte under the shipped test suite,
+and input the grammar does not accept meets a stable refusal: GoMeta stops with a message that says what it could not accept, and nothing is delivered. The surface may still move — until at least
+version 0.7 every change of the public surface is a clean cut (no leftover of an older version in a newer one), the author's policy, and the
+package's own documents keep the register of every such change. The language grows by design;
+the v0 subset forecloses none of it.
 
-GoMeta is **Fair Source** — licensed under the Functional Source License, Version 1.1,
-MIT Future License (**FSL-1.1-MIT**; source-available, not OSI-approved open source): free
-for everyone's own use — at
-work, at university, in the public sector — including internal use and access, non-commercial
-education and research, and professional services provided to other licensees. Not licensed:
-offering GoMeta to others in a commercial product
-or service that competes with it or with the Licensor's own GoMeta-based offerings (for
-that, contact hello@gometa.dev). Each release
-automatically becomes **MIT-licensed** on its second anniversary. See the
-[repository](https://github.com/gometa-jl/GoMeta.jl) for the LICENSE file and details.
+GoMeta is **Fair Source** — licensed under the Functional Source License, Version 1.1, MIT
+Future License (**FSL-1.1-MIT**; source-available, not OSI-approved open source): free for
+everyone's own use — at work, at university, in the public sector — including internal use and
+access, non-commercial education and research, and professional services provided to other
+licensees. Not licensed: offering GoMeta to others in a commercial product or service that
+competes with it or with the Licensor's own GoMeta-based offerings (for that, contact
+hello@gometa.dev). Each release automatically becomes **MIT-licensed** on its second
+anniversary. See the [repository](https://github.com/gometa-jl/GoMeta.jl) for the LICENSE file
+and details.
+
+From here: [Why use GoMeta?](why-use-gometa.md) — what it is for;
+[How does GoMeta work?](how-does-gometa-work.md) — one run, from a file to what the Extensions
+receive; [Getting started](../tutorials/getting-started.md) — the install and one complete run.

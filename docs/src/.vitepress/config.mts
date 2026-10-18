@@ -178,6 +178,30 @@ export default defineConfig({
         }
         return `<div class="language-gometa vp-adaptive-theme gm-syn"><button title="Copy Code" class="copy"></button><span class="lang">gometa</span><pre class="shiki" tabindex="0"><code>${out.join('\n')}</code></pre></div>\n`
       }
+      // Inline code spans (owner 2026-10-17, STYLE-1 — chosen from the style trials of that day):
+      // a GoMeta marker inside a code span — the fence rule's sigil tokens (#~, #~n, #~!, #])
+      // widened to the C family's //~ and LaTeX's %~ — is wrapped in <span class="gm-sg"> (the
+      // fence's class; overrides.css colours it in the fences' sigil pink, bold), and a span that
+      // STARTS with a marker (a whole statement) carries class gm-ml on its <code> (markup kept
+      // for a later style; no rule colours it today — the ruling is THE MARKER ONLY). A marker
+      // counts at the span's start or after whitespace, and before whitespace or the end. Markup
+      // only: the colours are the theme's. The default renderer's output is post-processed
+      // between its first '>' and the closing tag — the text there is already escaped, and a
+      // marker holds no '<' and no '&'.
+      const gmMarkAny = /(^|\s)((?:#|\/\/|%)~[0-9~]*!?|#\])(?=\s|$)/
+      const gmMarkAll = /(^|\s)((?:#|\/\/|%)~[0-9~]*!?|#\])(?=\s|$)/g
+      const gmMarkHead = /^((?:#|\/\/|%)~[0-9~]*!?|#\])(?=\s|$)/
+      const gmDefaultCodeInline = md.renderer.rules.code_inline!
+      md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
+        const tok = tokens[idx]
+        if (!gmMarkAny.test(tok.content)) return gmDefaultCodeInline(tokens, idx, options, env, self)
+        if (gmMarkHead.test(tok.content)) tok.attrJoin('class', 'gm-ml')
+        const html = gmDefaultCodeInline(tokens, idx, options, env, self)
+        const open = html.indexOf('>') + 1, close = html.lastIndexOf('</code>')
+        if (open <= 0 || close < open) return html
+        const inner = html.slice(open, close).replace(gmMarkAll, (_m, pre, t) => `${pre}<span class="gm-sg">${t}</span>`)
+        return html.slice(0, open) + inner + html.slice(close)
+      }
     },
     theme: {
       // high-contrast light: github-light's keyword/comment tokens sink under

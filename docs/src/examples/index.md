@@ -6,89 +6,84 @@ u_version: "0.1"
 
 # Examples
 
-Every example here starts from one ordinary **Julia** file carrying `#~` metaLines in its
-comments. The smallest examples pair each input with the one rendered share-view it derives;
-the richest derive several outputs from a single source — each with its own view of what is
-shown, what stays hidden, and what runs. Two kinds of control are on display: **control of
-rendering** — which content each derived view carries — and **control of execution** — which
-code a notebook or a docs build actually runs.
+Every example here starts from ordinary Julia files, each carrying `#~`
+[metaLines](../reference/syntax-and-semantics.md#metaLine) in its comments. The smallest
+examples pair each input file with the rendered copy the basic renderer — a development tool, strictly speaking no Extension —
+writes from the [GoMeta Engine](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension)'s
+run; the richest derive several outputs from one source file, each with its own choice of what is
+shown, what stays hidden, and what runs. Two kinds of control are on display: control of
+rendering — which content each derived output carries — and control of execution — which code a
+notebook or a documentation build actually runs — both from the same metadata.
 
-The smallest examples are the repository's committed corpus: **seven input/output pairs**
-under `examples/` that render **byte-identically**, pinned by the shipped 1140-test suite
-at this release. Verify every pair yourself from a repository checkout:
+## 1. The committed corpus: seven pairs
+
+The repository's `examples/` directory holds seven input files under `InFileFolder/` and, for
+each, its committed rendered copy under `OutFileFolder/` — byte for byte what the basic renderer
+writes from the Engine's run; the shipped test suite pins the same bytes. Two of the seven are
+the author's own example files, in general the law of the notation: `file_for_Example_Proposal_JuliaCon.jl`
+and `file_for_Example_Extended.jl` — the [Syntax & semantics](../reference/syntax-and-semantics.md#11.-The-examples)
+page lists what each exercises and shows, for each, every Block and Line with what the Engine evaluated. Five feature files
+each show one feature of the notation, named in the file's header: `feature_contiguous_metablock.jl`,
+`feature_contiguous_metablock_blankline.jl`, `feature_explicit_close.jl`,
+`feature_order_of_application.jl` and `feature_triple_tilde.jl`. Each input's `##` comments state
+the expected behaviour and the reason why — the files are the specification.
+
+Verify every pair yourself from a repository checkout:
 
 ```
 julia --startup-file=no --project=. -e 'using Pkg; Pkg.instantiate()'   # once
-julia --startup-file=no --project=. run_examples.jl
+julia --startup-file=no --project=. devtools/run_examples.jl
 ```
 
-## The notebooks pipeline
+## 2. One source, its notebook
 
-One source, many outputs. `notebooks_from_source.jl`, at the repository root, derives a
-whole notebook family from ONE marked Julia source file — purely from its `#~` marks. From
-`notebooks/src/montecarlo.jl` — an ordinary, runnable Julia file (`include` it) — it emits
-**four notebook editions**; a standard `jupyter nbconvert --execute` run then produces the
-**executed twin**:
+`notebooks_from_source.jl`, at the repository root, derives from ONE marked Julia source file
+— purely from its metaLines and [metaSegments](../reference/syntax-and-semantics.md#statement,-metaSegment) — one notebook and two pages of the package's own manual. Each
+line's fate — `show`, `hide` or `discard` — is taken from the Engine's answer for that line's Line
+[Component](../reference/syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File),
+never re-derived from a rendered copy. From `notebooks/src/montecarlo.jl` — an ordinary,
+runnable Julia file — it emits `notebooks/montecarlo.ipynb`, the full edition: every surviving
+notebook cell, with tags the source's label legend drives — its header says which label means what. The repository also keeps
+`montecarlo-executed.ipynb`, the one edition with real outputs, produced by executing that
+notebook; it is validated separately, outside the byte check below. A second source ships the
+same way, with its notebook alone and no manual pages: `notebooks/src/quickstart.jl` runs as a script from the checkout root and as its
+derived notebook, `quickstart.ipynb`.
 
-- **full** — every surviving cell, with legend-driven tags (`parameters`,
-  `skip-execution`, `solution`, `deep-dive`);
-- **student** — the worksheet: the solution cell is absent, a scaffold cell stands in,
-  and instruction cells are locked;
-- **report** — the reading view: every code input folded;
-- **slides** — a slide type per cell, scraped from the source's depth marks;
-  `jupyter nbconvert --to slides` turns it into a reveal.js deck;
-- **executed** — the one edition with real outputs, from a standard
-  `jupyter nbconvert --execute` run.
+How hide and the metadata travel: a line the Engine evaluated `hide` is never visible when the
+notebook is viewed, and never lost — it travels with the notebook in source form, as an HTML
+comment in a markdown cell and as the cell's own metadata in a code cell — so the derivation is
+a format transformation, not a view that leaves things out; the source's metaLines travel the same two ways. A
+line the Engine evaluated `discard` travels nowhere. Hidden lines do not execute in the notebook.
 
-Each line's fate comes from the engine's own evaluated verdicts — the `:visib` rows of
-`GoMeta.altValues_evals` — never re-derived from the render. A verdict-hidden line is
-never visible in a rendered view, and never lost: it travels with the notebook in source
-form (an HTML comment in markdown cells, `gometa` cell metadata in code cells), so the
-derivation is a format transformation, not a projection. A **discarded** line travels
-nowhere. Hidden lines do not execute in notebooks.
-
-A second source ships the same way: `notebooks/src/quickstart.jl` runs as a script from
-the checkout root *and* as its derived notebook — the onboarding artifact demonstrates
-the pipeline it teaches.
-
-Every generated artifact regenerates **byte-identically** (the executed twin, which
-carries real kernel outputs, is validated separately, outside that byte gate):
+Every generated file regenerates byte for byte:
 
 ```
 julia --startup-file=no --project=. notebooks_from_source.jl --check
 ```
 
-## Documenter pages as views
+## 3. Two manual pages from the same source
 
-The same marks in the same source also derive a pair of Documenter manual pages —
-`docs/montecarlo-full.md` and `docs/montecarlo-reader.md`. The pages are **views**:
-verdict-hidden lines are simply not on them (the one exception is Documenter's own
-executed blocks — `# hide`-marked `@example` lines and `@setup` bodies — which the docs
-build runs and display-hides while they remain present in the raw page markdown), and
-metaLines do not ride them. The `#~` marks additionally decide which `jldoctest` blocks
-each page carries — **the docs build runs exactly the tests the marks kept**. Rendering
-control and execution control come from the same metadata.
+The same metaLines and metaSegments in `notebooks/src/montecarlo.jl` also derive the two manual pages `docs/montecarlo-full.md`
+and `docs/montecarlo-reader.md`, and decide which `jldoctest` blocks each page carries — the
+documentation build runs exactly the tests the metaLines kept. The two pages differ. The FULL
+page is a transformation artifact like the notebook: every non-discarded metaLine and every
+hidden line outside the blocks the documentation build runs rides invisibly in it, absent from the built site. The READER
+page is a view: nothing rides invisibly in it, and the sections it leaves out travel nowhere.
 
-## Jupyter notebook example
+## 4. The demo: find it again
 
-::: info Coming at launch
+A demo program under `extensions/` processes the committed examples and answers which pieces of
+which files carry a given [label](../reference/syntax-and-semantics.md#label), each with its
+visibility as the Engine answers it:
 
-A full worked Jupyter example lands here at launch — it is being finalized now. In the
-meantime, the complete notebook family ships in the repository under `notebooks/`, with a
-README that explains every artifact and how to regenerate it.
+```
+julia --startup-file=no --project=. extensions/find_by_label.jl            # per-label overview
+julia --startup-file=no --project=. extensions/find_by_label.jl label5     # one label, all hits
+```
 
-:::
+In the author's words, these worked examples "have to be thoroughly reviewed at some stage";
+they may change.
 
-## Documenter.jl example
-
-::: info Coming at launch
-
-A full worked Documenter.jl example lands here at launch — it is being finalized now. In
-the meantime, the derived manual-page pair ships in the repository under `docs/`, generated
-from `notebooks/src/montecarlo.jl` by the shipped generator at the repository root.
-
-:::
-
-New to the syntax? Start with [What is GoMeta?](../concepts/what-is-gometa.md) and
-[metaLines](../concepts/metalines.md), or install via
-[Getting started](../tutorials/getting-started.md).
+From here: [Getting started](../tutorials/getting-started.md) — one complete run on the first
+example file; [How does GoMeta work?](../concepts/how-does-gometa-work.md) — one run, from a file
+to what the Extensions receive; [Extensions](../concepts/extensions.md) — what acts on what a run delivers.

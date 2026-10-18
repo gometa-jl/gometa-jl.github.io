@@ -1,476 +1,445 @@
 ```@raw html
 ---
 u_version: "0.1"
-title: "Public API"
 ---
 ```
 
-::: info Mirrored reference
+# Public API
 
-This page mirrors `docs/public-api.md` from the GoMeta.jl repository at `0.3.0`, verbatim.
-File paths mentioned in it refer to a repository checkout.
+This page is the reference for the surface a program relies on when it uses GoMeta, release
+**0.4.0** (alpha): the four names `using GoMeta` brings into scope, the further names reached
+qualified as `GoMeta.<name>`, and the door through which a program travels the
+[BLS](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) Component tree. It is
+written from the package at that release and from the design as its author states it; the
+package's own test suite pins the set of names the package declares public, and this page
+lists exactly that set. The terms the page uses are defined where they first appear or in the Syntax & semantics page's
+[Glossary](syntax-and-semantics.md#Glossary); the delivered object and the Component's handle
+are defined here. Until at least version 0.7 every change of this surface is a clean cut: a
+renamed or removed name is gone, with no alias and no deprecation period — the author's policy;
+the package's own API document keeps the register of every such change (section 10).
+
+## 1. One call: the entry
+
+```julia
+import GoMeta
+
+bytes    = read("examples/InFileFolder/file_for_Example_Proposal_JuliaCon.jl")
+delivery = GoMeta.goMeta(bytes)
+delivery.status == GoMeta.PROCESS_OK || error("processing failed")
+```
+
+`goMeta(bytes; config = GoMetaConfig(), registry = DEFAULT_REGISTRY)` takes the file's bytes
+(`read(path)`; from a `String`, `Vector{UInt8}(codeunits(s))`) and returns a
+**`GoMetaDelivery`**, the delivered object of one run, with four parts read by name, in the
+order of the pipeline:
+
+- `blsComponentTree` — the [BLS](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File)
+  Component tree over which the metadata was evaluated, provided by BLS itself (section 5);
+- `altValues_evals` — the evaluated [Alterant](syntax-and-semantics.md#Alterant) values, read
+  through `readAltValuesEvals` (section 3);
+- `status` — of type `GoMeta.ProcessStatus`: `PROCESS_OK` or `PROCESS_ERROR`;
+- `diagnostics` — a vector of `GoMeta.Diagnostic` records, each with a `code` (a `Symbol`), a
+  `severity` (`:error`, `:warning` or `:info` — the declared set; this release produces the
+  first two), a `message` and a `context`. The status
+  is `PROCESS_ERROR` exactly when a record of severity `:error` is among them: a failed run never comes with
+  an empty list.
+
+GoMeta evaluates the metadata — more precisely, the
+[GoMeta Engine](syntax-and-semantics.md#the-GoMeta-Engine,-Extension) evaluates it — but does not
+act on those evaluations: that is the
+[Extensions](syntax-and-semantics.md#the-GoMeta-Engine,-Extension)' role; they receive the
+evaluations through GoMeta's interface, `altValues_evals`.
+
+The Engine reads no file, no clock and no environment: for the same bytes, the same
+configuration and the same registry it delivers the same result. Two things lie outside that
+guarantee because they are not the Engine's: a [condition](syntax-and-semantics.md#condition)
+is Julia and does what its author wrote, and the functions of a custom registry's Alterants
+(section 6) do what their author wrote. Processing a file you did not write therefore runs its
+conditions as Julia code: use GoMeta on input you trust, as you would any Julia file you
+`include`.
+
+The BLS Component tree in the delivery is the one object the run built: every program that reads one
+delivery shares it, and one that changes it changes it for every other.
+
+`using GoMeta` brings in `goMeta`, `readAltValuesEvals`, `GoMetaConfig` and `GoMetaDelivery`;
+every other public name is reached qualified. The qualified form — `import GoMeta` and
+`GoMeta.goMeta(bytes)` — is the one the package's own tests use and the one to prefer when two
+implementations of the language are loaded side by side.
+
+## 2. The configuration
+
+`GoMetaConfig(; flavor_tag = :julia, parse_range = nothing, user_mh_profile = nothing, namespace = :default)`
+holds the run's options:
+
+- `flavor_tag` names the file's [comment marker](syntax-and-semantics.md#comment-marker): `:julia`
+  for `#`, `:c` for `//` (the C family: e.g. C, Rust, etc.), `:latex` for `%`. The marker is named when
+  GoMeta is called, never inferred from the file. Any other tag makes `goMeta` throw before it
+  reads a line, with a message that names the three tags and says that there is no fallback.
+  The field carries the code's word *flavor*; on this site that word is reserved for the three
+  [flavors](syntax-and-semantics.md#flavor) Meta, Text and Code — the field selects the comment
+  marker.
+- `parse_range`, a range of line numbers, limits the run to the file's first lines: the range's
+  last number is the last line read, its first number is not used, a last number beyond the
+  file's end is accepted, and a last number of zero or less reads the whole file. `nothing`,
+  the default, reads the whole file.
+- `namespace`, a `Symbol`, scopes every Component's handle of the run (section 3); a program
+  that keeps the rows of several files apart gives each its own. A namespace longer than
+  65535 bytes makes `GoMetaConfig(; …)` throw an `ArgumentError` when the configuration is constructed; the positional form carries no such guard.
+- `user_mh_profile` is reserved and experimental: the body of a [metaLine](syntax-and-semantics.md#metaLine) fed into the run
+  before the file's own metadata. Leave it at `nothing`.
+
+::: details Measured: an unknown `flavor_tag` — what `goMeta` throws
+
+```
+probe: 2026-10-17T19:43:41 (local clock) · goMeta(bytes; config = GoMetaConfig(flavor_tag = :python)) over the proposal example
+GoMetaConfig constructed: GoMetaConfig(:python, nothing, nothing, :default)
+goMeta threw: flavor_for: unknown flavor_tag :python — the closed inventory is (:julia, :c, :latex) and there is NO fallback
+```
 
 :::
 
-# public-api.md — GoMeta's declared public API (the semver surface) + the error-mode catalogue
+## 3. The evaluated values
 
-**Status:** the declared public API and error-mode catalogue of GoMeta `0.3.0` (alpha maturity).
+`readAltValuesEvals(delivery.altValues_evals)` returns the evaluated values as
+[evals rows](syntax-and-semantics.md#altValue,-evals), one per evaluated value: a tuple of the
+**Component's handle** — bytes that identify the
+[Component](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) within the run's
+namespace — followed by the attribute, the value and the polarity, a `Bool` reserved for later use and `true` in every row at this release. The rows are
+sorted by handle, attribute and value, carry final values only, and are empty when the file
+holds no metadata — no [metaLine](syntax-and-semantics.md#metaLine) and no [metaSegment](syntax-and-semantics.md#statement,-metaSegment) — and nothing is fed through the
+configuration. In the code the handle is called `cell_handle`; this site says the Component's
+handle.
 
----
+The attributes at this release: `:label_<name> => true`, one row per
+[label](syntax-and-semantics.md#label) that applies; `:visib => :show`, `:hide` or `:discard`;
+`:head_<level> => "…"` for a heading (a same-level repeat on one handle `:head_<level>_<k>`); `:id_<name> => Int16` for the experimental Id Alterant,
+one row per non-zero field. A program should skip an attribute family it does not know rather
+than fail on it: later releases may bring further Alterants and their families, and the author gives no guarantee that a later release delivers the evaluated values in the same form.
 
-## §0 — Scope
+`GoMeta.serialize_evals(rows)` turns the rows into bytes: one row per line, four tab-separated
+columns, a tab, newline, carriage return or backslash in an attribute name escaped.
+`GoMeta.EvalRecord` is the type of one recorded row — beside the four columns it carries
+`decided_by`, the handles of the [statements](syntax-and-semantics.md#statement,-metaSegment)
+that produced the row, in the order they applied — and `GoMeta.EvalStore` the type of the part
+`altValues_evals`. A Component's text is not in a row: read it through the door (section 5).
+The [Getting started](../tutorials/getting-started.md) page shows the rows of one run.
 
-**IS.** The reference for `GoMeta`'s **public API** — the declared, semver-versioned surface a
-consumer (a script, a downstream tool, or another implementation of the GoMeta language) programs
-against — together with the **typed error-mode catalogue** (the codes a `goMeta` call can surface
-as `Diagnostic`s) and the honest partition of which codes are armed, which are deferred, and which
-crashes remain latent or are guarded by a stable refusal.
+## 4. The answers
 
-**DOES.** (1) names the **exported** surface (§1.1) and the **package-public** supporting names
-(§1.2); (2) names the **two output surfaces** through which every observable byte flows (§1.3 —
-the sole-surface invariant); (3) restates each public signature + its contract (§2); (4) enumerates
-the eight-row typed error catalogue with its honest partition (§3); (5) records the
-CRLF-normalization convention (§4), the explicitly **deferred / not-v0** surfaces (§5), and the
-additive-only **versioning policy** (§6).
+Where the rows list what the Engine recorded, the answer function tells what applies to a
+Component — decided by its own statement, by another Component's statement, or by the Alterant's default:
 
-**REASONING.** The API is **TOTAL over the CONFIG-TIME catalogued surface** — an invalid `config`
-never throws an uncaught exception; it fail-closes into a `PROCESS_ERROR` result carrying a typed
-`Diagnostic`. The absorb- and apply-plane rows are the honest exception: they can still throw at
-v0 — the §3 partition (the E-04 crash-origin row of §3.1 and the stable-message refusals of §3.4).
-Honesty over completeness: the rows not yet armed (E-07's pending mint, the E-04 crash-origin and
-the E-06 guarded refusal — §3.1/§3.2) and the crashes still latent or refused with a stable
-message (§3.4) are documented **as such**, never papered over with a fabricated typed code; the
-other condition-path refusals ARE typed since the closed-interpreter flip (§3.2).
+- `GoMeta.evaluatedAltValue(delivery, component, alterant; registry = DEFAULT_REGISTRY)` returns a `GoMeta.EvaluatedAltValue`
+  with three fields. `value` is in the Alterant's own shape: Visib a `Symbol`, Labels a sorted
+  vector of names, Heading a `String` (or `nothing`, its default), Id a named tuple. `source` is one of `:own` (the
+  Component's own [statement](syntax-and-semantics.md#statement,-metaSegment) decided it),
+  `:indirect` (another Component's statement decided it — e.g. for an
+  [attached](syntax-and-semantics.md#attachment,-inheritance) Block and its Lines, the metaBlock from which that
+  Block inherits the value; for a Segment, its Line; etc.), `:user` (the fed profile of section 2), `:file` (the file level; nothing feeds it at
+  this release), `:default` (no statement decided it: the Alterant's declared default), `:none`
+  (no statement and no default) and `:fallBack` (reserved, never delivered at this release).
+  `via` is the deciding Component for `:indirect`, else `nothing`. The Alterants are named by
+  their registered names: `:Visib`, `:labels`, `:heading`, `:id`. The declared defaults: Visib
+  `:show`; Labels the empty set, Heading `nothing` and Id a named tuple of zeros — these three
+  declared provisionally, they may change once used on real examples. The File has no value at
+  this release and answers `nothing` with the source `:none`. An unknown Alterant name throws
+  an `ArgumentError` naming the registered names.
+- `GoMeta.scanAlterant(delivery, alterant; registry = DEFAULT_REGISTRY)` returns every Component for which the Engine
+  recorded a value of that Alterant, each with its answer, in the BLS Component tree's order. A Component
+  with no row of its own is not listed — its answer is `evaluatedAltValue`'s — and the File never
+  is.
+- `GoMeta.evaluatedAltValues(delivery, component; registry = DEFAULT_REGISTRY)` returns every registered Alterant's answer
+  for one Component, in the registry's order.
+- `GoMeta.childDiffers(delivery, component, alterant; registry = DEFAULT_REGISTRY)` is `true` when the Component's answer has
+  a value different from its parent's. A Line that only falls under its Block's value never differs; a
+  Line with its own statement differs when that statement's value is another; a Block whose
+  value is not `nothing` differs from the File, which has no value at this release; the File
+  itself never differs.
 
-**PURPOSE.** The stable contract a consumer programs against and a reviewer audits the surface
-against — the human-readable mirror of the machine-checkable export set (`names(GoMeta)`, asserted
-by `tests/unit/public_surface_tests.jl`) and of the refusal behavior the shipped witnesses assert
-(`tests/unit/error_message_tests.jl` · `tests/unit/slot_overflow_tests.jl` ·
-`tests/unit/malformed_meta_tests.jl` · `tests/unit/arg_guard_tests.jl` ·
-`tests/unit/condition_cap_tests.jl`).
+::: details Measured on the first example file: every Block's and Line's Visib answer with its source, the Labels answers, `childDiffers`, `scanAlterant`, `evaluatedAltValues`, and the refusal of an unknown name
 
-## §1 — The public surface
+The answers below are the public functions' returns, tabulated. The full delivery view of the
+same file — every evals row at its Component — is embedded on the
+[Syntax & semantics](syntax-and-semantics.md#11.-The-examples) page.
 
-### §1.1 — Exported names (the re-exported semver surface)
+```
+probe: 2026-10-17T19:43:38 (local clock) · input file_for_Example_Proposal_JuliaCon.jl sha256 fb44c903fc614d795d210e46d04335e3dc1eb47bcf3eb8b7b5b45b1d88971214
+status = PROCESS_OK · diagnostics = 0 · evals rows = 28
+registered Alterant names (DEFAULT_REGISTRY.plugins' altName): [:labels, :Visib, :id, :heading]
 
-`using GoMeta` brings **exactly these four** names into scope — the declared public surface:
+== evaluatedAltValue(delivery, c, :Visib) · (:labels) · childDiffers(c, :Visib) — every Block and Line, in the tree's order ==
+File       Visib => nothing source=none via=— · childDiffers=false
+Block Meta  "#~ hide{ :label4 , isCode } ## This is a…"
+      Visib => :show     source=default   via=— · labels => [:label1] (own) · childDiffers=true
+   Line Meta  "#~ hide{ :label4 , isCode } ## This is a…"  Visib => :show     source=default   via=— · childDiffers=false
+   Line Meta  "## The above `Line` of meta initiated th…"  Visib => :show     source=default   via=— · childDiffers=false
+   Line Meta  "#~ :label1{ (isText && containsMeta), is…"  Visib => :show     source=default   via=— · childDiffers=false
+Block Text  "⏎# This `Line` of text starts a new `Blo…"
+      Visib => :show     source=default   via=— · labels => Symbol[] (default) · childDiffers=true
+   Line Text  ""  Visib => :show     source=default   via=— · childDiffers=false
+   Line Text  "# This `Line` of text starts a new `Bloc…"  Visib => :show     source=default   via=— · childDiffers=false
+   Line Text  "# This `Block` is NOT attached to metada…"  Visib => :show     source=default   via=— · childDiffers=false
+   Line Text  "# However, this `Line` will get discarde…"  Visib => :discard  source=own       via=— · childDiffers=true
+Block Meta  "⏎#~2 :label5 show{ !:label5} ## This is …"
+      Visib => :show     source=default   via=— · labels => [:label1, :label5] (indirect) · childDiffers=true
+   Line Meta  ""  Visib => :show     source=default   via=— · childDiffers=false
+   Line Meta  "#~2 :label5 show{ !:label5} ## This is l…"  Visib => :show     source=default   via=— · childDiffers=false
+Block Code  "using Plots ## This `Line` starts a new …"
+      Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · labels => [:label5] (indirect) · childDiffers=true
+   Line Code  "using Plots ## This `Line` starts a new …"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Code  "## This code `Block` is ATTACHED to meta…"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Code  "## Therefore, this code `Block` receives…"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Code  "## `show` from line 9 above does NOT get…"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Code  "##      as this can only happen"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Code  "##      if label5 has NOT been applied. …"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Code  "## This code `Block` inherits `hide` fro…"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Code  "##      since this is a code `Block` and…"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Code  ""  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Code  "println("!!! NOTE !!! Only Code and Text…"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Code  "println("\t Whereas an empty line after …"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+Block Meta  "⏎#~3 :label4 discard{:label3} :label3"
+      Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · labels => [:label1, :label3, :label4, :label5] (indirect) · childDiffers=true
+   Line Meta  ""  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Meta  "#~3 :label4 discard{:label3} :label3"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+Block Text  "# This `Block` of text receives label4⏎#…"
+      Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · labels => [:label1, :label3, :label4, :label5] (indirect) · childDiffers=true
+   Line Text  "# This `Block` of text receives label4"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Text  "#       plus label5 from further above"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Text  "#       plus label1 since it `isText` AN…"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Text  "# It is NOT "discarded" since label3 has…"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Text  "#       when `discard{:label3}` is issue…"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Text  "# Only after that it receives label3."  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Text  "# Instead, it gets hidden due to label4 …"  Visib => :hide     source=indirect  via="#~ hide{ :label4 , isCode } ## This …" · childDiffers=false
+   Line Text  "# This `Line`, however, will NOT get hid…"  Visib => :show     source=own       via=— · childDiffers=true
+Block Meta  "⏎#~2 :label5"
+      Visib => :show     source=default   via=— · labels => [:label1, :label5] (indirect) · childDiffers=true
+   Line Meta  ""  Visib => :show     source=default   via=— · childDiffers=false
+   Line Meta  "#~2 :label5"  Visib => :show     source=default   via=— · childDiffers=false
+Block Text  "md"""⏎This is a `Block` of markdown text…"
+      Visib => :show     source=default   via=— · labels => [:label1, :label5] (indirect) · childDiffers=true
+   Line Text  "md""""  Visib => :show     source=default   via=— · childDiffers=false
+   Line Text  "This is a `Block` of markdown text. #~ h…"  Visib => :hide     source=own       via=— · childDiffers=true
+   Line Text  """""  Visib => :show     source=default   via=— · childDiffers=false
 
-| Name | Kind | One-line |
-|---|---|---|
-| `goMeta` | function | the pipeline entry — `goMeta(bytes; config, registry) -> GoMetaResult` |
-| `altValues_evals` | function | the evaluated Alterant values, per piece of the file (the production surface) |
-| `GoMetaConfig` | type | the v0 input options |
-| `GoMetaResult` | type | the typed pipeline result |
+== scanAlterant(delivery, :Visib) — every Component with a recorded Visib value, in the tree's order ==
+Text  "# However, this `Line` will get discarde…"  => :discard (own)
+Code  "using Plots ## This `Line` starts a new …"  => :hide (indirect)
+Meta  "⏎#~3 :label4 discard{:label3} :label3"  => :hide (indirect)
+Text  "# This `Block` of text receives label4⏎#…"  => :hide (indirect)
+Text  "# This `Line`, however, will NOT get hid…"  => :show (own)
+Text  "This is a `Block` of markdown text. #~ h…"  => :hide (own)
 
-`names(GoMeta)` is exactly this set plus the eleven §1.2 public names (and the module name) — the
-**machine-checkable surface oracle** that `tests/unit/public_surface_tests.jl` asserts against
-this document: the four exported names via `Base.isexported`, the §1.2 names via `Base.ispublic`.
+== evaluatedAltValues(delivery, c) for the Code Block that follows the first metaBlock (every registered Alterant's answer) ==
+Block Code "using Plots ## This `Line` starts a new …"
+   labels   => [:label5] source=indirect
+   Visib    => :hide source=indirect
+   id       => (cell = 0, parent = 0, file = 0) source=default
+   heading  => nothing source=default
 
-**Qualified import stays canonical for hygiene + multi-implementation use.** `import GoMeta;
-GoMeta.goMeta(bytes)` is unaffected by these exports and is the recommended form when (a)
-namespace hygiene matters or (b) two implementations of the language are loaded side-by-side —
-qualified calls keep every name's origin explicit. The shipped test suite uses the qualified
-form. Exporting serves the single-implementation `using` convenience case; it never forces a
-`using`.
+== an unknown Alterant name ==
+threw: ArgumentError: GoMeta evaluatedAltValue: no Alterant named `NoSuchAlterant` in the registry — the registered names: Visib, heading, id, labels
+```
 
-### §1.2 — Supporting public names (package-public; qualified access, NOT exported)
+:::
 
-These are part of the documented public surface — declared with Julia's `public` keyword, so
-`names(GoMeta)` and tooling see them — but are **not** exported: reach them qualified
-(`GoMeta.<name>`):
+## 5. The BLS Component tree and its door
 
-- `GoMeta.outputs(result) -> (blsStructure_bytes, render_bytes)` — the native structural-tree +
-  reference-render pair (the verification surface; §1.3 and `docs/CANONICAL-OUTPUT.md`).
-- `GoMeta.serialize_evals(altValues_evals(result)) -> Vector{UInt8}` — the canonical,
-  deterministic, binary-safe serialization of the evals surface.
-- `GoMeta.content_fingerprint(result) -> Vector{Tuple{Vector{UInt8},Vector{UInt8}}}` — the
-  sibling accessor of the evals surface: per-record `(cell_handle → content)` pairs carrying
-  each cell's verbatim content bytes, in the SAME sort order as `altValues_evals(result)`
-  (the contract a consumer may zip on). The occurrence-handle KEY is the identity; the
-  content is the reader-facing text — the shipped `find_by_label.jl` and
-  `notebooks_from_source.jl` tools join exactly this way.
-- `EvalRecord` / `EvalStore` — the per-cell store underlying `altValues_evals`.
-- `ProcessStatus` (the enum) + its values `PROCESS_OK` / `PROCESS_ERROR`.
-- `Diagnostic` `{code::Symbol, severity::Symbol, message::String, context::Any}` — the typed,
-  non-throwing diagnostic record.
-- `AlterantRegistry` + the `const DEFAULT_REGISTRY` — the deterministic alterant inventory (the
-  `goMeta` default registry). A custom `registry`'s mappings over the BUILT-IN inventory are
-  honored per call (e.g. the Visib action→settribute mapping); custom plugin IMPLEMENTATIONS are
-  outside v0's supported surface — the verdict capture reads the built-in alterant instance types.
+`delivery.blsComponentTree` is BLS's own object, and BLS's own public functions travel it. They
+are reached as `GoMeta.BLS.<name>`:
 
-They are not exported; reach them qualified. `tests/unit/public_surface_tests.jl` asserts every
-§1.2 name is `public` and NOT exported (no accidental leak, no silent demotion).
+- `children(tree)` — the File's Blocks; `children(tree, c)` — a Component's children, in source
+  order.
+- `parent(tree, c)` — a Component's parent; `nothing` for the File.
+- `kind(c)` — the Component's [flavor](syntax-and-semantics.md#flavor): `:Meta`, `:Text` or
+  `:Code`; `nothing` for the File.
+- `content(tree, c)` — the Component's own bytes; `content(tree)` — the document's lines joined
+  by a newline, as BLS holds them, without a terminal newline.
+- `root(tree)` — the File.
+- `flavor(tree)` — the record of the run's comment marker (the function carries the code's word *flavor*, as the field `flavor_tag` of section 2 does — not a Component's flavor); the fields of that record the package commits to are `lead`,
+  `hide_marker`, `hide_fold_prefix`, `flavor_tag` and `re_meta_leaded`.
+- `endsWithNewline(tree)` — whether the document ended in a newline.
+- `isHorizontalSpace(ch)` — whether a character is horizontal white space in the parser's sense.
+- `getElement(c, key)` — reads, by key, one entry of a Component's
+  [settribute](syntax-and-semantics.md#settribute) (a flag) or of its named integers (an `Int`).
+- `File`, `Block`, `Line`, `Segment` — the Component types; `ComponentSettribute`,
+  `CmpntNamedInt` — the types of a Component's two sets of named entries: its settribute and its named integers.
 
-### §1.3 — The two output surfaces (the sole-surface invariant)
+Everything else in `GoMeta.BLS` is internal.
 
-Every byte a consumer obtains from the engine comes through exactly one of two surfaces; no
-internal module (`emit`, `walk`, `BLS`) ever needs importing for output:
+## 6. Extensions and the registry
 
-1. **`altValues_evals(result)`** — the evaluated Alterant values, per piece of the file: the
-   deterministic, final-verdicts-only per-cell map `(cell_handle, attr, value, polarity)` — the
-   query-facing write payload (GoMeta's semantic deliverable; the production surface).
-2. **`GoMeta.outputs(result) -> (blsStructure_bytes, render_bytes)`** — the verdict-free structural tree
-   half + the `jl-share-v1` reference render (the verification surface). `render_bytes` is
-   produced by the package-**internal** emit; it is reached **only** through `GoMeta.outputs`,
-   never exported.
+An Extension receives the evaluations through `altValues_evals`, asks its questions through
+the functions of section 4, and travels the BLS Component tree through the door of section 5 — never through
+anything internal. The Alterants a run knows come from its registry: `GoMeta.DEFAULT_REGISTRY`
+holds the four shipped ones (Visib, Labels, Heading, Id), and a program adds Alterants of its own through
+the registration lifecycle:
 
-## §2 — Signatures + contracts
+- `GoMeta.RegistryBuilder()` starts empty; `GoMeta.RegistryBuilder(DEFAULT_REGISTRY)` starts
+  with the four shipped Alterants.
+- `GoMeta.register!(builder, alterant, actions...)` declares one Alterant and its actions.
+- `GoMeta.next_plugin_index(builder)` — the index the next registration takes; an action
+  record names its Alterant by it.
+- `GoMeta.validate(builder)` returns every defect as a `Diagnostic`, in a fixed order, and
+  throws nothing.
+- `GoMeta.publish(builder)` returns a sealed `GoMeta.AlterantRegistry`, the only kind `goMeta`
+  accepts; it throws `GoMeta.RegistrationRefused`, which carries the diagnostics, on any error.
 
-**⚠ Trust note:** under the DEFAULT profile no condition text is ever evaluated (the closed
-interpreter, §3.2). Only under the explicitly opt-in full-eval mode — two operator acts, see the
-SECURITY section of `README.md` — can processing input you did not write execute arbitrary code.
+The records `register!` takes — the Alterant and its actions, built with keywords — and the two an Alterant's record carries:
 
-### `goMeta(bytes::Vector{UInt8}; config::GoMetaConfig = GoMetaConfig(), registry::AlterantRegistry = DEFAULT_REGISTRY) -> GoMetaResult`
+- `GoMeta.Alterant(; altName, setMode, altConstructor, setAltInstance, getAltInstance = nothing, precedencesTuple = nothing, default = NoDefault(), capture = nothing)`
+  — the Alterant: its name; how its values combine (`:accumulate` collects every applicable
+  value, `:mutExclusive` stops at the first, `:mutExclusivePerField` is the Id compound's,
+  `:localOnly` is applied only locally, where the statement stands); the type of its instances; its setter,
+  whose methods are the actions' forms; its query getter, needed for an action a condition may
+  ask (`nothing` otherwise); its precedence tuple, always `nothing` at this release; its default;
+  and its capture declaration.
+- `GoMeta.ActionSpec(; name, plugin::Int8, accepts_string_slot = 0, validate = nothing)` — one action of an
+  Alterant: its name; the index of its Alterant; which argument slot, if any, takes a quoted
+  text; and a validation of that text.
+- `GoMeta.CaptureDecl(attr_scheme, mode_gate; attr_stem = nothing)` — `attr_scheme` one of `:per_key`, `:single`, `:per_field`, `:per_occurrence`; `mode_gate` `nothing` or `:localOnly` — how the Alterant's applied state
+  becomes evals rows; without it an Alterant records no rows.
+- `GoMeta.NoDefault()` and `GoMeta.Declared(value)` — the two forms of an Alterant's default;
+  `GoMeta.DefaultSlot` is their common type.
 
-(`goMeta` consumes raw bytes; from a `String` use `Vector{UInt8}(codeunits(s))` — or `read(path)`
-for a file, as in the README quickstart.)
+The Labels Alterant's names are a closed list of 38, read from a file in the package
+(`src/alterants-std/labels_vocabulary.txt`); which names it holds, and how a name is added, are under the author's review. The check that `goMeta` makes at its entry guards against
+accidents by conforming code — an unpublished registry, a published one changed afterwards —
+not against a loaded module that sets out to defeat it: load only Alterants you trust, as you
+would any Julia file you `include`.
 
-Pure, deterministic, **TOTAL over the CONFIG-TIME catalogued surface** (an invalid `config` never
-throws uncaught; absorb/apply-plane catalogued failures can still throw at v0 — the §3
-partition). `GoMetaResult` carries the run's cargo: `status::ProcessStatus` ·
-`diagnostics::Vector{Diagnostic}` (the invariant is **non-OK ⇒ non-empty diagnostics**) ·
-`verdicts::EvalStore` (the store behind `altValues_evals`) · `state::ProcessState` — INTERNAL and
-semver-UNSTABLE at v0: depend only on `status`, `diagnostics`, `altValues_evals(result)`, and
-`GoMeta.outputs(result)`. No filesystem / clock / environment read. **These three guarantees —
-purity, determinism, isolation — cover the whole default-configured run:** a `{…}` condition body
-is parsed and evaluated by the closed no-eval interpreter, so it cannot read the filesystem, the
-clock or the environment, and cannot perform effects. (Under the explicitly opt-in
-`:full_eval_v1` extension mode — see the SECURITY section of `README.md` — a condition body IS
-host-evaluated, and the guarantees then hold only for inputs whose conditions are free of side
-effects.) An invalid `config`
-fail-closes into a `PROCESS_ERROR` `GoMetaResult` **before any parse or render** — the input
-bytes are never touched; no parse, verdict, or render work occurs (§3.1).
+## 7. The development tool's pair
 
-### `GoMetaConfig(; profile = :jl_share_v1, flavor_tag = :julia, parse_range = nothing, user_mh_profile = nothing, namespace = :default)`
+Among the package's development tools, the basic renderer lets what the Engine evaluated be checked by eye: it turns a
+delivery into a print of the BLS Component tree and a rendered copy of the file. Strictly speaking it is no Extension: it lives under the package's development tools, and it is there because it serves a vital purpose for the package's development. It is loaded
+explicitly and is not part of the Engine's surface:
 
-The v0 input options (additive evolution only). `profile::Symbol` — the closed default is
-`:jl_share_v1`; the two OPT-IN names `:jl_share_v1_full_parse` / `:jl_share_v1_full_eval` are
-also config-valid and additionally require the explicitly-included opt-in extension (the two-act
-law, §3.2). The remainder of this paragraph describes the default: the share-profile proper is
-`:jl_share_v1`. `flavor_tag::Symbol` — the content flavor (`:julia`); RESERVED at v0: the value
-is accepted and stored but read by no v0 code path (any value is accepted and ignored;
-validation is deferred at v0).
-`namespace::Symbol` — the occurrence-key namespace every `altValues_evals` cell handle is scoped
-under (`:default` by default; the key's length-prefixed namespace segment, §1.4). One
-constructor-time guard: a namespace over 65535 bytes throws an `ArgumentError` at
-`GoMetaConfig(...)` construction — before any `goMeta` run, hence outside the fail-close rows
-below (which require a constructed config).
-`parse_range::Union{Nothing,UnitRange{Int}}` — `nothing` ⇒ the whole input; a given range
-**requires** `first == 1` and a non-empty range. Its unit is **line indices of the input**, and a
-`last` beyond the input's final line is accepted without complaint — `1:99` on a two-line input
-returns `PROCESS_OK` and renders both lines, with no diagnostic (a `first ≠ 1` or an empty range is
-the `ERR_RANGE_INVALID` fail-close instead, §3.1).
-`user_mh_profile::Union{Nothing,String}` — RESERVED / experimental: `nothing` (default) ⇒ no feed,
-byte-identical to the no-feed path; a `String` ⇒ that metaLine BODY is seeded into the reserved
-user slot of the meta-hierarchy before the walk (first-wins override of authored Visib actions).
-THE USER CONTEXT: the feed carries its own recordable identity — an EXPLICIT `head` in a fed
-profile records ONE row against the minted user-context handle (grain `0xe0`; the profile's
-verbatim bytes as the fingerprint column), even on META-FREE input; queued fed actions apply only
-where document cells exist. The deriving heading form refuses on this surface (no placement), and
-a CONDITIONED heading refuses (no evaluable settribute state at this version). New rows appear
-ONLY when this field is set. Deliberately scope-limited at v0.
+```julia
+include(joinpath(pkgdir(GoMeta), "devtools", "load_basic_renderer.jl"))   # at the top level
+out = Main.BasicRenderer.outputs(delivery)   # (blsStructure_bytes, render_bytes)
+```
 
-### `altValues_evals(result::GoMetaResult) -> Vector{Tuple{Vector{UInt8},Symbol,Any,Bool}}`
+No Extension takes this pair; an Extension works from the delivery. The test suite pins the
+pair byte for byte — the rendered copy against the committed reference files, the tree print against its committed copy. The
+[Getting started](../tutorials/getting-started.md) page shows the development tool in use; the
+[Development tools](development-tools.md) page describes what it prints.
 
-The evaluated Alterant values, per piece of the file: the final map
-`(cell_handle, attr, value, polarity)` — per-cell rows plus handle-classed non-cell rows (a fed
-explicit heading records against the user-context handle class) — **sorted by `(cell_handle,
-attr, value)`** for a deterministic, content-hashable order; **final-verdicts-only** (deduped at
-capture); **empty when no metaLine exists on ANY surface** (the fed profile IS a metaLine body);
-outside the `(tree, render)` pair at v0. The `(attr, value)` domains at v0:
-`:label_<name> => true` (one row per accumulated label) · `:visib => :hide | :show | :discard`
-(the winning visibility verdict) · `:id_<name> => Int16` (experimental Id values, one row per
-non-default field) · `:head_<level> => String` (author-supplied section headings, document-
-or fed-profile-authored — the §2 Heading action; `head_<level>_<k>`, k ≥ 2 in source order,
-for same-level repeats on one recorded handle); `polarity` is always `true` at v0 (the field
-is reserved for a future negated-verdict encoding). Consumers should treat UNKNOWN attribute
-families as opaque — skip them, never error: the enumeration lists the v0 families, and new
-families may arrive as additive evolution within the documented versioning policy (§6). `GoMeta.serialize_evals(altValues_evals(result))` is its canonical
-byte form.
+## 8. What a program sees when something is wrong
 
-### `GoMeta.outputs(result::GoMetaResult) -> (blsStructure_bytes::Vector{UInt8}, render_bytes::Vector{UInt8})`
+**Two statuses.** A run that completes delivers `PROCESS_OK`, its `diagnostics` empty or holding
+warnings. A run whose registry `goMeta` refuses delivers `PROCESS_ERROR` with one coded `Diagnostic`,
+before any line is read: `REG_UNPUBLISHED` (an unsealed registry; the message names the path
+builder → validate → publish) or `POST_SEAL_MUTATION` (a published registry changed afterwards;
+the message names the first changed field). A file with no metadata at all is not an error:
+`PROCESS_OK` — and, with nothing fed through the configuration, no rows.
 
-The native, always-available verification surface (§1.3) — package-public, reached qualified.
-`blsStructure_bytes` = the verdict-free structural
-serialization of the final parse tree; `render_bytes` = the `jl-share-v1` reference render. Total
-on any OK result, with one documented qualification: more than one surviving Visib verdict on a
-single cell meets the render plane's stable guard error (§3.4). The render plane's string
-indexing is character-safe — including a multibyte-whitespace indent — and is witnessed
-(a GUARDED edge). On a non-OK (config-time `PROCESS_ERROR`) result it yields the
-**empty** `(tree, render)` ("no render attempted"). The NamedTuple field order is
-`(blsStructure_bytes, render_bytes)`. See `docs/CANONICAL-OUTPUT.md` for the full surface definition.
+**The registry's own refusals.** `register!` throws (and `next_plugin_index`, at capacity, the second code)
+`RegistrationRefused` with `REG_PROTOCOL` (an action record that names another Alterant) or
+`REG_SLOT_EXHAUSTED` (more than 127 Alterants or actions). `validate` returns a `REG_PROTOCOL`
+row for each declared value outside the accepted domain and for each capture rule broken;
+`publish` throws `RegistrationRefused` carrying them. `REG_DERIVED_TABLES` names a registry
+assembled directly from its parts, outside the lifecycle, whose parts do not agree with its
+declarations — build through the lifecycle instead. At a run, the validation an Alterant of mode `:localOnly` declares for its quoted text — when it answers
+`false`, returns no `Bool` or throws — makes `goMeta` throw a stable message naming
+`REG_VALIDATE_FALSE`, `RES_RETURN_TYPE` or `CB_VALIDATE_THROW`.
 
-### The metaLine argument forms (v0)
+**Warnings.** `WARN_CAPTURE_FLOOR` and `WARN_CAPTURE_UNREADABLE` can come back on an OK run
+from an Alterant of mode `:localOnly` — the Heading's — whose applied state has no capture
+declaration, or one its store does not fit.
 
-An alterant ACTION token may carry a parenthesized, comma-split argument list — `action(arg1,
-arg2)` — parsed with the metaLine and handed to the action when it fires. The v0 forms:
+**What a file's author meets.** These make `goMeta` throw — with a stable message of GoMeta's, most naming the
+offending token, or, where a bullet says so, with Julia's own error; nothing is delivered:
 
-- **Labels (the `:` action) — DOCUMENTED, both forms:** repeated one-word labels
-  (`#~ :label1 :label2`) AND the parenthesized list (`#~ :(label1, label2)`) — equivalent; each
-  label is checked against the engine's closed whitelist, in both the label-setting and the
-  condition-query roles (an unknown label ⇒ the §3.4 stable refusal, subject to §3.4's
-  evaluation-scope note). The corpus-documented labels are `:label1`..`:label5`; since `0.3.0`
-  the closed whitelist additionally accepts a fixed pictograph vocabulary (e.g. `:💡`, `:📝`,
-  `:🔥` — the full set is the refusal message's accepted-set listing; byte-exact names, no
-  normalization: an emoji variant with different bytes is a different — unknown — name).
-- **The Heading action (`head`) — DOCUMENTED at this release; evaluated-surface only:** section
-  titles are metadata. A metaLine whose FIRST token starts with a `""`-fenced string lowers
-  to the deriving `head` call — `#~2 "Title"` ≡ `#~2 head("Title")` — and the canonical calls
-  are position-free: `head("Title")` (level derived from the carrying metaLine's own depth)
-  and `head("Title", 2)` (explicit, context-free). Captured headings surface as
-  `head_<level>` rows in `altValues_evals` (same-level repeats on one recorded handle:
-  `head_<level>_<k>` — the `altValues_evals` domain line above) and have NO render effect. The recorded level
-  follows the author's own numbering — the `#~` digit or the explicit level argument, never
-  a renormalized outline level: `#~ "T"` records `head_1`, `#~2 "T"` and `head("T", 2)` both
-  record `head_2`, `#~0 "T"` records `head_0` (a file-level heading), and an inline segment
-  meta (`x = 1 #~ "T"`) records the documented constant `head_10` — the one fixed exception;
-  an inline DEPTH DIGIT (`x = 1 #~2 "T"`) is accepted by the structural parse but does not
-  affect the recorded level (still `head_10`). The explicit level argument accepts any
-  integer literal and records AS GIVEN — it is not constrained by the structural 0–8 depth
-  window (`head("T", 9)` records `head_9`; `head("T", 10)` records `head_10`, sharing the
-  inline constant's name; out-of-window and negative levels are accepted — level hygiene is
-  the author's concern at v0). The `head` TEXT slot is the one
-  String-accepting argument position on the one String-accepting action — every other slot
-  of every action, including `head`'s level slot, refuses a String. A NON-first quoted token
-  on a metaLine is reserved and refuses (today via the §3.4 malformed-metaLine punctuation
-  refusal). `head` is not queryable in conditions (a condition naming it evaluates false —
-  unlike the bare Id atoms, whose condition use is the §3.4 pending edge), and a heading's
-  own condition may use settribute state only — evaluated ONCE at the heading's own line,
-  GATING the recording (false means no row); a query atom there meets a typed refusal.
-  Refusal catalogue: §3.4.
-- **Id actions (`cell` / `parent` / `file`) — EXPERIMENTAL at this release:** one integer value
-  argument (`#~ cell(7)`), Int16 domain. The Id alterant is a v0 placeholder implementation;
-  this syntax may change — do not build durable content on it
-  at v0. Inherited Id values do not cross a block separation at v0.
-- **Visib actions (`show` / `hide` / `discard`) take NO arguments;** an empty list (`hide()`) is
-  accepted as the bare form.
-- **Malformed arguments** (wrong arity; non-parsable or overflowing values) raise the stable
-  `"GoMeta apply: invalid arguments …"` refusal (§3.4) — never a raw stack trace.
-- **Condition-side atoms** (`{ cell(7) }`-class queries inside `{}`) route through the closed
-  condition intake instead: non-label arguments meet the typed argument-domain refusal there, and
-  the BARE unqueryable atom is the E-07 pending-mint edge (§3.2/§3.4).
+- an unknown action, "unknown alterant action", naming the registered actions; a name applied
+  as a label from outside the list, "unknown label", naming the accepted names (a label only
+  asked for in a condition is not refused for being unknown: the label test answers false); an empty label list
+  (`#~ :` or `:()`) and an empty label query (`{ :() }`);
+- a malformed metaLine: a character where the grammar allows none, "unexpected character"; an
+  unterminated `(`, `{` or `"`; a quoted text in a slot that takes none, "string argument not
+  accepted"; more than one inline marker on one line; the inert marker's `!` before the [depth](syntax-and-semantics.md#depth,-the-meta-hierarchy)
+  (`#~!2` for `#~2!`), "bang-first meta marker", naming the right spelling; a reserved form
+  (`#-`, `#+`, `#[`, `#>`) right after metadata — after a metaLine or metaBlock even with a blank line between;
+- a condition that is empty or a bare literal (`{}`, `{ 1 }`), "carries no condition
+  expression"; a word in a condition that is neither a [BLS key word](syntax-and-semantics.md#the-BLS-key-words) nor an action a condition
+  may ask, "unknown condition key"; a condition Julia cannot parse, or one that fails when Julia
+  evaluates it — Julia's own error; an argument an Alterant's setter cannot take — its own
+  error, Julia's;
+- a digit depth beyond 8 (`#~9`), "meta depth out of range"; a ninth statement in one depth
+  level (the bound is the number of registered actions, 8 with the shipped registry), "more than 8 actions in one meta-hierarchy slot"; more than one Visib value set for
+  one Component, "more than one Visib value set for one component";
+- an unknown `flavor_tag` (section 2).
 
-## §3 — The typed error-mode catalogue
+GoMeta's own messages among these are stable within this release and the package's test suite asserts them.
 
-`Diagnostic = {code::Symbol, severity, message, context}`; a catalogued failure is a typed
-`Diagnostic` — **never** a bare `error()`. The eight catalogued rows fall into three classes
-(§3.1–§3.3); §3.4 additionally documents the latent crashes and the stable-message refusals that
-are not catalogued typed codes.
+## 9. Line endings
 
-### §3.1 — Non-condition codes (4): 2 armed config-time + 1 crash-origin with deferred typed conversion + 1 GUARDED
+A file with CRLF line endings (a carriage return before each line feed) is read as if its endings were LF (a line feed alone): the content of each Line holds
+no carriage return, and the rendered copy comes out with LF endings. The bytes within a line
+are kept as they are.
 
-| Code | Status | Trigger |
-|---|---|---|
-| `ERR_UNKNOWN_PROFILE` (E-03) | config-time, **armed + typed** | `config.profile` outside the three profile names `{:jl_share_v1, :jl_share_v1_full_parse, :jl_share_v1_full_eval}` — fail-closed `PROCESS_ERROR`, no parse, verdict, or render work attempted (an opt-in name passes THIS row and refuses later at profile resolution unless the opt-in extension is explicitly included — the two-act law, §3.2) |
-| `ERR_RANGE_INVALID` (E-08) | config-time, **armed + typed** | `config.parse_range` with `first ≠ 1`, or an empty range |
-| `ERR_VISIB_NO_FLAG` (E-04) | apply-path **crash-origin** (typed conversion deferred) | a Visib verdict carries no set flag at write-back |
-| `ERR_DEPTH_OUT_OF_WINDOW` (E-06) | **GUARDED** — stable untyped refusal; typed conversion deferred | a `#~9`-style **digit** depth beyond the meta-hierarchy's depth window raises the stable-message `ErrorException` "meta depth out of range …" at the depth lookup (§3.4) |
+::: details Measured: a file with CRLF endings through the Engine and the door
 
-E-03 / E-08 are armed: a bad profile/range returns a `PROCESS_ERROR` `GoMetaResult` carrying the
-typed code, with `GoMeta.outputs` yielding empty `(tree, render)`. E-04 (apply-path) is the
-remaining crash-origin whose **typed conversion is deferred at v0**:
-its current crash-reachability is a documented v0 edge.
-E-06 is **GUARDED**: for a digit depth outside the window the depth lookup refuses with the stable
-message "meta depth out of range …" (§3.4); its typed conversion is likewise deferred
-at v0.
+In the development tool's printouts a "cell" is a BLS Component that carries evaluated values — the tool's word; this site says Component. Its "(no evals — defaults apply)" marks a Component with no evaluated values of its own; it falls under the value of a Component that contains it, else under the Alterant's declared default.
 
-### §3.2 — Condition codes — TYPED at the closed-interpreter flip (this release; eval retired from the default path)
+```
+probe: 2026-10-17T19:43:41 (local clock) · input crlf_input.jl sha256 9b01c3a8fcfae089dad5bb33d52c7d4971f254986d40bbd35a61fcf4f326c5eb · bytes 186 · CR bytes in the input: 8
+status = PROCESS_OK · diagnostics = 0
 
-**Two intake modes ship (both available, the safe one by default).** The DEFAULT profile
-`:jl_share_v1` runs the closed interpreter described here. Two OPT-IN profiles —
-`:jl_share_v1_full_parse` (full Julia grammar accepted, still nothing executed) and
-`:jl_share_v1_full_eval` (a strict superset of the safe grammar: everything the safe grammar
-accepts behaves identically, and only text beyond it is parsed as Julia and EVALUATED) — require
-TWO explicit operator acts: `include`-ing `extensions/condition_modes_opt_in.jl` and then naming
-the profile. Neither act is reachable from document content, so no document can widen its own
-intake (README SECURITY).
+== the FULL delivery view ==
+File  crlf_input.jl  —  5 evals rows on 4 cells  (of 6 Blocks · 8 Lines)
+├─ Block #2  Text  L1       "# A probe for the Public API page: a …"   (no evals — defaults apply)
+│  └─ Line #2   Text  L1       "# A probe for the Public API page: a …"   (no evals — defaults apply)
+├─ Block #3  Meta  L2       "#~ hide{ isCode } ## the first metaLi…"   (no evals — defaults apply)
+│  └─ Line #3   Meta  L2       "#~ hide{ isCode } ## the first metaLi…"   (no evals — defaults apply)
+├─ Block #4  Code  L3–L4    "x = 1⏎y = 2"
+│  ● visib        => :hide     (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+│  ├─ Line #4   Code  L3       "x = 1"   (no evals — defaults apply)
+│  └─ Line #5   Code  L4       "y = 2"   (no evals — defaults apply)
+├─ Block #5  Text  L5–L6    "# a text line after an empty line"   (no evals — defaults apply)
+│  ├─ Line #6   Text  L5       ""   (no evals — defaults apply)
+│  └─ Line #7   Text  L6       "# a text line after an empty line"   (no evals — defaults apply)
+├─ Block #6  Meta  L7       "#~ :label1"
+│  ● label_label1 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+│  └─ Line #8   Meta  L7       "#~ :label1"   (no evals — defaults apply)
+└─ Block #7  Code  L8       "z = 3 #~ show"
+   ● label_label1 => true      (+)
+       handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+   └─ Line #9   Code  L8       "z = 3 #~ show"
+      ● label_label1 => true      (+)   ← Segment #5 "#~ show"
+          handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,9)]  origin=[(direct,1) (direct,7) (direct,9) (direct,5)]
+      ● visib        => :show     (+)   ← Segment #5 "#~ show"
+          handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,9)]  origin=[(direct,1) (direct,7) (direct,9) (direct,5)]
 
-The condition path is the **closed interpreter**: condition text is parsed into a bounded
-condition AST (or a typed refusal `Diagnostic`) and evaluated as DATA by the engine itself. The
-query-argument grammar is DECLARED (a `':'`-prefixed one-word label, comma-separated, one trailing
-comma permitted; an all-whitespace text is the zero-argument form) — anything else meets one typed
-refusal, and richer argument syntax is reached through the opt-in modes above, where it is
-accepted as data. At the metaLine seam a refusal still ABORTS the statement with the same stable
-message text the previous engine raised, so no input's observable outcome changed with the swap;
-routing the typed carriers into the result's diagnostic list instead of the abort is a later,
-separately-gated motion.
+== the content bytes of every Line through the door (BLS.content): does a Line keep its \r? ==
+Text  "# A probe for the Public API page: a fil…"  CR bytes: 0 · length 65
+Meta  "#~ hide{ isCode } ## the first metaLine"  CR bytes: 0 · length 39
+Code  "x = 1"  CR bytes: 0 · length 5
+Code  "y = 2"  CR bytes: 0 · length 5
+Text  ""  CR bytes: 0 · length 0
+Text  "# a text line after an empty line"  CR bytes: 0 · length 33
+Meta  "#~ :label1"  CR bytes: 0 · length 10
+Code  "z = 3 #~ show"  CR bytes: 0 · length 13
 
-| Code | Trigger |
-|---|---|
-| `ERR_UNKNOWN_CONDITION_KEY` (E-01) | **typed** — a condition atom outside the derived whitelist of state-refs and action names |
-| `ERR_CONDITION_CAP` (E-02) | **typed** — the condition scan exhausts a profile cap (29 scan steps, whitespace counted; or the raw-byte / grouping-depth walls) with non-whitespace input unconsumed, or a label key is left unterminated — a refusal, never a silent truncation; each mint carries its governing wall or window size in the `Diagnostic`'s context |
-| `ERR_CONDITION_ARG_DOMAIN` | **typed** — a query argument outside the declared argument grammar above |
-| `ERR_CONDITION_PARSE` | **typed** — the intake's grammar refusals: an empty `{}` body · an unterminated argument list · a malformed or unterminated condition key · a worded label key carrying a parenthesized argument list · an unparsable operator sequence |
-| `ERR_CONDITION_UNQUERYABLE_ALT` (E-07) | `cell` / `parent` / `file` used as a condition atom (Id has no queryable instance) — **typed mint PENDING**: the shape still aborts raw at evaluation (documented honest edge, §3.4) |
+== the development tool's render: 184 bytes · CR bytes in the render: 0 · LF bytes: 8 ==
+# A probe for the Public API page: a file with CRLF line endings.
+#~ hide{ isCode } ## the first metaLine
+## x = 1
+## y = 2
 
-### §3.3 — Handled class (NOT an error): E-05 — meta-free input
+# a text line after an empty line
+#~ :label1
+z = 3 #~ show
+== end of the render ==
+the whole document's text through the door, CR bytes: 0
+```
 
-A meta-free input is **not** an error: on the NO-FEED path `goMeta` returns `PROCESS_OK` with zero
-alterant work and a byte-exact passthrough render (a head-bearing fed profile still mints its
-user-context row; a refusal-carrying feed aborts regardless of document meta-freeness). It carries
-no typed code — it is a normal success path.
-(An input whose only meta is inline is NOT this class: inline `#~` actions on content lines DO
-apply — `docs/SYNTAX-AND-SEMANTICS.md` §9.)
+:::
 
-### §3.4 — Known latent crashes + stable-message refusals (NOT catalogued typed codes)
+## 10. Not at this release; the policy
 
-These are the honest edges of the v0 engine. Entries marked GUARDED are refusals with a stable
-message (no longer raw crashes); the rest remain latent, documented as such — **not** assigned a
-fabricated typed code:
-
-- **The >7-actions-per-slot overflow — GUARDED:** accumulating more alterant actions in one
-  meta-hierarchy slot than the queue capacity (7 at v0) raises a stable-message `ErrorException`
-  ("slot action capacity …") at the enqueue guard — never a raw `BoundsError`. The ≤7-per-slot
-  limit is a documented v0 bound. Witnesses:
-  `tests/unit/slot_overflow_tests.jl`.
-- **The malformed-metaLine crash — GUARDED:** malformed metaLines raise a stable-message
-  `ErrorException` ("malformed metaLine …") in `parseAlt` (`src/absorb/absorb_meta.jl`) — never a
-  raw `BoundsError`. The refused classes: a meta region yielding no alterant token (e.g. `#~ ,`);
-  stray punctuation at the action-name position (e.g. `#~ , discard` — the parser never skips
-  ahead to the next identifier); and a token glued to a closing `)` or `}` (`hide()junk`,
-  `hide{isCode}show` — a closing bracket must be followed by end-of-input or whitespace). VALID
-  input is unaffected (corpus 7/7 byte-exact).
-  Witnesses: `tests/unit/malformed_meta_tests.jl`.
-- **The quoted-string lane — GUARDED (stable messages from birth):** an argument list
-  carrying a `"` meets "unterminated quoted argument" (a `"` never closed), "malformed
-  quoted argument" (a quote glued to bare text, a stray quote, or more than one span in
-  one token), or "string argument not accepted" (a WELL-FORMED quoted argument anywhere
-  except the `head` action's TEXT slot — the one String-accepting position; every other
-  slot of every action, including `head`'s level slot, refuses a String). The heading
-  lane adds its own siblings: "unterminated quoted heading", "empty heading text" (an
-  empty `""` heading is refused by ratified v0 semantics; relaxing it later would be a
-  compatible widening), and "heading without a document context" (the deriving form on the
-  fed-profile surface, where nothing gives it a placement; the explicit
-  `head(text, level)` form is context-free). The condition walls carry their own stable
-  messages: "alterant-state query in a heading condition" (a heading condition may test
-  only settribute predicates at v0) and "a conditioned heading in a profile feed"
-  (fed-heading conditions are reserved). The backslash is RESERVED inside every
-  quoted span — "backslash in a quoted argument" / "backslash in a quoted heading" — so
-  a future escape grammar can land as a purely additive widening without reinterpreting
-  any shipped document. Witnesses: `tests/unit/heading_recognizer_tests.jl`.
-- **The out-of-window meta depth — GUARDED:** the refusal is witnessed on the **DIGIT** depth
-  form — a digit depth marker outside the v0 window (`#~9`, `#~99` — v0 supports `#~` through
-  `#~8`, and digit `0` addresses the file level, accepted) raises
-  the stable-message `ErrorException` ("meta depth out of range …") at the depth lookup —
-  never a raw conversion crash. In-window depths work unchanged. Note: `#~10` parses its
-  first digit only and behaves as depth 1.
-- **Empty and malformed condition bodies — GUARDED:** an EMPTY condition block (`{}` or
-  `{ }`) raises the stable-message `ErrorException` ("empty condition block …") — an
-  unconditional action is written without `{}`; a body that does not form a complete
-  condition expression (e.g. `{isCode &&}` or `{|}`) raises "unparsable condition …".
-  Working conditions are unaffected byte-for-byte.
-- **The multi-inline-meta limit — GUARDED:** more than one inline `#~` marker on ONE line
-  raises the stable-message `ErrorException` ("more than one inline meta segment …") EARLY,
-  at parse time — never a success report followed by an output-time throw. v0 accepts at
-  most one inline meta segment per line; one inline marker, explicit `#]` closers, meta
-  LINES with marker-free trailing comments, and consecutive meta lines all work unchanged.
-  A trailing comment that itself contains a ` #~` sequence counts as a second marker and is
-  refused.
-- **The directive-adjacency crash class — GUARDED at `0.2.3`:** a structural-directive form
-  (`#-`, `#+`, `#[` or `#>`-initial — prefix-fired, so ordinary `#----` dividers and `#->`
-  arrows are in the class) DIRECTLY adjacent to metadata raises a stable-message
-  `ErrorException` EARLY, at parse time, at both grains: a directive fragment on the same
-  line directly after an inline `#~` meta segment or a `#]` closer
-  ("a structural-directive segment …" — an intervening plain fragment, a ` # note` or
-  ` ## note`, defuses the adjacency), and a directive LINE whose PRECEDING carried
-  context is meta — directly after a metaLine, a meta block, or a code/text line ENDING
-  in an inline meta segment or `#]` closer ("a structural-directive line …" — a blank
-  line between does not defuse the adjacency; the trigger is the carried segment
-  context, wider than metaLine/meta-block adjacency alone). Pre-`0.2.3` both lanes
-  crashed raw (a `MethodError`, or a wrong-class depth
-  refusal blaming a metaLine the author never wrote). The escapes — write the divider
-  `##`-initial (plain content, rides even a meta block inertly) or put a content line
-  between — are named in the LINE-grain message; the segment-grain message asks you to
-  separate the directive from the metadata and names its intervening-fragment escape.
-  One measured in-fence corner: inside an OPEN
-  multi-line string, `#+`/`#>` interior lines remain string content even directly after
-  inline metadata (accepted; a walk-invisible mistype, harmless), while the `#-`/`#[`
-  in-fence twins refuse. Directive forms anywhere else — file start, between code lines,
-  after an interposed content line or benign comment fragment — are unaffected, and these
-  comment forms remain reserved GoMeta syntax space at v0. Witnesses:
-  `tests/unit/reserved_adjacency_tests.jl`.
-- **The over-cap condition silent mis-render — now the TYPED E-02:** a condition whose scan
-  exhausts a profile cap with non-whitespace input unconsumed meets the typed `ERR_CONDITION_CAP`
-  refusal at the closed interpreter's scan (§3.2; the `Diagnostic` carries the governing wall) —
-  the refusal exists so a truncated condition can never evaluate as if complete. The abort still
-  raises the same stable message text at the metaLine seam (§3.2's routing note). A cap-hit whose
-  remainder is only whitespace is semantically complete and stays accepted. Per-atom scan
-  exhaustion surfaces separately as the malformed/unterminated-key refusals. Witnesses:
-  `tests/unit/condition_cap_tests.jl`.
-- **The unknown-alterant refusal:** an out-of-registry alterant name throws a stable, stage-honest,
-  bounded `ErrorException` ("GoMeta absorb: unknown alterant action …"). Its typed-`Diagnostic`
-  conversion is deferred (the E-01 family).
-- **The unknown-label refusal:** **label names are validated in BOTH roles** against the engine's
-  closed whitelist — a name APPLIED as a label (`#~ :labelX`, including the conditional form
-  `:labelX{ … }`) and a label QUERIED in a condition (`{ :labelX }`) each raise the stable
-  `ErrorException` `"GoMeta apply: unknown label …"`, which names the accepted set — the
-  corpus-documented `:label1`..`:label5` plus, since `0.3.0`, the fixed pictograph vocabulary
-  (the §2 argument-forms contract). One evaluation-scope
-  note: the condition-role refusal fires where the query is actually consulted — in a region that
-  carries no labels at all (no valid label was ever set there), the query is never consulted and
-  the atom simply evaluates false; likewise a condition-side label after an already-winning true
-  atom in a `,`/`||` chain is not queried (short-circuit), so it is not reached to refuse.
-  Witnesses: `tests/unit/error_message_tests.jl` (both roles).
-- **The store-`[2]` insertion path** — a latent insertion path not exercised by any v0 input.
-- **The absorb-plane grammar refusals (the same stable-message family):** beyond the entries
-  above, the metaLine/condition grammar refuses with stable `GoMeta absorb:` messages on: an
-  unterminated argument list (a `(` never closed) · an unterminated condition block (a `{` never
-  closed) · an unterminated or malformed condition key (including a `:` that does not introduce a
-  single one-word label) · an unknown condition key (an atom that is neither a component
-  state-ref nor a registered action name) · a duplicate argument list or condition block on one
-  alterant clause · a misplaced label token · stray punctuation at the action-name position · a
-  token glued to a closing `)` or `}` · the over-cap condition (the dedicated entry above).
-  At the render plane, more than one surviving Visib verdict on a single cell meets the stable
-  `GoMeta emit:` guard error (see `docs/SYNTAX-AND-SEMANTICS.md` §13 on the multi-Visib surface).
-  Each refusal is stable and points at this section; most name the offending token, region, or
-  bracket count.
-- **The action-args walls — GUARDED:** malformed alterant-action ARGUMENTS — non-parsable or
-  overflowing Id values and wrong-arity forms, including arguments on Visib actions — raise the
-  stable `"GoMeta apply: invalid arguments for alterant action …"` `ErrorException` at the
-  apply-plane `_invoke_set` seam. Working forms are unaffected (the §2 argument-forms contract).
-  Condition-side atoms with non-label arguments (`:label1{ cell(7) }`, `{ cell(x) }`) now meet
-  the TYPED argument-domain refusal at the closed intake (§3.2) — they never reach evaluation.
-  The remaining raw edge is the BARE unqueryable atom (`{ cell }` / `{ parent }` / `{ file }`):
-  the E-07 shape, whose typed mint is pending (§3.2). Witnesses:
-  `tests/unit/arg_guard_tests.jl`.
-
-**Message stability:** every input-reachable engine-layer message a v0 input can trigger through
-the parse/absorb/apply/emit pipeline is STABLE and explanatory (stage-honest prefix
-`GoMeta parse:` / `GoMeta absorb:` / `GoMeta apply:` / `GoMeta emit:`, the offending token
-bounded, what v0 accepts, this section as the pointer); three catalogued messages are
-parse-plane — the multi-inline-meta refusal and the two directive-adjacency refusals
-(segment grain and line grain, `0.2.3`) above. The not-input-reachable internal checks say
-"GoMeta internal invariant violated … please report". The vendored parse layer's OTHER messages
-keep their existing forms; they are not part of the typed catalogue above.
-
-Additionally, a non-fatal `:warning` `Diagnostic` — `WARN_VERDICT_COLLISION` — is emitted (the run
-continues) when two byte-identical cells receive conflicting verdicts; cell-id disambiguation is
-deferred.
-
-## §4 — CRLF normalization (documented, not an error)
-
-Both setup paths chomp `\r\n` — line **endings** normalize to LF; CONTENT-line **content** bytes
-stay faithful for arbitrary bytes, including invalid UTF-8 (documented engine behavior for BOTH
-invalid-byte classes — lone invalid bytes and decode-requiring sequences such as overlong
-encodings; the shipped suite does not exercise invalid-byte content). The
-**meta-line plane indexes on character boundaries**: non-ASCII inside a metaLine parses
-correctly, and — the whitelist and action set being ASCII-named at v0 — a non-ASCII label or
-action meets the stable unknown-label/unknown-action refusal naming the FULL token
-(a GUARDED edge). Goldens are LF. This is a documented normalization, not an error. See
-`docs/CANONICAL-OUTPUT.md`.
-
-## §5 — Deferred / not-v0 (do not program against these at v0)
-
-- **Growth beyond the v0 subset** — the language grows by design; the v0 subset forecloses none
-  of it. `using()` is a **reserved** name — do not define or rely on it.
-- **Cross-implementation conformance tooling** — a conformance interface + adapter (validating
-  independent implementations of the language against the shared corpus) exists as internal
-  tooling and is not part of the v0 package surface.
-
-## §6 — Versioning policy
-
-Evolution is **additive-only from this first published release forward**: new public names /
-fields are added; a published exported name is never silently removed or repurposed (a
-removal/rename is a breaking change handled with a deprecation under full re-validation). No
-deprecation debt exists at this release. `Project.toml` carries the version; the alpha maturity states
-the surface honestly — it may still move before `1.0`, additively wherever possible.
+`using()` is a reserved name: do not define it or rely on it. The programs that check another
+implementation of the language against the shared examples are internal and not part of the
+surface. The version is in the package's `Project.toml`; the package's own API document
+(`docs/public-api.md` in the repository) keeps the register of every renamed, removed or added
+public name, and the policy of clean cuts holds until at least version 0.7.

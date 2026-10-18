@@ -173,7 +173,9 @@
   --vp-c-danger-3: #ea0094;
   --vp-c-danger-soft: rgba(255, 65, 169, 0.16);
   --vp-code-color: #7bc4dc;
-  --vp-code-bg: #2a231c;
+  --vp-code-bg: #110e0b; /* the inline chip DARKER than the page (owner 2026-10-17, STYLE-4): 1.11:1 under
+                            #1f1a15, as the former #2a231c was over it; the rose 13.78:1, the pink 6.66:1 —
+                            every code ground now darker than its page, as the light chip and the fences */
   --vp-code-block-bg: #191512;
   --vp-button-brand-bg: #7043e9;
   --vp-button-brand-hover-bg: #5f2fd8;
@@ -216,15 +218,30 @@
   --gm-m-cyan: #4ad2e9;   /* owner's brightened merci cyan (9.60:1) */
   --gm-m-green: #84e53f;  /* owner's brightened merci green (10.90:1) */
   --gm-m-blank: #e8d9cc; /* whitish like the note box, warmed a step browner */
+  /* The boxes' grounds DARKER than the page, tinted by kind (owner 2026-10-17, STYLE-5): every
+     ground in dark mode now sinks below the page as the chip and the fences do; the kind's border
+     carries the shape. Measured on each: the body ink >= 16:1, the pink marker >= 6.2:1. The
+     former mint tint rgba(49,237,174,.14) never rendered — see the :root.dark block below. */
   --vp-custom-block-tip-border: #3cf0b5;
   --vp-custom-block-tip-text: var(--vp-c-text-1);
-  --vp-custom-block-tip-bg: rgba(49, 237, 174, 0.14);
+  --vp-custom-block-tip-bg: #0e1912;
   --vp-custom-block-info-border: var(--vp-c-border);
   --vp-custom-block-info-text: var(--vp-c-text-1);
-  --vp-custom-block-info-bg: var(--vp-c-bg-soft);
+  --vp-custom-block-info-bg: #151110;
   --vp-custom-block-warning-border: #ff914d;
   --vp-custom-block-warning-text: var(--vp-c-text-1);
-  --vp-custom-block-warning-bg: rgba(255, 145, 77, 0.15);
+  --vp-custom-block-warning-bg: #1c100b;
+}
+/* The dark TIP box's tokens once more under :root.dark (owner 2026-10-17, STYLE-5 — the cure of a
+   defect): style.css sets them for :root.dark (specificity 0,2,0), which beat this file's .dark
+   block (0,1,0) although this file loads later — so in dark mode the tip box rendered the
+   template's grey ground #242424, its grey text and its dull green border, never the brand's.
+   The same selector, later in the cascade, lets the brand's values win; style.css stays the
+   template's. (The template defines no dark tokens for the other kinds.) */
+:root.dark {
+  --vp-custom-block-tip-border: #3cf0b5;
+  --vp-custom-block-tip-text: var(--vp-c-text-1);
+  --vp-custom-block-tip-bg: #0e1912;
 }
 
 /* ---- first-draft banner (launch window; remove after polish) --------------
@@ -262,11 +279,23 @@
 .vp-doc :not(pre) > code { font-size: 0.875em; }
 .vp-doc div[class*='language-'] code { font-size: 14px; line-height: 1.7; }
 
-/* ---- deck adoption: headings, outlined panels, literal inline code ------- */
+/* ---- deck adoption: headings, outlined panels; inline code ---------------- */
 .vp-doc h1, .vp-doc h2, .vp-doc h3, .vp-doc h4 { color: var(--gm-head); }
 .vp-doc div[class*='language-'] { border: 1.5px solid var(--gm-card-outline); border-radius: 12px; }
-.dark .vp-doc :not(pre) > code,
+/* Inline code in dark mode CARRIES THE CHIP again (the default code background, padding and
+   radius) and takes the heading's light rose (--gm-head, #f7d1d5; 11.09:1 on the chip) — owner
+   2026-10-17 (STYLE-1 the chip, STYLE-2 the rose), reversing the literal, chipless inline code of
+   the 2026-08-12 deck adoption: on a phone the chipless tokens blended into the prose. A code
+   span inside a link keeps the link's colour (the second rule; without it the first would beat
+   VitePress's `.vp-doc a > code`). The front page's raw-HTML code spans (.gm-home) stay as adopted. */
+.dark .vp-doc :not(pre) > code { color: var(--gm-head); }
+.dark .vp-doc a > code { color: inherit; }
 .dark .gm-home code { background: transparent; padding: 0; color: inherit; }
+/* GoMeta's markers inside a prose code span (#~, #~n, //~, %~, #]) in the fences' sigil pink,
+   bold, THE MARKER ONLY — owner 2026-10-17 (STYLE-1). The span.gm-sg markup comes from the
+   inline-code renderer rule in config.mts; the same token the ```gometa fences use (AA on both
+   grounds: 5.16:1 light on the chip, 5.98:1 dark). */
+.vp-doc :not(pre) > code .gm-sg { color: var(--gm-syn-sig); font-weight: 700; }
 /* keep-all: no intra-token break in short chips (":🔥" stays whole) while long
    inline paths still wrap at / and - (nowrap clipped them at 390px — rejected) */
 .vp-doc :not(pre) > code { word-break: keep-all; }

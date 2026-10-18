@@ -14,7 +14,9 @@ makedocs(;
         "Home" => "index.md",
         "Concepts" => [
             "What is GoMeta?" => "concepts/what-is-gometa.md",
-            "metaLines" => "concepts/metalines.md",
+            "Why use GoMeta?" => "concepts/why-use-gometa.md",
+            "How does GoMeta work?" => "concepts/how-does-gometa-work.md",
+            "Extensions" => "concepts/extensions.md",
         ],
         "Tutorials" => [
             "Getting started" => "tutorials/getting-started.md",
@@ -23,7 +25,7 @@ makedocs(;
         "Reference" => [
             "Syntax & semantics" => "reference/syntax-and-semantics.md",
             "Public API" => "reference/public-api.md",
-            "Canonical output" => "reference/canonical-output.md",
+            "Development tools" => "reference/development-tools.md",
         ],
     ],
     warnonly = true,

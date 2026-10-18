@@ -4,472 +4,723 @@ u_version: "0.1"
 ---
 ```
 
-::: info Mirrored reference
+# Syntax & semantics
 
-This page mirrors `docs/SYNTAX-AND-SEMANTICS.md` from the GoMeta.jl repository at `0.3.0`, verbatim.
-File paths mentioned in it refer to a repository checkout.
+This page is the reference for the notation of GoMeta — the **[metaLines](#metaLine)** written into a
+file's comments — and for what the GoMeta Engine evaluates from them. It is written for the
+release **0.4.0** (alpha) from the package's own reference document and from the design as its
+author states it. The two example files committed with the package, and the author's proposal
+they illustrate, are, in general, the law of the notation: where this page and a committed example could
+ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
+
+## 0. What GoMeta does
+
+A source file carries ordinary content plus [metaLines](#metaLine). [BLS](#BLS,-Component,-Block,-Line,-Segment,-File),
+GoMeta's parser, reads the file and records what it finds in the **BLS Component tree**: the
+File, its Blocks, their Lines, and the Segments within a Line — each of them a [Component](#BLS,-Component,-Block,-Line,-Segment,-File), and
+every Block, Line and Segment carrying a [flavor](#flavor): Meta, Text or Code. The [GoMeta Engine](#the-GoMeta-Engine,-Extension) then evaluates the metadata over
+that BLS Component tree: for each Component, which value of which [Alterant](#Alterant) applies. GoMeta
+evaluates the metadata — more precisely, the GoMeta Engine evaluates it — but does not act on
+those evaluations: that is the [Extensions](#the-GoMeta-Engine,-Extension)' role; they receive the evaluations through GoMeta's
+interface, [`altValues_evals`](../reference/public-api.md).
+
+Throughout this page the Alterant **Visib**, with its values `show`, `hide` and `discard`, is
+the example, because what the GoMeta Engine evaluates for it can be checked by eye in a rendered copy of the file.
+Visib is one Alterant among others; the principles this page states — how a value is written,
+where it reaches, how a closer [statement](#statement,-metaSegment) overrules — hold for every Alterant, while which values an Alterant has, and whether more than one of them may apply to one piece at a time, are each Alterant's own.
+
+## Glossary
+
+### comment marker
+
+The **comment marker** is the character, or pair of characters, that opens a comment in the file's format: `#` in Julia, `//` in the C family (e.g. C, Rust, etc.),
+`%` in LaTeX. GoMeta's markers are built on it: `#~` opens a metaLine, `##` a comment, `#]` the
+close. In another format the same forms use that format's comment marker (`//~`, `%~`), named when GoMeta is called.
+
+### BLS, Component, Block, Line, Segment, File
+
+**BLS** is GoMeta's parser, named for the three kinds of pieces it finds: **B**lock, **L**ine,
+**S**egment. It records what it finds in the BLS Component tree. Its pieces are
+**Components**: the **File**; its **Blocks** — a Block is a run of lines of one flavor; their
+**Lines**; and the **Segments** within a Line, for instance the content before an inline `#~`
+and the statement after it. The term is "the BLS Component tree", never a bare "tree".
+
+### flavor
+
+Every Block, Line and Segment carries a **flavor**: **Meta**, **Text** or **Code**. The word was chosen to avoid
+"type". A comment is not a flavor: content of any flavor can take the form of a comment — a
+`##` line inside a metaBlock is a comment of flavor Meta.
+
+### metaLine
+
+A **metaLine** is a BLS Line Component of flavor Meta. You write one by opening a line with the
+marker `#~` — the comment marker followed by a tilde — and the rest of the line carries the
+metadata: its statements, and, after a `##`, an ordinary comment if you want one.
+
+### metaBlock
+
+A **metaBlock** is a BLS Block Component of flavor Meta. One or more contiguous metaLines form one metaBlock.
+
+### Alterant
+
+An **Alterant** is, for Julia users, most similar to a Type: it defines which values its instances
+can take. It is not exactly analogous to a Type: an Alterant usually brings functionality of its own, which may be invoked during the GoMeta Engine's process, for instance when a value is set. Visib's values are `show`, `hide` and `discard`; the Labels Alterant's values are labels. A
+value is written bare, without the Alterant's name — `hide` — so that a metaLine stays brief. The Alterants shipped with this release are Visib,
+Labels, Heading and Id; the examples exercise the first two (§13).
+
+### statement, metaSegment
+
+A **statement** is one instruction on a metaLine: the value of an Alterant,
+with optional arguments in `()` and an optional condition in `{}` that says when the value
+applies — `hide{ isCode }`, `:label1`, `discard{ :label2 , isCode}`. A metaLine may carry
+several statements. A **metaSegment** is a Segment of metadata within a content line: the marker `#~` after the line's content and the statements after it, if any; its statements apply to that line.
+
+### altValue, evals
+
+An **altValue** is one evaluated value of an Alterant for one Component. The **evals** are the
+altValues the GoMeta Engine evaluated for a run, delivered as `altValues_evals` — one row per
+evaluated value, each at its Component.
+
+### label
+
+A **label** is a tag the Labels Alterant applies to the Components in a statement's reach. The
+colon is the action and the labels are its arguments: `:(label1, label2)` applies two; for one
+label `:label1` is short for `:(label1)`. A label can be given a condition: `:label1{ isText }`
+applies it only where the condition holds.
+
+### condition
+
+The **condition** is the optional `{}` after a value or a label: the condition under which it gets applied. Its
+atoms are labels (`:label4`) and the BLS key words; they are joined with `,` (or), `&&` (and),
+`!` (not) and grouped with `()`.
+
+### the BLS key words
+
+The **BLS key words** are facts about a Component that BLS records when it reads the file, and that a condition may ask (e.g.
+`isCode`, `isText`, `isMeta`, `containsMeta`, etc.). They are entries of the Component's settribute.
+
+### settribute
+
+In the words of GoMeta's author: "A '**settribute**' data store / container (usually for smallish
+entries) which can be set to a range of particular values. It is used for SETTINGS and
+ATTRIBUTES alike. Hence the term 'settribute'." Every Component carries one. The BLS key words
+are the entries BLS sets in it when it reads the file.
+
+### depth, the meta hierarchy
+
+A metaBlock sits at a **depth**: `#~` is depth 1, `#~2` depth 2, and so on — written as a digit, or
+as the number of tildes (`#~~~` is depth 3). The depths form the **meta hierarchy**, like the
+levels of headings: a deeper metaBlock nests under the shallower one open above it and inherits
+from it. `#~0` is the file level.
+
+### attachment, inheritance
+
+A Block of content written directly below a metaBlock, with no empty line between them, is
+**attached** to it and **inherits** its statements — much as a docstring belongs to the
+Julia definition that follows it. An empty line detaches.
+
+### the GoMeta Engine, Extension
+
+The **GoMeta Engine** is the part of GoMeta that evaluates the metadata. An **Extension** is a
+separate program that receives the evaluations and acts on them — a renderer, for instance.
+The whole, from the file to the Extensions, is explained on [How does GoMeta work?](../concepts/how-does-gometa-work.md).
+
+## 1. The metaLine
+
+A metaLine has the shape
+
+```
+#~[depth]  statements   ## an ordinary comment, if you want one
+```
+
+- The **marker** `#~` opens it: the [comment marker](#comment-marker) of the file's format followed by a tilde.
+  Without a [depth](#depth,-the-meta-hierarchy) the metaLine is at depth 1.
+- The **statements** carry the metadata: values of Alterants, each with its optional `()`
+  arguments and `{}` [condition](#condition), and [labels](#label). They are read from left to right.
+- Everything after a `##` on the same line is a **comment** for the reader; GoMeta does not
+  read it as metadata.
+
+Besides the standard metaLine on its own line, three further forms exist: the **close** `#]`
+(§4), the **inline [metaSegment](#statement,-metaSegment)** — a `#~` at the end of a content line, with a statement after it or none (§9) —
+and the **inert marker** `#~!` (`#~2!` at depth 2), whose content is not processed (§9).
+
+**A marker needs its space.** A GoMeta marker — `#~` with its depth or `!` where one is written, `##`, `#]` — is recognised only when white
+space, or the start or the end of the line, stands before and after it. The white space is any
+horizontal white space of Unicode (e.g. the space, the tab, the no-break space, etc.); a
+line break counts as a boundary. This is deliberate: `someCharacters##someMoreCharacters` and
+`someCharacters#~someMoreCharacters` are valid things to write in a file precisely because
+markers demand their spaces, so such a glued shape is plain content, not metadata and not a
+comment. The package makes two exceptions: a line that begins with one of the reserved forms
+`#-`, `#+`, `#[` or `#>` is reserved for future GoMeta syntax and is not plain content; and the
+misspelt inert marker with the exclamation mark before the depth (`#~!2` for `#~2!`) is refused
+with a message.
+
+**Writing about GoMeta in a file.** To mention a statement as prose — in a comment, in a
+string — glue something to the front of its `#`: `"#~ hide"`, `'#~ hide'`, or any other
+character without a space between it and the marker. A front-glued marker is never recognised.
+
+**Markers inside strings.** At this release GoMeta reads a file line by line and does not read the host
+language's strings as strings, with one exception. Inside a multi-line Julia string a marker
+after the line's content, preceded by white space, is live — an inline metaSegment: a trailing `#~ discard` removes that line
+of the string from the rendered copy, a trailing `#~ hide` hides it. The exception: a line that
+begins with `#~` inside a multi-line string is held by the string's quotes and is not a
+metaLine. In a single-line string a marker followed by further words makes GoMeta read those
+words as statements, and the whole file is refused with a message naming the first word it does
+not know — `"left part #~ hide right part"` fails on `right`. In LaTeX a `verbatim` environment
+is no shelter: a `%~ hide` inside it is a live metaLine and hides the lines that follow it, the
+`\end{verbatim}` line included. To write a marker inside a string, glue a character to its front
+as above.
+
+::: details The four probes behind these sentences — what GoMeta evaluated for each input, as the development tools print it; the third ends in the refusal
+
+In the development tool's printouts a "cell" is a BLS Component that carries evaluated values —
+the tool's word; this site says Component. Its "(no evals — defaults apply)" marks a Component with no evaluated values of its own; it falls under the value of a Component that contains it, else under the Alterant's declared default.
+
+```
+File  strings_julia_A.jl  —  4 evals rows on 4 cells  (of 4 Blocks · 11 Lines)
+├─ Block #2  Text  L1       "# Probe A: a multi-line string whose …"   (no evals — defaults apply)
+│  └─ Line #2   Text  L1       "# Probe A: a multi-line string whose …"   (no evals — defaults apply)
+├─ Block #3  Meta  L2       "#~ hide{ isCode }"   (no evals — defaults apply)
+│  └─ Line #3   Meta  L2       "#~ hide{ isCode }"   (no evals — defaults apply)
+├─ Block #4  Code  L3–L10   "x = 1⏎⏎s = """⏎first line of the stri…"
+│  ● visib        => :hide     (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+│  ├─ Line #4   Code  L3       "x = 1"   (no evals — defaults apply)
+│  ├─ Line #5   Code  L4       ""   (no evals — defaults apply)
+│  ├─ Line #6   Code  L5       "s = """"   (no evals — defaults apply)
+│  ├─ Line #7   Code  L6       "first line of the string"   (no evals — defaults apply)
+│  ├─ Line #8   Code  L7       "second line of the string #~ discard"
+│  │  ● visib        => :discard  (+)   ← Segment #3 "#~ discard"
+│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,8)]  origin=[(direct,1) (direct,4) (direct,8) (direct,3)]
+│  ├─ Line #9   Code  L8       "third line of the string #~ hide"
+│  │  ● visib        => :hide     (+)   ← Segment #5 "#~ hide"
+│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,9)]  origin=[(direct,1) (direct,4) (direct,9) (direct,5)]
+│  ├─ Line #10  Code  L9       "fourth line of the string"   (no evals — defaults apply)
+│  └─ Line #11  Code  L10      """""   (no evals — defaults apply)
+└─ Block #5  Code  L11      "y = 2"
+   ● visib        => :hide     (+)
+       handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+   └─ Line #12  Code  L11      "y = 2"   (no evals — defaults apply)
+```
+
+```
+File  strings_julia_B.jl  —  2 evals rows on 2 cells  (of 4 Blocks · 11 Lines)
+├─ Block #2  Text  L1       "# Probe B: a multi-line string with a…"   (no evals — defaults apply)
+│  └─ Line #2   Text  L1       "# Probe B: a multi-line string with a…"   (no evals — defaults apply)
+├─ Block #3  Meta  L2       "#~ hide{ isCode }"   (no evals — defaults apply)
+│  └─ Line #3   Meta  L2       "#~ hide{ isCode }"   (no evals — defaults apply)
+├─ Block #4  Code  L3–L10   "x = 1⏎⏎t = """⏎alpha⏎#~ hide⏎beta⏎gam…"
+│  ● visib        => :hide     (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+│  ├─ Line #4   Code  L3       "x = 1"   (no evals — defaults apply)
+│  ├─ Line #5   Code  L4       ""   (no evals — defaults apply)
+│  ├─ Line #6   Code  L5       "t = """"   (no evals — defaults apply)
+│  ├─ Line #7   Code  L6       "alpha"   (no evals — defaults apply)
+│  ├─ Line #8   Code  L7       "#~ hide"   (no evals — defaults apply)
+│  ├─ Line #9   Code  L8       "beta"   (no evals — defaults apply)
+│  ├─ Line #10  Code  L9       "gamma"   (no evals — defaults apply)
+│  └─ Line #11  Code  L10      """""   (no evals — defaults apply)
+└─ Block #5  Code  L11      "y = 2"
+   ● visib        => :hide     (+)
+       handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+   └─ Line #12  Code  L11      "y = 2"   (no evals — defaults apply)
+```
+
+```
+goMeta threw (no delivery):
+GoMeta absorb: unknown alterant action "right" — not one of the registered sorted_alt_actions = [:(:), :cell, :discard, :file, :head, :hide, :parent, :show] (v0's closed action set; see docs/public-api.md §3.4)
+```
+
+```
+File  strings_latex.tex  —  2 evals rows on 2 cells  (of 4 Blocks · 14 Lines)
+├─ Block #2  Text  L1       "% A probe for the Syntax & semantics …"   (no evals — defaults apply)
+│  └─ Line #2   Text  L1       "% A probe for the Syntax & semantics …"   (no evals — defaults apply)
+├─ Block #3  Code  L2–L7    "\documentclass{article}⏎\begin{docume…"   (no evals — defaults apply)
+│  ├─ Line #3   Code  L2       "\documentclass{article}"   (no evals — defaults apply)
+│  ├─ Line #4   Code  L3       "\begin{document}"   (no evals — defaults apply)
+│  ├─ Line #5   Code  L4       "Ordinary text before the environment."   (no evals — defaults apply)
+│  ├─ Line #6   Code  L5       ""   (no evals — defaults apply)
+│  ├─ Line #7   Code  L6       "\begin{verbatim}"   (no evals — defaults apply)
+│  └─ Line #8   Code  L7       "line one of the verbatim block"   (no evals — defaults apply)
+├─ Block #4  Meta  L8       "%~ hide"
+│  ● visib        => :hide     (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+│  └─ Line #9   Meta  L8       "%~ hide"   (no evals — defaults apply)
+└─ Block #5  Code  L9–L14   "line two of the verbatim block⏎line t…"
+   ● visib        => :hide     (+)
+       handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+   ├─ Line #10  Code  L9       "line two of the verbatim block"   (no evals — defaults apply)
+   ├─ Line #11  Code  L10      "line three of the verbatim block"   (no evals — defaults apply)
+   ├─ Line #12  Code  L11      "\end{verbatim}"   (no evals — defaults apply)
+   ├─ Line #13  Code  L12      ""   (no evals — defaults apply)
+   ├─ Line #14  Code  L13      "Ordinary text after the environment."   (no evals — defaults apply)
+   └─ Line #15  Code  L14      "\end{document}"   (no evals — defaults apply)
+```
 
 :::
 
-# GoMeta — Syntax & Semantics Reference
+## 2. Depth and the meta hierarchy
 
-**What this IS** — the authoritative, verified reference for the GoMeta `#~` metaLine syntax and its rendering
-semantics. **What it DOES** — defines every construct of the language and the rules by which GoMeta decides each
-line's fate, with every claim cited to a runnable example in this corpus and its captured output.
-**REASONING** — a metadata language is only as trustworthy as its ground-truth; prose drifts, rendered examples
-do not, so each rule here points at a file you can re-run and confirm. **PURPOSE** — one place a human author
-can learn GoMeta exactly, and verify it, before writing or changing a metaLine.
-*(New to a term? Each is defined in the Glossary just below §0.)*
+Depth is written as a digit after the marker, or as the number of tildes.
 
-> Verification: every behaviour claim below is cited to the committed corpus in `examples/` — a runnable
-> input (`InFileFolder/`) and its committed rendered output (`OutFileFolder/`). Citations of the form
-> `Extended L7` mean line 7 of `InFileFolder/file_for_Example_Extended.jl`; `→ Out` means the rendered
-> `OutFileFolder/` counterpart. Structural claims (which block sits at which depth, what inherited what) are
-> engine-verified: the shipped test suite pins every corpus render byte-for-byte, and `run_examples.jl`
-> (repository root) re-runs and re-verifies the whole set locally (§12).
+| written | depth |
+|---|---|
+| `#~` | 1 |
+| `#~2` | 2 |
+| `#~3` | 3 |
+| `#~~~` | 3 |
 
----
+`#~0` addresses the **file level**, the shallowest depth, above depth 1. The depths
+form the meta hierarchy, like the levels of headings in a document: a [metaBlock](#metaBlock) at depth 2
+nests under the depth-1 metaBlock open above it and [inherits](#attachment,-inheritance) from it, a metaBlock at depth 3
+under the depth-2 one, and so on. Two metaBlocks at the same depth are **siblings**: one does
+not inherit from the other. In the digit form the package reads depths from 1 to 8; `#~9` is
+refused with a message.
 
-## 0. What GoMeta does (the mental model)
+## 3. metaBlocks
 
-- **IS** — GoMeta is an *interpretable-metadata* engine. A source file (here, `.jl`) carries ordinary content
-  plus `#~` **metaLines**. GoMeta **absorbs** the metaLines, **evaluates** which *alterants* apply to each piece
-  of content, and a renderer **applies** the result. GoMeta **evaluates; it never executes** the file.
-- **The pipeline** — `parse (BLS)` → `absorb (read metaLines)` → `evaluate (which alterants apply per component)`
-  → `render (apply Visib)`.
-- **BLS** parses a file into a tree of components: **File → Block → Line → Segment**. A *Block* is the unit that
-  carries metadata scope; it is typed **Meta**, **Text**, or **Code**.
-- The **Visib** (visibility) alterant decides each component's fate when rendered: **show**,
-  **hide**, or **discard**.
-- **Posture.** Several behavioural surfaces are engine-defined at v0 (this reference marks them
-  where they occur, and §13 collects them); the committed corpus is normative, and the golden
-  test layer is the oracle — where prose and a committed render could ever disagree, the render wins.
+Contiguous metaLines form one metaBlock. A `##` comment line between them belongs to the
+metaBlock and does not break it. An empty line after a metaLine starts a new Block: only Code
+and Text Blocks may contain empty lines. The depth of a metaBlock is the depth of its first
+metaLine.
 
-## Glossary (terms used throughout)
-
-- **BLS** — the *Block-Line-Segment* parser; it decomposes a source file into the component tree.
-- **Component / Block / Line / Segment** — the tree levels. A **Line** is one source line; a **Segment** is a
-  substring within a line (e.g. the meta part vs. the trailing `## ` comment); a **Block** is a contiguous run of
-  same-type lines and is the unit that carries metadata scope. Each is typed **Meta**, **Text**, or **Code**
-  (a line is Meta if it starts with a DELIMITED `#~` head — `#~` followed by whitespace, a depth marker, or
-  end of line; Code if it is executable source; Text otherwise. An undelimited `#~hide` is NOT Meta — see
-  the token-delimiter law below).
-- **metaBlock** — a Block of type Meta; the unit that carries metadata scope for alterants. One or more
-  *contiguous* metaLines form a single metaBlock (§3).
-- **metaLine** — a `#~`-prefixed line carrying metadata (labels + actions).
-- **alterant** — a directive GoMeta applies to a component: the **Visib** alterant (show/hide/discard), **labels**,
-  and other engine actions (see §10 and §13).
-- **cell** — the component a verdict attaches to (a Block, a Line, or a Segment); its **cell_handle**
-  is that cell's verbatim content bytes.
-- **meta-hierarchy / slot** — the engine's per-depth store of pending alterant actions: one slot per
-  open depth, capacity 7 actions at v0.
-- **verdict** — a final evaluated alterant value for one cell.
-- **State-refs** — built-in predicates that query a BLS component's type/content (`isCode`, `isText`, `isMeta`,
-  `containsMeta`), used inside conditions to decide whether an alterant applies (§6).
-- **settribute** — a component's flag record (its settings/attributes: e.g. `depthN`, `isCode`, the Visib
-  verdict), carried per BLS component (`componentSettribute` in the source) and read by State-refs and the
-  render. The coinage joins *settings* + *attribute*.
-- **depth** — a metaBlock's nesting level (1, 2, 3, …), set by tilde-count or a digit (§2); v0 supports
-  depths 1 through 8, and the digit `0` addresses the file level — `#~0` is **accepted**, not
-  refused: it processes to `PROCESS_OK` with no diagnostic (the form is outside the committed
-  corpus; the corpus is the reference — §13). *Notation:* `depthN`
-  in backticks is the literal settribute flag; "depth N" in prose is the level; "depth-N" is its adjective form.
-- **attachment** — a content block is *attached* to the meta above it **iff there is no blank line between them**;
-  an attached block *inherits* the open metaBlocks' alterants; a blank line *detaches* it (no inheritance) (§4).
-- **metadata scope** — the set of components that inherit a metaBlock's alterants, governed by depth + attachment.
-
----
-
-## 1. The metaLine — anatomy
-
-**IS** — a metaLine is a `#~`-prefixed line with up to three parts: an optional depth marker, the labels and
-actions, and an optional human comment. Its general shape:
-
-```
-#~[<depth>]  <labels and actions>   ## <human comment, ignored by the meta-parser>
+```julia
+#~ discard{ :label2 , isCode} ## This is a comment within a meta `Block`.
+#~ :label1{ isText && containsMeta }
+## The following meta `Line` within this `Block` will be ignored due to the `!`.
+#~! discard{ isMeta } ## This `Line` of meta ends this `Block` of meta.
 ```
 
-(`[<depth>]` is optional; if omitted, depth defaults to 1.)
+These four lines of the second example file stand in one metaBlock at depth 1 — each a Line
+of flavor Meta, a metaLine by the definition: two live ones, a `##` comment line, and one inert metaLine. The empty line after them ends it.
 
-- The leading `#~` (plus optional depth marker), **followed by whitespace or end of line**, identifies it
-  as meta — the token-delimiter law below governs the boundary.
-- The middle carries **labels** (`:labelN`) and **actions** (`discard{…}` / `hide{…}` / `show{…}`), processed
-  **left to right** (see §8 rule 4).
-- Anything after a `## ` on the same line is a **human comment** — the meta-parser ignores it.
-  Cite: `Extended L7` `#~ discard{ :label2 , isCode} ## This is a comment within a meta Block.` → the
-  `## …` part has no effect.
+## 4. Where a metaBlock reaches: attachment, nesting, the close
 
-**MetaLines have three syntax forms** — the **standard metaLine** on its own line (`#~` / `#~N` / `#~~~`); the
-**close-marker** `#]` (§4/§9); and the **inline `#~`** at the end of a content line (§9). Plus one **modifier**:
-the **inert `#~!`**, which makes a standard metaLine's content *not be processed* (§9).
+**Attachment.** A Block of content — code or text — written directly below a metaBlock, with
+no empty line between them, is [attached](#attachment,-inheritance) to it and inherits its statements. An empty line
+between them detaches it: the Block is then not attached to metadata and inherits nothing from
+it. In the second example file, the text Block at lines 12–16 follows an empty line and is not
+attached; the code Block at line 20 follows the metaBlock at lines 18–19 directly and is.
 
-> ⚠ **Parsing gotcha:** inside a single-hash `# ` *content* line, **any `#~` token (any form — `#~`, `#~N`,
-> `#~!`, `#~~~`, or an inline `#~`) and `#]`** are parsed as **live inline syntax** (§9), not prose. To write
-> GoMeta tokens in commentary, **QUOTE-GLUE the metaStatement — the escape convention: write `"#~ hide"`
-> with the quote hugging the marker.** A quote-glued mention is inert (zero evaluations, byte-identical
-> render): a token is only recognized after whitespace or at line start, so the glued quote blocks dispatch
-> entirely. The one discipline: NO space between the opening quote and the marker — `" #~ hide"` (spaced)
-> fires the inline scanner and refuses loudly. (Double-hash `## ` comments alone are NOT unconditionally
-> inert: a whitespace-preceded `#~` inside one still fires the inline scanner.)
+**Nesting.** A metaBlock at a deeper depth than the one open above it nests under it and
+inherits its statements. A metaBlock at the same or a shallower depth ends the reach of the
+open metaBlocks at its depth and below for the content that follows: in the first example
+file, the depth-2 metaBlock at line 32 inherits only from the depth-1 metaBlock at the top, not
+from the depth-3 metaBlock before it.
 
-**String literals are NOT parsed.** GoMeta reads a file as LINES; it never lexes the host
-language's string syntax. Inside a MULTI-LINE string a whitespace-preceded marker
-MID-LINE is LIVE — a trailing `#~ hide` comment-marks and `#~ discard` silently DELETES
-that line of string content from the share render. (A line BEGINNING with a marker is
-held by the string fence and stays inert; on a single-line string the closing quote
-poisons the body and the file refuses loudly.) **The escape is the token-delimiter law
-itself: glue ANY non-whitespace character to the front of the `#`** — `"#~ hide"`,
-`'#~ hide'`, a backtick, a period — a front-glued marker is never a token.
-
-*(Flavor-scoped bound — the `:latex` flavor (ships at `0.3.0`): LaTeX `verbatim`
-environments are NOT fences — a `%~` metaLine inside `\begin{verbatim}…\end{verbatim}` is
-LIVE (it mints, and a hide covers the following lines, the `\end{verbatim}` line included).
-The front-glue escape applies unchanged.)*
-
-**THE TOKEN-DELIMITER LAW.** Every marker token — the `#~` family, the `##` comment, the `#]` close, the
-`# ` text lead — requires **whitespace or a line boundary on BOTH sides of its head**. The delimiter class
-is **Unicode horizontal whitespace** (ASCII space and tab, the no-break space, the CJK full-width space,
-and the rest of the `\h` class); line-break characters delimit as line boundaries, and zero-width format
-characters (U+200B and friends) are NOT whitespace and never delimit — though note that some characters
-IN the delimiter class (the no-break space foremost) render indistinguishably from an ordinary space
-while activating a token: only zero-width characters are guaranteed inert. A shape that fails the after-side —
-`something##glued`, `#~someWord`, `#]x`, `###banner`, a bare `#x` — is **plain content of its
-neighbourhood**: not meta, not a comment, never refused, and it never splits the block it sits in. This is
-deliberate: `someCharacters##someMoreCharacters` is a valid thing to write in a file PRECISELY BECAUSE
-tokens demand their delimiters. The law gates token *recognition* only — a delimited token with a
-malformed body still refuses loudly (`##` is a comment exactly when BOTH sides delimit — whitespace or a
-line boundary before it, whitespace or end-of-line after it;
-`###`-runs are content).
-
-**One carve-out from the plain-content rule:** the four RESERVED structural-directive comment
-forms — `#-`, `#+`, `#[`, `#>`-initial, which fire on their prefix (so ordinary `#----` dividers
-and `#->` arrows are in the family) — are NOT plain content. They are parse-level structure
-hints held as reserved future GoMeta syntax: a directive-form line can start a new block, and,
-since `0.2.3`, a directive form DIRECTLY adjacent to metadata meets a stable, early refusal
-instead of the earlier crash (both grains — with one measured corner: inside an OPEN
-multi-line string, `#+`/`#>` interior lines remain string content even directly after inline
-metadata, while the `#-`/`#[` twins refuse; the escapes and the full behavior catalogue live
-in [Public API + error modes](public-api.md) §3.4). Away from metadata — at file start,
-between code lines, after an interposed content line — they behave as render-inert comments.
-
----
-
-## 2. Depth
-
-**IS** — every meta-block sits at a **depth** (1, 2, 3, …), analogous to heading levels (section, subsection).
-**DOES** — depth is set by the **number of tildes**, and an explicit **digit overrides** the count
-(the multi-tilde-plus-digit form, e.g. `#~~3`, is outside the v0 corpus; the corpus is the
-reference — §13):
-
-| Written | Depth | Verified by |
-|---|---|---|
-| `#~`   | 1 | `Extended L7/L8/L19`, `Proposal L1/L3` |
-| `#~2`  | 2 | `Extended L18/L51`, `Proposal L9` |
-| `#~3`  | 3 | `Extended L34`, `Proposal L22` |
-| `#~~~` | 3 | `feature_triple_tilde.jl` — engine-verified structure: its `#~~~` block nests inside the depth-2 chapter (the tree golden pins the NESTING; the depth integer is the documented reading of the tilde count) |
-
-(`#~2` itself shows the digit setting the depth — one tilde, digit 2, ⇒ depth 2. A *multi*-tilde-plus-differing-
-digit form, e.g. `#~~3`, is not exercised here — see §13.)
-
-**The authorable depth WINDOW at v0 is 1–8.** In the **digit** depth form, `#~9` and beyond is
-out-of-window and is a documented guarded edge (the E-06 row of `docs/public-api.md` §3.1: a stable
-refusal, not a crash) — do not author beyond depth 8.
-
-**REASONING** — depth drives the open/close (scope) rules in §4 and §8, exactly like nesting headings.
-**PURPOSE** — lets one file express nested metadata regions.
-
----
-
-## 3. Blocks — the unit of scope
-
-- **Contiguous metaLines are ONE metaBlock** — the engine-verified structure shows no block break in
-  either depth direction. A later **deeper** digit is recorded only at the line level: the block's scope
-  depth stays **frozen** at its **first** line's depth. Verified: `feature_contiguous_metablock.jl`
-  (`#~ hide{ :label1 }` + `#~2 :label1` render as one depth-1 block — engine-verified structure). A later
-  **shallower** digit also stays in the SAME structural block; the corpus narrates it as the run's end
-  marker ("This comment ends this meta `Block` at level 2", `Extended L19`), and it cancels nothing:
-  `Extended L18`'s labels reach both the attached code block (input L23) and a later text block
-  (input L37), and `L19`'s own `hide{:label1}` reaches later content too (input L45). Implicit
-  close/supersede happens BETWEEN metaBlocks, not inside a contiguous run (§4).
-- A `## ` comment line **between** metaLines does **not** break the block. Cite: `Extended L7–L10` are one meta
-  block even though `L9` is a `## ` comment ("The following meta `Line` within this `Block`…").
-- A block **ends** at: a blank line, a content line (type change), a `#]` close-marker, or a `#~!`.
-- **A blank line after a meta line starts a new block** (only Code and Text blocks may contain interior blank
-  lines). Verified end-to-end by `feature_contiguous_metablock_blankline.jl`: inserting one blank line splits a
-  contiguous meta-block into two and changes the render (§8).
-
----
-
-## 4. The two axes — CLOSE (scope) and ATTACH (inheritance) are orthogonal
-
-These are independent; keep them separate.
-
-**CLOSE — which meta-blocks are *open*** (a stack by depth):
-- `#]` closes the **innermost** open meta-block; outer blocks stay open.
-- An implicit close happens when a following `#~P` has **`P ≤ N`** (the open block's depth) — it
-  **closes/supersedes** (the `P = N` "sibling" case included); if **`P > N`** it **nests** inside (and
-  inherits). Also closed by a blank line, a `#~!`, or end-of-file.
-- Verified: `feature_explicit_close.jl` — after `#]`, the level-5 block still inherits the level-2 chapter
-  (`D` hidden), proving the chapter stayed open (only the innermost level-4 closed). Implicit supersede:
-  `Extended L51` (`#~2`) supersedes the earlier `#~3`/`#~2`. (A CONTIGUOUS shallower line is a
-  different case — it stays inside the same metaBlock and closes nothing; §3.)
-
-**Close vs rule lifetime** — closing a metaBlock (blank line, `#]`, `#~!`, end-of-file) ends its
-ATTACHMENT scope for following plain content in some forms, but does **not retire** alterant rules
-already absorbed: a standing conditional rule (`hide{ :label1 }`) is still evaluated against later
-matching content, and a later **deeper** metaBlock re-enters the hierarchy so earlier standing rules
-reach it — `feature_contiguous_metablock_blankline.jl` pins both (its blank line closes that block,
-yet line A, attached to the (now separate) `:label1` block, renders hidden). The eviction side is
-the sibling rule: an implicit close by a following `#~P` with `P ≤ N` retires the superseded
-block's labels AND its standing rules for everything under the new block — a standing rule reaches
-later content only through DEEPER re-entry, never across a supersession (verified by a
-section-swap fixture in the development fork, outside this document's §11 proof set). `#~!` does not detach
-following content as `#]` does (§9). Unpinned shapes: the corpus is the reference (§13).
-
-**ATTACH — what a content block *inherits***:
-- A content block is **attached** (inherits the open metaLines' alterants) **iff there is no blank line** between
-  the last metaLine and the block's first line.
-- A **blank line detaches** the next block (it inherits nothing). Cite: `Extended L12–L16` is a text block that
-  the blank `L11` detached, so it does **not** inherit the `L7` meta-block.
-- `#]` additionally **detaches the single line immediately after it**. Verified: `feature_explicit_close.jl`
-  line `C` (right after `#]`) is **shown** (inherits nothing) while the later level-5 block is hidden.
-
-The proof these are orthogonal: in `feature_explicit_close.jl`, `C` is shown (attach severed) **yet** `D` is
-hidden (scope resumed) — one `#]`, two independent effects.
-
----
+**The close `#]`.** A line `#]` is the explicit end of the innermost open metaBlock; the
+content that follows it is not attached to that metaBlock. Closing ends the attachment, not the
+reach of the closed metaBlock's statements: a later, deeper metaBlock still nests under it — the
+package's behaviour at this release, shown by the example `feature_explicit_close.jl` (§11). The
+metaBlocks at shallower depths stay open.
 
 ## 5. Labels
 
-- **IS** — labels are accumulative tags a metaLine applies to the content in its scope. **Label
-  names are validated in BOTH roles** against the engine's closed whitelist — the
-  corpus-documented set `:label1` … `:label5` plus, since `0.3.0`, a fixed pictograph
-  vocabulary (byte-exact names like `:💡`, `:🔥`; the refusal message lists the full accepted
-  set): applying a label from outside the whitelist AND
-  querying one in a condition each refuse with a stable message naming the accepted set (a
-  condition-side label after an already-winning true atom in a `,`/`||` chain is not queried —
-  short-circuit — and in a region that carries no labels at all, the query is never consulted
-  and simply evaluates false).
-- **Conditional application** — `:labelN{ condition }` applies the label **only** to components satisfying the
-  condition. Cite: `Extended L8` `#~ :label1{ isText && containsMeta }` — `:label1` reaches only text that
-  contains meta; `Proposal L3` `#~ :label1{ (isText && containsMeta), isMeta }`.
-- **Worked contrast — conditional *label* vs conditional *action*** (two different uses of "condition"):
-  `:label1{ isText && containsMeta }` is a conditional **label** — it decides *which* components receive
-  `:label1`. `discard{ :label1 }` is a conditional **action** — it decides *when* the discard fires on a
-  `:label1`-bearing component. In short: a label-condition asks *where to apply the label*; an action-condition
-  (§6) asks *when to fire the action*.
-- Labels are how conditions (§6) and Visib actions (§7) select what they act on.
+Labels are tags. A metaLine applies them with the colon: `:label1` applies one, `:(label1,
+label2)` two, and `:label1{ isText && containsMeta }` applies `:label1` only to text that
+contains metadata. Labels accumulate: a Block attached to a depth-2 metaBlock carries the labels
+that apply to it from that metaBlock and from the depth-1 metaBlock it nests under.
 
----
+At this release the Labels Alterant knows a fixed list of 38 names: `label1` to `label5` and
+33 pictographs such as `🍒`, `💡` and `🔥`. Applying a name outside the list is refused with
+a message that names the accepted set; asking in a condition for a name that is unknown, or
+not applied, answers false. The list lives with the Labels Alterant; which names it holds, and how a name is added, are under the author's review.
 
-## 6. Conditions / predicates
+## 6. Conditions
 
-Conditions guard **alterant actions** (`discard{…}`/`hide{…}`/`show{…}`) and **conditional labels**
-(`:labelN{…}`).
+The optional `{}` after a value or a label states the condition under which it gets applied.
+As the author explains the first example: *the optional `{}` following `hide` on line 1
+allows the user to specify conditions under which `hide` may get applied — a Block inheriting
+from it will be hidden if it has been attributed `:label4` or is a code Block, provided there
+is no opposing statement closer to that Block overruling it.*
 
-> **SECURITY — conditions run in GoMeta's own closed interpreter.** The `{…}` body is parsed
-> and evaluated by the engine itself (a bounded grammar over label and state queries) — it never
-> reaches Julia's `eval` in a default-configured run, so a condition cannot execute code or have
-> effects. The explicitly opt-in `:full_eval_v1` extension mode is the one documented exception
-> (host evaluation — only process trusted input with it loaded). Full posture: the README's
-> SECURITY section and `docs/public-api.md` §3.2.
-
-The operators (all verified against the corpus):
-
-| Operator | Meaning | Verified by |
+| written | meaning | from the examples |
 |---|---|---|
-| `,`  | **OR**  | `Extended L7` `discard{ :label2 , isCode}` — discard if `:label2` **or** `isCode` |
-| `&&` | **AND** | `Extended L8` `:label1{ isText && containsMeta }` |
-| `!`  | **NOT** | `Extended L18` `show{ !:label5}` — show only if `:label5` is **not** present |
-| `()` | **group** | `Proposal L3` `:label1{ (isText && containsMeta), isMeta }` |
+| `,` | or | `discard{ :label2 , isCode}` — discard if `:label2` or code |
+| `&&` | and | `:label1{ isText && containsMeta }` |
+| `!` | not | `show{ !:label5}` — show only where `:label5` has not been applied |
+| `()` | grouping | `:label1{ (isText && containsMeta), isMeta }` |
 
-> Precedence of *un-parenthesized* mixed operators (e.g. `a && b, c`) is engine-defined and **not exercised by
-> this corpus** — **do not rely on it; always use explicit `()`** to make intent unambiguous, as `Proposal L3`
-> does. (See §13.) Tokenization note: keep a space after a grouping `)` before the next atom or
-> operator, as the corpus does (`Proposal L3`) — a `)` glued directly to a following atom
-> tokenizes engine-defined at v0. (Outside `{}`, on the metaLine itself, a token glued to a
-> closing `)`/`}` refuses — `docs/public-api.md` §3.4.)
+The atoms of a condition are labels and the [BLS key words](#the-BLS-key-words) — in the examples `isCode`, `isText`, `isMeta` and
+`containsMeta`. Write `()` wherever the reading of a mixed condition could be in doubt, as the
+first example does.
 
-**State-refs** read the BLS component's type/content: `isCode`, `isText`, `isMeta`, `containsMeta`. Verified:
-- `isCode` — the **Code** block (`Extended L20–L32`) is discarded by `discard{ :label2 , isCode}` (`L7`)
-  specifically because it `isCode` (it does **not** itself carry `:label2`; it carries `:label3`/`:label5` from
-  `L18`).
-- `isText && containsMeta` — the text block (`Extended L35–L49`) receives `:label1` from
-  `:label1{ isText && containsMeta }` (`L8`).
-- `isMeta` — `Proposal L3` `:label1{ (isText && containsMeta), isMeta }`.
+**A condition is Julia.** GoMeta rewrites the condition's own parts — a label test such as
+`:label4`, a BLS key word such as `isCode` — into Julia, Julia's parser reads the result once,
+and Julia evaluates it when the Engine applies the statement. A condition can therefore contain
+a Julia expression over those atoms that evaluates to true or false, and it can run code: processing a file you did not write
+runs its conditions as Julia code. Use GoMeta on input you trust, as you would any Julia file
+you `include`.
 
-(`containsText` exists as a BLS attribute but is **not** used as a condition predicate anywhere in this corpus —
-see §13.)
+The three names `hide`, `show` and `discard` cannot be asked in a condition: `hide{ show }` is refused.
 
----
+## 7. Visib
 
-## 7. The Visib alterant and its actions
+Visib is the Alterant of visibility. Its values are `show`, `hide` and `discard`, and for any
+one Component only one of them applies at a time; where nothing applies, the value is `show`.
+`discard` removes what it concerns from the output; `hide` keeps it but out of sight — what
+"out of sight" is depends on the format and on the Extension: the package's own development
+tool comments a hidden line out with `## ` (strictly speaking it is no Extension, though it behaves like one); an Extension may hide the same Block as one
+multi-line comment — and an Extension may even render what would be discarded in bold red instead of discarding it, to show what the evaluation would remove. A hidden piece of
+metadata is still metadata: it is evaluated as usual, and only its visibility changes;
+discarded metadata is gone from the output.
 
-- **IS** — `Visib` is the alterant that decides rendering. Its actions are mutually exclusive: **show**,
-  **hide**, **discard**. **The default is `show`.**
-- **Render outcomes** (verified across the whole corpus):
-  - `show` → the line is kept **verbatim**.
-  - `hide` → the line is kept but **prefixed with `## `** (commented out). Cite: `Extended L14` `#~ hide`
-    → `→ Out L14` `## # This Line…`.
-  - `discard` → the line is **omitted entirely**. Cite: `Extended L15` `#~ discard` → absent from output
-    ("Input line 15 will be missing").
-- **A metaLine is itself subject to Visib** — a metaLine that carries a hidden/discarded label is itself
-  hidden/discarded (e.g. `Extended L51` `#~2 :label2` is discarded along with its markdown).
-- **When a block is hidden, every NON-EMPTY line in it carries the `## ` marker** — a single-hash `# `
-  content line becomes `## #`; a double-hash `## ` comment ALREADY heads with the marker and renders
-  AS-IS (ensure-token — no `## ##` doubling; *dated true-up 2026-08-12 for `0.3.0`, superseding the
-  `0.2.3` doubling behavior*); an EMPTY line inside the hidden block stays
-  a bare empty line (the marker applies to non-empty lines only). Cite: in the hidden text block of `Extended`,
-  the `# ` content lines (`L35–L38`) → `## #`, the `## ` narration (`L46–L49`) stays `## `, and the blank `L40`
-  stays blank. (A `## ` comment is still subject to *Visib* — narration meant to stay visible must live in a
-  block that is not itself hidden. **Metadata is ALIVE in the render — a stated design property:** hide is a
-  VISIBILITY operation, so a hidden metaLine's rendered form `## #~ …` re-parses on re-ingestion (at segment
-  grain — same liveness, shifted scope) and re-processing a share render re-yields verdicts; DISCARDED
-  metadata is absent from the render and therefore gone. One carve-out: a hidden metaLine that re-ingests
-  as a `## ` comment INSIDE a live meta block reads as block commentary — inert by the same rule that makes
-  `## ` comments inert between metaLines. Choose `discard` when metadata must not survive the
-  share.)
+A metaLine is itself a Component and is itself subject to Visib: a hidden metaBlock's Lines are
+hidden with it; a discarded one's are discarded. In the second example file the one-line
+metaBlock at line 51 carries `:label2` and is discarded with its markdown, by the
+`discard{ :label2 , isCode}` of line 7 it inherits from.
 
----
+## 8. How a value reaches a Component
 
-## 8. The semantic model — four rules (each verified by render + structure)
+**Inheritance.** A Component carries the statements of the metaBlock it is attached to and of
+every shallower metaBlock that one nests under. In the first example file the code Block at
+line 10 inherits `hide{ :label4 , isCode }` from line 1 and `:label5` and `show{ !:label5}`
+from line 9.
 
-1. **Contiguous metaLines = one structural block.** A later **deeper** digit is line-level only (scope
-   depth = the first line's; `feature_contiguous_metablock.jl`); a later **shallower** digit marks the
-   run's end and cancels nothing — `L18`'s labels still reach the attached and later blocks, and `L19`'s
-   own hide action does too (`Extended L18–L19`; input L23/L37/L45).
-2. **Between metaBlocks, `P ≤ N` closes/supersedes; `P > N` nests + inherits.** (`feature_explicit_close.jl`; `Extended L51`.)
-   This is the CLOSE/scope axis; whether a following content block's *content* inherits is the separate ATTACH
-   axis of §4 — a blank line detaches it regardless of depth.
-3. **A block inherits the open shallower-depth scopes** (their labels and standing conditions). (`Extended`:
-   the code block and the markdown both inherit the file-level `L7` rule; the text block inherits `L8`'s
-   `:label1` and `L19`'s `hide{:label1}`.)
-4. **Order-of-application — left-to-right within a metaLine; a standing condition reaches later blocks.** Tokens
-   on a metaLine are processed left-to-right; a condition issued **before** its label is evaluated with that
-   label **not yet applied**, so it does **not** fire on the content attached to *that same block* — but the
-   condition **stands**, and **does** fire on later blocks that come to carry the label. Verified two ways:
-   - `feature_order_of_application.jl` — `discard{:label1} :label1` leaves the block **shown** (condition before
-     label); swapping to `:label1 discard{:label1}` discards it.
-   - `Extended L34` `#~3 discard{:label4} :label4` — the block `L35–L49` is **not** discarded (label4 not yet
-     applied when the condition was issued); but `L39`, whose trailing inline `#~` re-applies `:label4`, **is**
-     discarded — the standing `discard{:label4}` fires there.
+**Indirectly, as parts.** A value evaluated for a Block holds for that Block; its Lines and
+Segments are hidden, or discarded, or labelled, because they are parts of that Block, not
+because each of them inherited the value on its own. This is the principle for every Alterant:
+a Block's Id, say, reaches its Lines indirectly too.
 
-A vivid consequence, verified by a *pair* of committed examples: in `feature_contiguous_metablock.jl` the same
-`hide{ :label1 }` leaves line A **shown** (A is attached to the same block where the rule preceded the label) yet
-hides a later block B that inherits `:label1`. In `feature_contiguous_metablock_blankline.jl` — the sibling
-fixture whose byte-identical metaLine pair has **one blank line** inserted between the two metaLines (its
-narration text differs) — **both** flip (A hidden, B shown), because the blank line splits one block into two and
-drops `:label1` from depth 1 to depth 2. One blank line, two flips, two reasons.
+**The closest statement wins.** Where two statements of the same Alterant reach a Component,
+the one closer to it overrules: a `show` at depth 2 overrules a `hide` inherited from depth 1;
+a metaSegment at the end of a line overrules both for that line. In the first example file the
+line 30 (*This `Line`, however, will NOT get hidden.*) ends in `#~ show` and stays shown inside a hidden
+Block.
 
----
+**Left to right on one metaLine.** The statements of a metaLine are read in order, and a
+condition sees only what has been applied before it. In the first example file the metaLine
+`#~3 :label4 discard{:label3} :label3` does not discard the Block attached to it: `:label3` has not been
+applied yet when `discard{:label3}` is issued; only after that does the Block receive
+`:label3`. The condition stands, though, and applies to content that comes to carry the label
+later: in the second example file, the line that ends in a bare `#~` inherits `:label4` because of that `#~`
+and is discarded by the `discard{:label4}` issued before that label on line 34.
 
-## 9. Special metaLines
+**Siblings.** Two metaBlocks at the same depth are siblings; the later one does not inherit
+from the earlier one.
 
-- **`#~!` (inert)** — the metaLine's content is **not processed**; it also ends the metaBlock (the next content
-  attaches per §4, unless a blank line detaches it). Cite: `Extended L10` `#~! discard{ isMeta }` — the
-  `discard{isMeta}` is **not** applied (the surrounding meta lines are not discarded), purely because of the `!`.
-- **`#]` (close-marker)** — see §4 (the two axes). Demonstrated end-to-end in `feature_explicit_close.jl`.
-- **inline `#~`** — a `#~` at the **end of a content line** applies meta to *that line*. The corpus exercises
-  three inline forms (other inline forms, e.g. inline labels or depth markers, are not exercised — see §13):
-  - `#~ hide` / `#~ discard` hide/discard the line (`Extended L14`/`L15`, `Proposal L7`, markdown `Proposal L34`).
-  - `#~ show` **overrides an inherited hide** so the line stays visible (`Proposal L30` — a line inside an
-    otherwise-hidden block that renders shown).
-  - a bare trailing `#~` re-applies the meta context to the line, which can make a standing condition fire on it
-    (`Extended L39`, discarded as shown in §8 rule 4).
+## 9. The inert marker, the close, the inline metaSegment
 
----
+**The inert marker `#~N!`.** An exclamation mark after the depth — `#~!` at depth 1, `#~2!` at
+depth 2 — tells GoMeta to ignore the metadata that follows it on that line; the line stays a
+metaLine for the structure, so `#~2!` behaves in the structure exactly as `#~2` would. In
+the second example file, line 10 `#~! discard{ isMeta }` applies no discard, purely because of
+the `!`. The exclamation mark belongs after the depth: `#~!2` is a mistake and is refused with
+a message naming the correct spelling.
 
-## 10. Alterant actions and their arguments (v0 forms)
+**The close `#]`** — §4.
 
-**IS** — an alterant ACTION token may carry a parenthesized, comma-split argument list —
-`action(arg1, arg2)` — parsed with the metaLine and handed to the action when it fires.
-**DOES** — the v0 forms, each engine-verified:
+**The inline metaSegment.** A `#~` at the end of a content line, followed by a statement,
+applies that statement to the line: `#~ hide` hides the line, `#~ discard` removes it, `#~ show`
+keeps it visible inside a hidden Block. A bare trailing `#~` makes the line itself
+inherit metadata, which can make a standing condition fire on it (§8). A
+statement at the end of a line reaches the line as a whole at this release; a finer grain —
+a metaSegment applying to the Segments before it within the line — is part of the design and
+not yet implemented.
 
-- **Labels (the `:` action) — documented, both forms:** repeated one-word labels
-  (`#~ :label1 :label2`) AND the parenthesized list (`#~ :(label1, label2)`) are equivalent; each
-  label is checked against the closed whitelist, in both the label-setting and the condition-query
-  roles (an unknown label refuses with a stable message where the query is consulted —
-  `docs/public-api.md` §3.4).
-- **Id actions (`cell` / `parent` / `file`) — EXPERIMENTAL at this release:** one integer value
-  argument (`#~ cell(7)`), Int16 domain. The Id alterant is a v0 placeholder implementation; this
-  syntax may change — do not build durable content on it at v0.
-- **Visib actions (`show` / `hide` / `discard`) take NO arguments;** an empty list (`hide()`) is
-  accepted as the bare form.
-- **Malformed arguments** (wrong arity; non-parsable or overflowing values) refuse with the stable
-  message `GoMeta apply: invalid arguments …` — never a raw stack trace.
-- **Condition-side atoms** (`{ cell(7) }`-class queries inside `{}`) route through the closed
-  condition intake instead: non-label arguments meet the typed argument-domain refusal there, and
-  the BARE unqueryable atom is the E-07 pending-mint edge (`docs/public-api.md` §3.2/§3.4).
+## 10. Arguments
 
----
+Parentheses pass arguments to a value: `someAlterantsValue(arg1, arg2)`. The Labels Alterant's colon takes
+labels as its arguments, in the two equivalent forms `:label1 :label2` and `:(label1, label2)`.
+Visib's values take no arguments; `hide()` is read as `hide`. The Id Alterant's values `cell`,
+`parent` and `file` take one integer argument (`cell(7)`); the Id Alterant is a placeholder at
+this release and its syntax may change — do not build durable content on it.
 
-## 11. Worked examples (the proof set)
+## 11. The examples
 
-| Example | Proves |
+Two example files are the author's and are the law of the notation; five further inputs are
+examples the package's tests use. All seven stand under `examples/InFileFolder/`, each with its
+rendered copy under `examples/OutFileFolder/`, and the shipped test suite pins every rendered
+copy byte for byte.
+
+| input | what it exercises |
 |---|---|
-| `file_for_Example_Extended.jl` | depth 1/2/3; `,`/`&&`/`!` conditions; `#~!`; inline `#~ hide`/`#~ discard`/`#~`; blank-line detach; inheritance (file-level rule → code + markdown); order-of-application; implicit close; `hide`=`## ` / `discard`=omit / default=show |
-| `file_for_Example_Proposal_JuliaCon.jl` | `()` grouping; `hide{…,isCode}`; `show{!:label5}`; conditional `:label1{…}`; inline `#~ show` overriding inherited hide; depth 2/3; markdown `hide` |
-| `feature_explicit_close.jl` | `#]` — the two axes (close-innermost scope + detach-next line), independent |
-| `feature_order_of_application.jl` | token order on a metaLine decides whether a condition sees a label |
-| `feature_contiguous_metablock.jl` | contiguous metaLines = one block (depth = the first line's); cross-block order-of-application |
-| `feature_contiguous_metablock_blankline.jl` | the contiguous-metablock metaLine pair with one blank line inserted between them — flips both content lines (proves blank-line block-splitting; the metaLines are byte-identical across the two fixtures, the surrounding narration is not) |
-| `feature_triple_tilde.jl` | `#~~~` = depth 3 (tilde-count), with a depth-3 block nesting in a depth-2 chapter |
+| `file_for_Example_Proposal_JuliaCon.jl` | the proposal's example: depths 1–3; `hide{ :label4 , isCode }`; a conditional label with `()` grouping; `show{ !:label5}`; an inline `#~ show` inside a hidden Block; an inline `#~ hide` in markdown; the order of statements on one metaLine |
+| `file_for_Example_Extended.jl` | depths 1–3; `,`, `&&` and `!` in conditions; the inert `#~!`; inline `#~ hide`, `#~ discard` and a bare `#~`; a Block detached by an empty line; a sibling metaBlock; a standing condition firing later |
+| `feature_explicit_close.jl` | the close `#]` |
+| `feature_order_of_application.jl` | a condition issued before its label |
+| `feature_contiguous_metablock.jl` | contiguous metaLines of two depths as one metaBlock |
+| `feature_contiguous_metablock_blankline.jl` | the same two metaLines with an empty line between them |
+| `feature_triple_tilde.jl` | `#~~~` as depth 3 under a depth-2 metaBlock |
 
----
+The author's proposal introduces the first file so: "All this is readily exemplified by a
+self-explanatory toy example. It is contained in the GoMeta folder together with instructions
+and additional tools revealing some insights into the package's inner workings." — and explains
+its opening: "The first three lines in the code below form a Block of metadata at level 1. The
+optional {} following hide on line 1 allows the user to specify conditions under which hide may
+get applied. In this case, a Block, say aBlock, inheriting from it will be hidden, if it has
+been attributed :label4 or is a code Block provided there is no opposing statement closer to
+aBlock overruling it. Analogously, :label1 gets assigned to anything which inherits from this
+first meta Block, if it is text and containsMeta or is itself meta, provided there is no other
+statement closer by, overruling this." The committed file's comment lines differ from the
+proposal's listing in wording only; the metaLines are the same.
 
-## 12. Verify it / extend it
-
-Run, from the repository root (after `Pkg.instantiate()`):
+::: details The full delivery view of the first example — every Block and Line with its evaluated values, as the development tools print it
 
 ```
-julia --startup-file=no --project=. run_examples.jl
+status: PROCESS_OK
+File  file_for_Example_Proposal_JuliaCon.jl  —  28 evals rows on 10 cells  (of 8 Blocks · 35 Lines)
+├─ Block #2  Meta  L1–L3    "#~ hide{ :label4 , isCode } ## This i…"
+│  ● label_label1 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,2)]
+│  ├─ Line #2   Meta  L1       "#~ hide{ :label4 , isCode } ## This i…"   (no evals — defaults apply)
+│  ├─ Line #3   Meta  L2       "## The above `Line` of meta initiated…"   (no evals — defaults apply)
+│  └─ Line #4   Meta  L3       "#~ :label1{ (isText && containsMeta),…"   (no evals — defaults apply)
+├─ Block #3  Text  L4–L7    "# This `Line` of text starts a new `B…"   (no evals — defaults apply)
+│  ├─ Line #5   Text  L4       ""   (no evals — defaults apply)
+│  ├─ Line #6   Text  L5       "# This `Line` of text starts a new `B…"   (no evals — defaults apply)
+│  ├─ Line #7   Text  L6       "# This `Block` is NOT attached to met…"   (no evals — defaults apply)
+│  └─ Line #8   Text  L7       "# However, this `Line` will get disca…"
+│     ● visib        => :discard  (+)   ← Segment #7 "#~ discard"
+│         handle ns=:default  grain=Line  path=[(direct,1) (direct,3) (direct,8)]  origin=[(direct,1) (direct,3) (direct,8) (direct,7)]
+├─ Block #4  Meta  L8–L9    "#~2 :label5 show{ !:label5} ## This i…"
+│  ● label_label1 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+│  ● label_label5 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+│  ├─ Line #9   Meta  L8       ""   (no evals — defaults apply)
+│  └─ Line #10  Meta  L9       "#~2 :label5 show{ !:label5} ## This i…"   (no evals — defaults apply)
+├─ Block #5  Code  L10–L20  "using Plots ## This `Line` starts a n…"
+│  ● label_label5 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+│  ● visib        => :hide     (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+│  ├─ Line #11  Code  L10      "using Plots ## This `Line` starts a n…"   (no evals — defaults apply)
+│  ├─ Line #12  Code  L11      "## This code `Block` is ATTACHED to m…"   (no evals — defaults apply)
+│  ├─ Line #13  Code  L12      "## Therefore, this code `Block` recei…"   (no evals — defaults apply)
+│  ├─ Line #14  Code  L13      "## `show` from line 9 above does NOT …"   (no evals — defaults apply)
+│  ├─ Line #15  Code  L14      "##      as this can only happen"   (no evals — defaults apply)
+│  ├─ Line #16  Code  L15      "##      if label5 has NOT been applie…"   (no evals — defaults apply)
+│  ├─ Line #17  Code  L16      "## This code `Block` inherits `hide` …"   (no evals — defaults apply)
+│  ├─ Line #18  Code  L17      "##      since this is a code `Block` …"   (no evals — defaults apply)
+│  ├─ Line #19  Code  L18      ""   (no evals — defaults apply)
+│  ├─ Line #20  Code  L19      "println("!!! NOTE !!! Only Code and T…"   (no evals — defaults apply)
+│  └─ Line #21  Code  L20      "println("\t Whereas an empty line aft…"   (no evals — defaults apply)
+├─ Block #6  Meta  L21–L22  "#~3 :label4 discard{:label3} :label3"
+│  ● label_label1 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+│  ● label_label3 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+│  ● label_label4 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+│  ● label_label5 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+│  ● visib        => :hide     (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+│  ├─ Line #22  Meta  L21      ""   (no evals — defaults apply)
+│  └─ Line #23  Meta  L22      "#~3 :label4 discard{:label3} :label3"   (no evals — defaults apply)
+├─ Block #7  Text  L23–L30  "# This `Block` of text receives label…"
+│  ● label_label1 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+│  ● label_label3 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+│  ● label_label4 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+│  ● label_label5 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+│  ● visib        => :hide     (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+│  ├─ Line #24  Text  L23      "# This `Block` of text receives label…"   (no evals — defaults apply)
+│  ├─ Line #25  Text  L24      "#       plus label5 from further abov…"   (no evals — defaults apply)
+│  ├─ Line #26  Text  L25      "#       plus label1 since it `isText`…"   (no evals — defaults apply)
+│  ├─ Line #27  Text  L26      "# It is NOT "discarded" since label3 …"   (no evals — defaults apply)
+│  ├─ Line #28  Text  L27      "#       when `discard{:label3}` is is…"   (no evals — defaults apply)
+│  ├─ Line #29  Text  L28      "# Only after that it receives label3."   (no evals — defaults apply)
+│  ├─ Line #30  Text  L29      "# Instead, it gets hidden due to labe…"   (no evals — defaults apply)
+│  └─ Line #31  Text  L30      "# This `Line`, however, will NOT get …"
+│     ● label_label1 => true      (+)   ← Segment #13 "#~ show"
+│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
+│     ● label_label3 => true      (+)   ← Segment #13 "#~ show"
+│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
+│     ● label_label4 => true      (+)   ← Segment #13 "#~ show"
+│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
+│     ● label_label5 => true      (+)   ← Segment #13 "#~ show"
+│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
+│     ● visib        => :show     (+)   ← Segment #13 "#~ show"
+│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
+├─ Block #8  Meta  L31–L32  "#~2 :label5"
+│  ● label_label1 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+│  ● label_label5 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+│  ├─ Line #32  Meta  L31      ""   (no evals — defaults apply)
+│  └─ Line #33  Meta  L32      "#~2 :label5"   (no evals — defaults apply)
+└─ Block #9  Text  L33–L35  "md"""⏎This is a `Block` of markdown t…"
+   ● label_label1 => true      (+)
+       handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
+   ● label_label5 => true      (+)
+       handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
+   ├─ Line #34  Text  L33      "md""""   (no evals — defaults apply)
+   ├─ Line #35  Text  L34      "This is a `Block` of markdown text. #…"
+   │  ● label_label1 => true      (+)   ← Segment #15 "#~ hide"
+   │      handle ns=:default  grain=Line  path=[(direct,1) (direct,9) (direct,35)]  origin=[(direct,1) (direct,9) (direct,35) (direct,15)]
+   │  ● label_label5 => true      (+)   ← Segment #15 "#~ hide"
+   │      handle ns=:default  grain=Line  path=[(direct,1) (direct,9) (direct,35)]  origin=[(direct,1) (direct,9) (direct,35) (direct,15)]
+   │  ● visib        => :hide     (+)   ← Segment #15 "#~ hide"
+   │      handle ns=:default  grain=Line  path=[(direct,1) (direct,9) (direct,35)]  origin=[(direct,1) (direct,9) (direct,35) (direct,15)]
+   └─ Line #36  Text  L35      """""   (no evals — defaults apply)
 ```
 
-It processes every input in `examples/InFileFolder/`, writes each rendered output to a scratch
-folder (printed; pass `--out <dir>` to keep them somewhere specific), and verifies every render
-**byte-for-byte** against the committed `examples/OutFileFolder/` reference. To test a hypothesis,
-copy or edit an input, rerun, and READ the resulting render (an edited input reports as differing
-from the committed reference — that difference *is* the observed effect). Every rule above cites
-its committed example.
+:::
 
----
+::: details The full delivery view of the second example
 
-## 13. Out of scope / not exercised by this corpus
+```
+status: PROCESS_OK
+File  file_for_Example_Extended.jl  —  24 evals rows on 9 cells  (of 9 Blocks · 63 Lines)
+├─ Block #2  Text  L1–L5    "## Test File⏎## NOTE: I've addes some…"   (no evals — defaults apply)
+│  ├─ Line #2   Text  L1       "## Test File"   (no evals — defaults apply)
+│  ├─ Line #3   Text  L2       "## NOTE: I've addes some markers to t…"   (no evals — defaults apply)
+│  ├─ Line #4   Text  L3       "##      They have nothing to do with …"   (no evals — defaults apply)
+│  ├─ Line #5   Text  L4       "##      They are simply meant to assi…"   (no evals — defaults apply)
+│  └─ Line #6   Text  L5       "##      comparing the input file to t…"   (no evals — defaults apply)
+├─ Block #3  Meta  L6–L10   "#~ discard{ :label2 , isCode} ## This…"   (no evals — defaults apply)
+│  ├─ Line #7   Meta  L6       ""   (no evals — defaults apply)
+│  ├─ Line #8   Meta  L7       "#~ discard{ :label2 , isCode} ## This…"   (no evals — defaults apply)
+│  ├─ Line #9   Meta  L8       "#~ :label1{ isText && containsMeta }"   (no evals — defaults apply)
+│  ├─ Line #10  Meta  L9       "## The following meta `Line` within t…"   (no evals — defaults apply)
+│  └─ Line #11  Meta  L10      "#~! discard{ isMeta } ## This `Line` …"   (no evals — defaults apply)
+├─ Block #4  Text  L11–L16  "# With this `Line` of text starts a n…"   (no evals — defaults apply)
+│  ├─ Line #12  Text  L11      ""   (no evals — defaults apply)
+│  ├─ Line #13  Text  L12      "# With this `Line` of text starts a n…"   (no evals — defaults apply)
+│  ├─ Line #14  Text  L13      "# This `Block` is NOT attached to met…"   (no evals — defaults apply)
+│  ├─ Line #15  Text  L14      "# This `Line` should still be "hidden…"
+│  │  ● visib        => :hide     (+)   ← Segment #9 "#~ hide"
+│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,15)]  origin=[(direct,1) (direct,4) (direct,15) (direct,9)]
+│  ├─ Line #16  Text  L15      "# ... and this `Line` should still be…"
+│  │  ● visib        => :discard  (+)   ← Segment #11 "#~ discard"
+│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,16)]  origin=[(direct,1) (direct,4) (direct,16) (direct,11)]
+│  └─ Line #17  Text  L16      "# NOTE: Input line 15 will be missing…"   (no evals — defaults apply)
+├─ Block #5  Meta  L17–L19  "#~2 :label3 :label5 show{ !:label5} #…"
+│  ● label_label3 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+│  ● label_label5 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+│  ├─ Line #18  Meta  L17      ""   (no evals — defaults apply)
+│  ├─ Line #19  Meta  L18      "#~2 :label3 :label5 show{ !:label5} #…"   (no evals — defaults apply)
+│  └─ Line #20  Meta  L19      "#~ hide{:label1} ## This comment ends…"   (no evals — defaults apply)
+├─ Block #6  Code  L20–L32  "using Plots ## This `Segment` is a co…"
+│  ● label_label3 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+│  ● label_label5 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+│  ● visib        => :discard  (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+│  ├─ Line #21  Code  L20      "using Plots ## This `Segment` is a co…"   (no evals — defaults apply)
+│  ├─ Line #22  Code  L21      "## This `Block` of code starts with `…"   (no evals — defaults apply)
+│  ├─ Line #23  Code  L22      "## This `Block` is ATTACHED to metada…"   (no evals — defaults apply)
+│  ├─ Line #24  Code  L23      "## Therefore, this code `Block` recei…"   (no evals — defaults apply)
+│  ├─ Line #25  Code  L24      "## `show` [input line 18] does NOT ge…"   (no evals — defaults apply)
+│  ├─ Line #26  Code  L25      "##      as this can only happen if la…"   (no evals — defaults apply)
+│  ├─ Line #27  Code  L26      ""   (no evals — defaults apply)
+│  ├─ Line #28  Code  L27      "## Instead, this code `Block` inherit…"   (no evals — defaults apply)
+│  ├─ Line #29  Code  L28      "##      since it is code i.e.: `isCod…"   (no evals — defaults apply)
+│  ├─ Line #30  Code  L29      ""   (no evals — defaults apply)
+│  ├─ Line #31  Code  L30      "println("!!! NOTE !!! Only Code and T…"   (no evals — defaults apply)
+│  ├─ Line #32  Code  L31      "println("\t Whereas an empty line aft…"   (no evals — defaults apply)
+│  └─ Line #33  Code  L32      "## @: Input line 32. It marks the end…"   (no evals — defaults apply)
+├─ Block #7  Meta  L33–L34  "#~3 discard{:label4} :label4 ## This …"
+│  ● label_label3 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+│  ● label_label4 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+│  ● label_label5 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+│  ├─ Line #34  Meta  L33      ""   (no evals — defaults apply)
+│  └─ Line #35  Meta  L34      "#~3 discard{:label4} :label4 ## This …"   (no evals — defaults apply)
+├─ Block #8  Text  L35–L49  "# Here starts a new `Block` of text #…"
+│  ● label_label1 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+│  ● label_label3 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+│  ● label_label4 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+│  ● label_label5 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+│  ● visib        => :hide     (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+│  ├─ Line #36  Text  L35      "# Here starts a new `Block` of text #…"   (no evals — defaults apply)
+│  ├─ Line #37  Text  L36      "#       which receives label4 from li…"   (no evals — defaults apply)
+│  ├─ Line #38  Text  L37      "#       and label3 and label5 from li…"   (no evals — defaults apply)
+│  ├─ Line #39  Text  L38      "#       and receives label1 from line…"   (no evals — defaults apply)
+│  ├─ Line #40  Text  L39      "#       since it is a `Block` of text…"
+│  │  ● label_label1 => true      (+)   ← Segment #28 "#~"
+│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
+│  │  ● label_label3 => true      (+)   ← Segment #28 "#~"
+│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
+│  │  ● label_label4 => true      (+)   ← Segment #28 "#~"
+│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
+│  │  ● label_label5 => true      (+)   ← Segment #28 "#~"
+│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
+│  │  ● visib        => :discard  (+)   ← Segment #28 "#~"
+│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
+│  ├─ Line #41  Text  L40      ""   (no evals — defaults apply)
+│  ├─ Line #42  Text  L41      "# This `Block` does NOT get "discarde…"   (no evals — defaults apply)
+│  ├─ Line #43  Text  L42      "#       NOT been applied yet when `di…"   (no evals — defaults apply)
+│  ├─ Line #44  Text  L43      "# Instead this `Block` gets "hidden" …"   (no evals — defaults apply)
+│  ├─ Line #45  Text  L44      "#       text and contains meta, there…"   (no evals — defaults apply)
+│  ├─ Line #46  Text  L45      "#       and consequently inheriting t…"   (no evals — defaults apply)
+│  ├─ Line #47  Text  L46      "## NOTE: Line 39, however, will get "…"   (no evals — defaults apply)
+│  ├─ Line #48  Text  L47      "##      since this `Line` inherits la…"   (no evals — defaults apply)
+│  ├─ Line #49  Text  L48      "##      and consequently `discard{:la…"   (no evals — defaults apply)
+│  └─ Line #50  Text  L49      "## @: Input line 49. It is at the end…"   (no evals — defaults apply)
+├─ Block #9  Meta  L50–L51  "#~2 :label2 ## This is a comment with…"
+│  ● label_label2 => true      (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
+│  ● visib        => :discard  (+)
+│      handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
+│  ├─ Line #51  Meta  L50      ""   (no evals — defaults apply)
+│  └─ Line #52  Meta  L51      "#~2 :label2 ## This is a comment with…"   (no evals — defaults apply)
+└─ Block #10 Text  L52–L63  "md"""⏎This is a `Block` of markdown t…"
+   ● label_label2 => true      (+)
+       handle ns=:default  grain=Block  path=[(direct,1) (direct,10)]
+   ● visib        => :discard  (+)
+       handle ns=:default  grain=Block  path=[(direct,1) (direct,10)]
+   ├─ Line #53  Text  L52      "md""""   (no evals — defaults apply)
+   ├─ Line #54  Text  L53      "This is a `Block` of markdown text."   (no evals — defaults apply)
+   ├─ Line #55  Text  L54      ""   (no evals — defaults apply)
+   ├─ Line #56  Text  L55      "It is ATTACHED to the one-`Line` meta…"   (no evals — defaults apply)
+   ├─ Line #57  Text  L56      "It therefore inherits label2."   (no evals — defaults apply)
+   ├─ Line #58  Text  L57      ""   (no evals — defaults apply)
+   ├─ Line #59  Text  L58      "This meta `Block`, however, neither i…"   (no evals — defaults apply)
+   ├─ Line #60  Text  L59      "starting with "#~3" nor that further …"   (no evals — defaults apply)
+   ├─ Line #61  Text  L60      ""   (no evals — defaults apply)
+   ├─ Line #62  Text  L61      "It DOES inherit from the first meta `…"   (no evals — defaults apply)
+   ├─ Line #63  Text  L62      "Which is why it gets "discarded" - du…"   (no evals — defaults apply)
+   └─ Line #64  Text  L63      """""   (no evals — defaults apply)
+```
 
-To keep the verified claims honest, these are **known but not established here** — do not assume their behaviour:
+:::
 
-- **Alterant actions beyond Visib + labels.** The engine's action whitelist also contains `head` (the
-  Heading action) and `cell`, `file`, `parent` (the Id actions). The Id actions' v0 *argument forms*
-  are documented in §10 (EXPERIMENTAL); their *rendering behaviour* is not exercised by this corpus
-  and is not documented here.
-- **Section-title metaLines** (`#~2 "Title"` — a first-token quoted string lowering to the `head`
-  action, recorded as evaluated `head_<level>` entries with no render effect): documented with
-  their refusal family in `docs/public-api.md` §2/§3.4; not exercised by this corpus.
-- **`containsText`** is a BLS component attribute but is not used as a *condition predicate* in any example
-  (only `containsMeta` is) — treat it as unverified-as-a-predicate.
-- **Operator precedence** for un-parenthesized mixed conditions (§6) — use explicit `()`.
-- **Digit-vs-tilde-count conflict.** A multi-tilde form carrying a *differing* digit (e.g. `#~~3`) is not
-  exercised; `#~2`/`#~3` (one tilde + digit) are.
-- **`## ` and inline `#~` in the same `# ` content line** — their parsing interaction is not exercised.
-- **Multi-line detachment after `#]`** — `#]` is verified to detach the *immediately-following* line; whether it
-  detaches multiple consecutive plain lines is not exercised.
-- **Multiple Visib actions in one metaStatement** (e.g. `discard{…} show`) — resolved by THE FIRST
-  APPLICABLE VALUE IN SOURCE ORDER: the first value whose condition holds (no condition = holds) wins
-  and the remaining values are skipped without evaluating their conditions. `discard{ isCode } show`
-  therefore discards code and shows everything else. (The corpus itself does not exercise a
-  same-statement pair whose second value would apply; the first-wins rule above is the contract.)
-- **Engine limits** — metaLines live in comments (`#`/`##`), not as executable code. The label
-  whitelist is closed: the corpus-documented `:label1`..`:label5` plus (since `0.3.0`) the fixed
-  pictograph vocabulary — byte-exact names, no normalization —
-  and **label names are validated against it in BOTH roles** — applying a label and querying one
-  in a condition each refuse with the stable `GoMeta apply: unknown label …` message, which names
-  the accepted set (a condition-side label after an already-winning true atom in a `,`/`||` chain
-  is not queried — short-circuit — and in a region that carries no labels at all, the query is
-  never consulted and simply evaluates false). At most 7 actions accumulate per meta-hierarchy slot
-  (exceeding it refuses with a stable message — see `docs/public-api.md` §3.4). The
-  authorable depth window is 1–8 in the digit form (§2). Custom label names in either role (where
-  the query is consulted — `docs/public-api.md` §3.4), and
-  predicates outside the state-ref/action whitelists, are refused.
+## 12. Verify it
 
-> Status: this is the verified working reference for the v0 subset of the GoMeta language. The
-> language grows by design; the v0 subset forecloses none of it.
+From the repository root, after `Pkg.instantiate()`:
+
+```
+julia --startup-file=no --project=. devtools/run_examples.jl
+```
+
+It processes every input under `examples/InFileFolder/`, writes each rendered copy to a scratch
+folder (printed; `--out <dir>` keeps them where you say) and compares every rendered copy byte
+for byte with the committed one under `examples/OutFileFolder/`. To test a reading of this
+page, copy or edit an input, rerun, and read the resulting copy — and read the delivery view
+the development tools print for it, which shows what the Engine evaluated for each Block and
+Line:
+
+```
+julia --startup-file=no --project=tests devtools/devtools.jl evals-tree <file>
+```
+
+## 13. What the examples do not exercise
+
+- The Heading and Id Alterants' effects. Their values exist in the package (`head`; `cell`,
+  `parent`, `file`); the examples do not exercise them, and the Id Alterant is a placeholder.
+- `containsText`: BLS records it, but no example asks for it in a condition.
+- The reading of a mixed condition without `()`: Julia's own rules decide it; write the parentheses.
+- A tilde count with a differing digit, such as `#~~3`.
+- A `##` comment and an inline `#~` on the same content line.
+- More than one Visib value on one metaLine, such as `discard{ isCode } show` — the author's
+  rule, given before this release: the first applicable value wins.
+- The limits of this release: the label list is closed (§5); one depth level of the meta
+  hierarchy holds at most eight statements, a ninth is refused with a message; the digit form of
+  the depth reads 1 to 8 (§2).
