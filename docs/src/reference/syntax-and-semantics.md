@@ -129,7 +129,7 @@ The whole, from the file to the Extensions, is explained on [How does GoMeta wor
 
 A metaLine has the shape
 
-```
+```gometa
 #~[depth]  statements   ## an ordinary comment, if you want one
 ```
 

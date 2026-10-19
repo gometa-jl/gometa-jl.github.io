@@ -61,7 +61,7 @@ footer: true
       <div class="gm-tabpanel gm-tp-core">
           <span class="gm-tp-title">What is <span class="gm-name">GoMeta</span>?</span>
           <p><span class="gm-name">GoMeta.jl</span> is an <em>interpretable-metadata</em> engine, written in Julia, designed to work between, behind and within your data: in any programming language and any file format.</p>
-          <p>A file carries its ordinary content plus <code>#~</code> metaLines &mdash; comment lines with machine-interpretable metadata (e.g. labels, visibility actions, conditions, etc.) sitting right beside the content they describe. Language-agnostic, since the metadata remains &ldquo;hidden&rdquo; within the comments &mdash; the host file stays an ordinary file, and the host language sees nothing but a comment.</p>
+          <p>A file carries its ordinary content plus <code><span class="gm-sg">#~</span></code> metaLines &mdash; comment lines with machine-interpretable metadata (e.g. labels, visibility actions, conditions, etc.) sitting right beside the content they describe. Language-agnostic, since the metadata remains &ldquo;hidden&rdquo; within the comments &mdash; the host file stays an ordinary file, and the host language sees nothing but a comment.</p>
           <p><span class="gm-name">GoMeta</span> evaluates the metadata &mdash; more precisely, the <span class="gm-name">GoMeta</span> Engine evaluates it &mdash; but does not act on those evaluations: that is the Extensions&rsquo; role; they receive the evaluations through <span class="gm-name">GoMeta</span>&rsquo;s interface, <code>altValues_evals</code>.</p>
           <p><a href="/concepts/what-is-gometa">What is <span class="gm-name">GoMeta</span>? &rarr;</a></p>
         </div>
@@ -92,14 +92,15 @@ footer: true
         <label class="gm-tabbox gm-tb-viol" for="gmt-cases"><strong>Start here:</strong> the syntax, one run, the reference</label>
         <div class="gm-tabpanel gm-tp-cases">
           <span class="gm-tp-title">Start here</span>
-          <p>Any line starting with <code>#~</code> is a metaLine &mdash; it will be processed as metadata. Contiguous metaLines constitute a metaBlock; positioned just above a block of code or text, it gets attached &mdash; similar to how docstrings get associated with Julia structures following them.</p>
+          <p>Any line starting with <code><span class="gm-sg">#~</span></code> is a metaLine &mdash; it will be processed as metadata. Contiguous metaLines constitute a metaBlock; positioned just above a block of code or text, it gets attached &mdash; similar to how docstrings get associated with Julia structures following them.</p>
           <div class="language-gometa vp-adaptive-theme gm-syn"><pre class="shiki" tabindex="0"><code><span class="gm-sg">#~</span><span class="gm-mt"> hide </span><span class="gm-cm">## A first 'metaLine'.</span>
 <span class="gm-tx"># This first line is 'Text'.</span>
 <span class="gm-cm">## This is a 'comment' of 'Text'.</span>
+<span class="gm-tx"></span>
 <span class="gm-sg">#~2</span><span class="gm-mt"> :label1</span>
 <span class="gm-cd">a = 1 </span><span class="gm-cm">## A 'Block' of 'Code'.</span>
 <span class="gm-cd">b = 2 </span><span class="gm-sg">#~</span><span class="gm-mt"> discard{ :label1 }</span></code></pre></div>
-          <p><a href="/tutorials/getting-started">Getting started &rarr;</a> &middot; <a href="/examples/">Examples &rarr;</a> &middot; <a href="/reference/syntax-and-semantics">The full reference &rarr;</a></p>
+          <p><a href="/tutorials/getting-started">Getting started &rarr;</a><br><a href="/examples/">Examples &rarr;</a><br><a href="/reference/syntax-and-semantics">The full reference &rarr;</a></p>
         </div>
         <a class="gm-tabbox gm-tb-merci" href="/merci"><strong>Merci🌷</strong></a>
     </div>
@@ -129,7 +130,7 @@ footer: true
       <div class="gm-card">
         <div class="gm-eyebrow"><span class="h">#~</span> 5 &middot; syntax</div>
         <h2>There is a <span class="gm-name">GoMeta</span> syntax</h2>
-        <p>It is essential to <span class="gm-name">GoMeta</span>. Any line starting with <code>#~</code> is a metaLine &mdash; it will be processed as metadata. Contiguous metaLines constitute a metaBlock; positioned just above a block of code or text, the metaBlock gets attached &mdash; similar to how docstrings get associated with Julia structures following them. Three comment markers at this release: Julia&rsquo;s <code>#</code>, the C family&rsquo;s <code>//</code> (e.g. C, Rust, etc.), LaTeX&rsquo;s <code>%</code> &mdash; named when <span class="gm-name">GoMeta</span> is called, never inferred. The same principles are easily extended to other programming languages or project data in general.</p>
+        <p>It is essential to <span class="gm-name">GoMeta</span>. Any line starting with <code><span class="gm-sg">#~</span></code> is a metaLine &mdash; it will be processed as metadata. Contiguous metaLines constitute a metaBlock; positioned just above a block of code or text, the metaBlock gets attached &mdash; similar to how docstrings get associated with Julia structures following them. Three comment markers at this release: Julia&rsquo;s <code>#</code>, the C family&rsquo;s <code>//</code> (e.g. C, Rust, etc.), LaTeX&rsquo;s <code>%</code> &mdash; named when <span class="gm-name">GoMeta</span> is called, never inferred. The same principles are easily extended to other programming languages or project data in general.</p>
       </div>
     </div>
   </section>

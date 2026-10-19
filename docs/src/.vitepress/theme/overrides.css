@@ -287,15 +287,21 @@
    2026-10-17 (STYLE-1 the chip, STYLE-2 the rose), reversing the literal, chipless inline code of
    the 2026-08-12 deck adoption: on a phone the chipless tokens blended into the prose. A code
    span inside a link keeps the link's colour (the second rule; without it the first would beat
-   VitePress's `.vp-doc a > code`). The front page's raw-HTML code spans (.gm-home) stay as adopted. */
+   VitePress's `.vp-doc a > code`). The front page's raw-HTML code spans (.gm-home) followed the
+   2026-08-12 adoption (chipless, the body ink in dark) until the owner's note of 2026-10-19: the
+   markers' presentation on every page — they now take the same chip and colours as every other
+   code span (the former `.dark .gm-home code { background: transparent; … }` rule removed). */
 .dark .vp-doc :not(pre) > code { color: var(--gm-head); }
 .dark .vp-doc a > code { color: inherit; }
-.dark .gm-home code { background: transparent; padding: 0; color: inherit; }
 /* GoMeta's markers inside a prose code span (#~, #~n, //~, %~, #]) in the fences' sigil pink,
    bold, THE MARKER ONLY — owner 2026-10-17 (STYLE-1). The span.gm-sg markup comes from the
    inline-code renderer rule in config.mts; the same token the ```gometa fences use (AA on both
-   grounds: 5.16:1 light on the chip, 5.98:1 dark). */
+   grounds: 5.16:1 light on the chip, 5.98:1 dark). Since the owner's note of 2026-10-19 the same
+   markup reaches every fence (the fence rule's post-processing of the untagged and Julia fences —
+   the printouts and the sample lines) and the front page's raw-HTML code spans (markup in the page):
+   the two rules below. */
 .vp-doc :not(pre) > code .gm-sg { color: var(--gm-syn-sig); font-weight: 700; }
+.vp-doc pre code .gm-sg { color: var(--gm-syn-sig); font-weight: 700; }
 /* keep-all: no intra-token break in short chips (":🔥" stays whole) while long
    inline paths still wrap at / and - (nowrap clipped them at 390px — rejected) */
 .vp-doc :not(pre) > code { word-break: keep-all; }
@@ -720,3 +726,18 @@ html:not(.dark) #gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"] { bac
   /* R3 reflow: at 320px the nowrap metaLine cannot fit — wrap it */
   .gm-metaline, .gm-metaline-inner { white-space: normal; }
 }
+
+/* ---- The Home's code spans (owner 2026-10-19 09:35 and his approval of 09:4x): the strings a user would
+   type into an editor — the comment markers `//`, `#`, `%`, the GoMeta marker `#~`, `altValues_evals`,
+   `0.4.0`, `1.0`, `find_by_label.jl` — are mono-space and take the style decided for the Getting
+   started page (STYLE-1/-2/-4): the mono font, light the teal on the chip `--vp-code-bg`, dark the
+   heading's rose on the darker chip, the markers in the sigil pink, bold. The Home is a `layout: page`
+   document with no `.vp-doc` container, so the doc rules never reached it: these are the Home's own.
+   Scoped to the inline spans (`:not(pre) > code`) — the Start-here example block keeps the fence's
+   own style (his point of 09:4x: the chip's padding had indented its first line). The hero's taglines
+   keep their own rule (.gm-hero-tagline code, FP-1). The trial variants of candidate 2026-10-19-d
+   (V0–V5, html[data-gm-trial]) are gone with his choice: V1 in both modes. */
+.gm-home :not(pre) > code { font-family: var(--vp-font-family-mono); font-size: 0.875em; color: var(--vp-code-color);
+  background: var(--vp-code-bg); border-radius: 4px; padding: 3px 6px; }
+.dark .gm-home :not(pre) > code { color: var(--gm-head); }
+.gm-home :not(pre) > code .gm-sg { color: var(--gm-syn-sig); font-weight: 700; }

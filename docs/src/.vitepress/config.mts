@@ -166,9 +166,36 @@ export default defineConfig({
         return [gmSpan('gm-cd', line), false]
       }
       const gmDefaultFence = md.renderer.rules.fence!
+      // Every OTHER fence (untagged, julia, …): the default renderer's HTML is post-processed so that a
+      // GoMeta marker token at a word boundary (#~, #~n, #~!, #], //~, %~ — the inline rule's token set)
+      // is wrapped in <span class="gm-sg">, the fences' sigil pink (owner 2026-10-19: the markers'
+      // presentation on every page, not only in the gometa fences and the prose code spans). Markup
+      // only — the text, and what the copy button copies, is unchanged; the escaped text holds no '<'
+      // and no '&' inside a marker, and a marker never stands inside a tag's attributes.
+      // A marker counts after whitespace, a tag end, an opening quote, bracket or parenthesis or an
+      // equals sign (the printouts quote a Component's text — &quot;#~ hide …&quot; — and the tree
+      // view brackets it), and before whitespace, a tag, a closing quote or bracket, or the end.
+      // The printouts write a newline inside a quoted Component text as the symbol ⏎ (U+23CE): a
+      // marker after it stands at a line start and counts too.
+      const gmFenceMark = /(^|[\s>"'\[(=⏎]|&quot;|&#39;)((?:#|\/\/|%)~[0-9~]*!?|#\])(?=[\s<"'\])\[⏎]|&quot;|&#39;|$)/g
+      const gmMarkFence = (html: string): string => {
+        const open = html.indexOf('<code'), close = html.lastIndexOf('</code>')
+        if (open < 0 || close < open) return html
+        const start = html.indexOf('>', open) + 1
+        const inner = html.slice(start, close).replace(gmFenceMark, (_m, pre, t) => `${pre}<span class="gm-sg">${t}</span>`)
+        return html.slice(0, start) + inner + html.slice(close)
+      }
+      // Which fences take it (owner 2026-10-19 09:35): the SAMPLES — what a user would type into an
+      // editor: the julia-tagged fences (and the gometa fences, by their own rule below). The
+      // PRINTOUTS — the development tools' views and every other printout, which are the untagged
+      // fences — keep their own style: no marker pink inside them.
       md.renderer.rules.fence = (tokens, idx, options, env, self) => {
         const tok = tokens[idx]
-        if (tok.info.trim() !== 'gometa') return gmDefaultFence(tokens, idx, options, env, self)
+        const lang = tok.info.trim()
+        if (lang !== 'gometa') {
+          const html = gmDefaultFence(tokens, idx, options, env, self)
+          return lang === 'julia' ? gmMarkFence(html) : html
+        }
         let inStr = false
         const out: string[] = []
         for (const raw of tok.content.replace(/\n$/, '').split('\n')) {
@@ -188,8 +215,12 @@ export default defineConfig({
       // only: the colours are the theme's. The default renderer's output is post-processed
       // between its first '>' and the closing tag — the text there is already escaped, and a
       // marker holds no '<' and no '&'.
-      const gmMarkAny = /(^|\s)((?:#|\/\/|%)~[0-9~]*!?|#\])(?=\s|$)/
-      const gmMarkAll = /(^|\s)((?:#|\/\/|%)~[0-9~]*!?|#\])(?=\s|$)/g
+      // Since the owner's note of 2026-10-19 a marker also counts after an opening parenthesis,
+      // bracket or quote inside the span, and before a closing one (e.g. `(#~ …)`), not only at
+      // the span's start or after whitespace.
+      // (the span's text is already escaped when it is post-processed: a quote is &quot;)
+      const gmMarkAny = /(^|[\s(\["']|&quot;)((?:#|\/\/|%)~[0-9~]*!?|#\])(?=[\s)\]"']|&quot;|$)/
+      const gmMarkAll = /(^|[\s(\["']|&quot;)((?:#|\/\/|%)~[0-9~]*!?|#\])(?=[\s)\]"']|&quot;|$)/g
       const gmMarkHead = /^((?:#|\/\/|%)~[0-9~]*!?|#\])(?=\s|$)/
       const gmDefaultCodeInline = md.renderer.rules.code_inline!
       md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
@@ -241,7 +272,7 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/gometa-jl/GoMeta.jl' }
     ],
     footer: {
-      message: '<span class="gm-name">GoMeta</span> evaluates — it never executes · <a href="mailto:hello@gometa.dev">hello@gometa.dev</a><br>Made with <a href="https://luxdl.github.io/DocumenterVitepress.jl/dev/" target="_blank"><strong>DocumenterVitepress.jl</strong></a>',
+      message: '<span class="gm-name">GoMeta</span> evaluates — Extensions act · <a href="mailto:hello@gometa.dev">hello@gometa.dev</a><br>Made with <a href="https://luxdl.github.io/DocumenterVitepress.jl/dev/" target="_blank"><strong>DocumenterVitepress.jl</strong></a>',
       copyright: `© Copyright ${new Date().getUTCFullYear()}.`
     }
   }
