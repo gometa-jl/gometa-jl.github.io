@@ -23,32 +23,6 @@ export const Theme: ThemeConfig = {
   extends: DefaultTheme,
   Layout() {
     return h(DefaultTheme.Layout, null, {
-      // first-draft banner (launch window; remove after polish)
-      'layout-top': () => h('div', { class: 'gm-draft-banner' }, [
-        h('span', { class: 'gm-draft-pill' }, [
-          '🚧 ',
-          // the banner is Vue-rendered, so the wordmark span is built here rather
-          // than by the markdown text rule (owner 2026-08-27)
-          h('strong', [
-            'ATTENTION: ',
-            h('span', { class: 'gm-name' }, 'GoMeta'),
-            "\u2019s current docs & Co. are largely written by Claude due to limited resources and to get them done in time for JuliaCon2026.",
-          ]),
-          h('br'),
-          'They are quite comprehensive and ',
-          h('strong', 'mostly'),
-          ' correct. However, even I get confused by them and the emphasis is often not where I would put it.',
-          h('br'),
-          'They will be updated gradually. For now, ',
-          h('strong', [
-            'check out the JuliaCon slides ',
-            // target=_self is LOAD-BEARING: /talk/ is a public/ asset, not a
-            // VitePress page; without it the SPA router eats the click (404).
-            h('a', { href: '/talk/', target: '_self' }, 'here 🔗'),
-          ]),
-          '.',
-        ]),
-      ]),
       'nav-bar-content-after': () => [
         h(NolebaseEnhancedReadabilitiesMenu), // Enhanced Readabilities menu
       ],
@@ -143,22 +117,6 @@ export const Theme: ThemeConfig = {
       // widening past the breakpoint with everything closed would leave the
       // desktop column empty — re-apply the desktop default on that crossing
       mobileMq.addEventListener('change', (e) => { if (!e.matches) applyInitialState() })
-
-      // draft-banner sizing (owner 2026-08-25): the fixed strip's height used
-      // to be hardcoded and the grown text overflowed it (clipped on mobile).
-      // Measure the pill instead, and COLLAPSE the banner once the reader
-      // scrolls (frees the small screens; the info returns at scroll-top).
-      const bannerSync = () => {
-        const pill = document.querySelector<HTMLElement>('.gm-draft-banner .gm-draft-pill')
-        if (!pill) return
-        const collapsed = window.scrollY > 60
-        const h = collapsed ? 0 : pill.offsetHeight + 16
-        document.documentElement.style.setProperty('--vp-layout-top-height', h + 'px')
-      }
-      window.addEventListener('scroll', bannerSync, { passive: true })
-      window.addEventListener('resize', bannerSync)
-      requestAnimationFrame(bannerSync)
-      setTimeout(bannerSync, 150)
     }
   }
 }

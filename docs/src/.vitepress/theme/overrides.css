@@ -18,6 +18,12 @@
   src:url('/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2') format('woff2')}
 @font-face{font-family:'JetBrains Mono';font-weight:700;font-style:normal;font-display:swap;
   src:url('/fonts/jetbrains-mono/JetBrainsMono-Bold.woff2') format('woff2')}
+/* The face of the Home wordmark's "α status" tag (GoMeta's creator, 2026-10-20, BANNER-2): a Latin + Greek subset
+   of JuliaMono Bold, renamed "GoMeta Tag" as the SIL OFL's Reserved Font Name rule asks of a modified version
+   (the licence and the derivation note in /fonts/gometa-tag/). Courier Prime, the wordmark's face, has no α and
+   stays reserved for the term "GoMeta"; the tag never uses it. */
+@font-face{font-family:'GoMeta Tag';font-weight:700;font-style:normal;font-display:swap;
+  src:url('/fonts/gometa-tag/GoMetaTag-Bold.woff2') format('woff2')}
 
 :root {
   --vp-font-family-base: 'Poppins', system-ui, sans-serif;
@@ -242,36 +248,6 @@
   --vp-custom-block-tip-border: #3cf0b5;
   --vp-custom-block-tip-text: var(--vp-c-text-1);
   --vp-custom-block-tip-bg: #0e1912;
-}
-
-/* ---- first-draft banner (launch window; remove after polish) --------------
-   VP's fixed navbar honors --vp-layout-top-height: the nav and content shift
-   down and this fixed strip (the theme's layout-top slot) owns the freed space. */
-:root { --vp-layout-top-height: 92px; } /* no-JS fallback; theme JS measures the pill and
-  keeps this exact (and sets it to 0 once the reader scrolls — collapse-on-scroll) */
-.gm-draft-banner {
-  position: fixed; top: 0; left: 0; right: 0;
-  z-index: var(--vp-z-index-layout-top, 30);
-  height: var(--vp-layout-top-height);
-  overflow: hidden; /* the strip clips cleanly while collapsing */
-  display: flex; align-items: center; justify-content: center;
-  padding: 0 14px;
-  background: var(--vp-c-bg-alt);
-  border-bottom: 1px solid var(--vp-c-divider);
-  font-family: var(--vp-font-family-base);
-}
-.gm-draft-pill {
-  display: inline-block; padding: 6px 20px; border-radius: 12px; /* was 999 — radius normalization, owner 2026-08-24 */
-  border: 1.5px solid var(--vp-c-warning-1);
-  font-size: 14px; line-height: 1.4; text-align: center; /* 16px -> 14px, owner 2026-08-25 */
-  color: var(--vp-c-warning-1);
-}
-.gm-draft-pill strong { font-weight: 700; }
-.gm-draft-pill a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-.gm-draft-pill a:hover { color: var(--vp-c-warning-2, var(--vp-c-warning-1)); }
-@media (max-width: 700px) {
-  :root { --vp-layout-top-height: 170px; } /* no-JS fallback for the wrapped text */
-  .gm-draft-pill { font-size: 12.5px; padding: 5px 14px; }
 }
 
 /* ---- readability (R1, measured): real ~60ch prose, 14px code ------------- */
@@ -567,6 +543,18 @@ html:not(.dark) .gm-btn-talk:hover { background: rgba(75, 52, 33, 0.06); }
   font-size: clamp(54px, 6.7vw, 96px); line-height: 1.05; letter-spacing: 0.01em;
   color: #fff2f0; } /* was pure white; owner 2026-08-24: slightly more rose */
 html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
+/* The "α status" tag at the wordmark's bottom right (GoMeta's creator, 2026-10-20, BANNER-1 and BANNER-2: the
+   first-draft banner retired; the alpha status as a small tag in the wordmark's ink, starting at its bottom-right
+   corner — his choice among five trials: trailing on the baseline, 1/5 of the wordmark's size — in a face of its
+   own, the JuliaMono-derived "GoMeta Tag", so the α reads as an alpha; Courier Prime stays the wordmark's). The
+   wrapper carries the wordmark's size so the tag's em follows it; one line where the hero row has room, under the
+   wordmark's right edge where it has none (phones: the wrapper wraps). The h1's text stays "GoMeta". */
+.gm-hero-brand { font-size: clamp(54px, 6.7vw, 96px); display: flex; flex-wrap: wrap; align-items: baseline;
+  justify-content: flex-end; column-gap: 0.22em; }
+.gm-hero-brand .gm-hero-word { margin-right: auto; }
+.gm-alpha { font-family: 'GoMeta Tag', ui-monospace, monospace; font-weight: 700; font-size: max(0.2em, 12px);
+  letter-spacing: 0.02em; white-space: nowrap; color: #fff2f0; }
+html:not(.dark) .gm-alpha { color: var(--gm-hero-ink); }
 .gm-s8 { position: relative; height: 477px; margin-top: 29px; }
 .gm-s8-box { position: absolute; box-sizing: border-box; border: 2px solid;
   border-radius: 12px; display: flex; align-items: center; justify-content: center;
@@ -630,6 +618,7 @@ html:not(.dark) .gm-hero-word { color: var(--gm-hero-ink); }
 @media (max-width: 420px) {
   /* keep the hero row inside very narrow phones (min-content would force page scroll) */
   .gm-hero-word { font-size: clamp(40px, 13vw, 54px); }
+  .gm-hero-brand { font-size: clamp(40px, 13vw, 54px); } /* the tag's em follows */
   .gm-mark-top { width: 90px; }
 }
 

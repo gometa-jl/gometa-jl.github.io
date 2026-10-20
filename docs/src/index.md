@@ -17,8 +17,8 @@ footer: true
   <section class="gm-hero gm-hero-v2">
     <div class="gm-hero-text">
       <div class="gm-hero-top">
-        <!-- The hero's top row: the typed Courier Prime wordmark beside the GoMeta mark (one image for dark mode, one for light). -->
-        <h1 class="gm-hero-word">GoMeta</h1>
+        <!-- The hero's top row: the typed Courier Prime wordmark with the small "α status" tag at its bottom right (GoMeta's creator, 2026-10-20), beside the GoMeta mark (one image for dark mode, one for light). -->
+        <div class="gm-hero-brand"><h1 class="gm-hero-word">GoMeta</h1><span class="gm-alpha">α status</span></div>
         <img class="gm-mark-top gm-only-dark" src="/mark-dark.svg" loading="lazy" alt="GoMeta mark — two notebooks spelling /#/~">
         <img class="gm-mark-top gm-only-light" src="/mark-light.svg" loading="lazy" alt="GoMeta mark — two notebooks spelling /#/~">
       </div>
