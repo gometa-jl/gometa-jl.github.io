@@ -627,6 +627,15 @@ html:not(.dark) .gm-alpha { color: var(--gm-hero-ink); }
   .gm-s8 { height: auto; display: flex; flex-direction: column; gap: 14px; }
   .gm-s8-box { position: static; width: auto; height: auto; font-size: 16px; padding: 14px 18px; }
   .gm-s8-box br { display: none; } /* sketch line breaks are desktop-only; stacked boxes flow */
+  /* The stacked boxes staggered (GoMeta's creator, 2026-10-20, S8-1): one aligned column read like the clickable
+     Start-here boxes below it. Each box narrower than the column and pushed to the side its desktop position has
+     (the sketch's centres: key right, mint left, gold right, mag a little left of centre, viol right, rose far
+     right) — the desktop's scatter, softened; his pick S3 among three strengths (FP-1/s8-stagger_2026-10-20). */
+  .gm-s8-key { width: 84%; } .gm-s8-mint { width: 94%; } .gm-s8-gold { width: 88%; } .gm-s8-mag { width: 86%; margin-right: 8%; }
+  .gm-s8-viol { width: 88%; } .gm-s8-rose { width: 78%; }
+  .gm-s8-key, .gm-s8-gold, .gm-s8-viol, .gm-s8-rose { align-self: flex-end; }
+  .gm-s8-mint { align-self: flex-start; }
+  .gm-s8-mag { align-self: center; }
   .gm-intro { margin-left: 0; max-width: 34em; }
 }
 @media (max-width: 420px) {
