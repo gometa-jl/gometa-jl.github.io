@@ -250,6 +250,20 @@
   --vp-custom-block-tip-bg: #0e1912;
 }
 
+/* ---- phones and tablets: the navigation bar stays (GoMeta's creator, 2026-10-20, NAV-1) ----------------
+   Below the theme's desktop breakpoint the default theme lets the navigation bar scroll away and sticks its
+   local strip at the top instead — on the Home, which has neither sidebar nor outline, that strip appears once
+   the reader has scrolled and says only "Return to top". The desktop keeps the bar fixed; phones do the same
+   now: the bar fixed, the content padded by its height, the local strip ("Menu · On this page" on pages with a
+   sidebar) stuck below the bar, and the strip's empty variant (the theme's .fixed class) gone — the bar itself
+   is the way back up. `.Layout` ties the theme's scoped selectors; this file loads last and wins. */
+@media (max-width: 959px) {
+  .Layout .VPNav { position: fixed; }
+  .Layout .VPContent { padding-top: var(--vp-nav-height); }
+  .Layout .VPLocalNav { top: var(--vp-nav-height); }
+  .Layout .VPLocalNav.fixed { display: none; }
+}
+
 /* ---- readability (R1, measured): real ~60ch prose, 14px code ------------- */
 .vp-doc p, .vp-doc li { max-width: 60ch; }
 .vp-doc :not(pre) > code { font-size: 0.875em; }
