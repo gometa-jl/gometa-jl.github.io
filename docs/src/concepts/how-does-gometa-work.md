@@ -1,13 +1,6 @@
-```@raw html
----
-u_version: "0.1"
----
-```
-
 # How does GoMeta work?
 
-GoMeta's author explains GoMeta by asking and answering three questions — what GoMeta is, why
-someone would want to use it, and how it works. This page answers the third by following one
+GoMeta's creator explains GoMeta by asking and answering three questions — what GoMeta is, why someone would want to use it, and how it works. This page answers the third by following one
 run from a file to what the [Extensions](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension) receive. GoMeta.jl adds interpretable `#~` metadata to
 ordinary files, inside their comments; in one run,
 [BLS](../reference/syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File), GoMeta's
@@ -25,13 +18,7 @@ and may do is the [Extensions](extensions.md) page's. The page's terms are defin
 
 GoMeta runs over a file by calling BLS, uses BLS's facilities and the BLS Component tree BLS
 produced, and delivers the evaluated [Alterant](../reference/syntax-and-semantics.md#Alterant)
-values. All of this can then be consumed by one or by several Extensions. In the author's
-order, the GoMeta pipeline has four steps: (i) the input file; (ii) BLS produces the BLS
-Component tree — a main product of the GoMeta process; (iii) the GoMeta Engine produces, based
-on the BLS Component tree, the evaluated Alterant values, called `altValues_evals` — also a main
-product; (iv) the Extensions use these main products to execute the task they were designed
-for, for example to produce an output file. The author requires that every worked example and quickstart use that same pipeline; the examples on this site use that same
-pipeline.
+values. All of this can then be consumed by one or by several Extensions. The GoMeta pipeline has four steps, in this order: (i) the input file; (ii) BLS produces the BLS Component tree — a main product of the GoMeta process; (iii) the GoMeta Engine produces, based on the BLS Component tree, the evaluated Alterant values, called `altValues_evals` — also a main product; (iv) the Extensions use these main products to execute the task they were designed for, for example to produce an output file. Every worked example and quickstart is to use that same pipeline; the examples on this site do.
 
 From Julia it is one call:
 
@@ -50,13 +37,8 @@ and reads each product.
 
 ## 2. BLS reads the file: the BLS Component tree
 
-In the words of GoMeta's author: "GoMeta handles the metadata. However, before it can begin its
-work, BLS reads the file[s], extracts features of interest and records them in a tree-like
-structure based on the content at hand. The basic building block of the aforementioned structure
-consists of the Component. Blocks, Lines and Segments are all Components at different levels in
-the hierarchy. The records include where a Component starts and ends, its flavor [to avoid the
-term Type] such as code, metadata or text, its place in the tree structure and much, much more."
-Why this granularity, in the words of his proposal: "Moreover, metadata needs to be absorbed,
+In the words of GoMeta's creator: "GoMeta handles the metadata. However, before it can begin its work, BLS reads the file[s], extracts features of interest and records them in a tree-like structure based on the content at hand. The basic building block of the aforementioned structure consists of the Component. Blocks, Lines and Segments are all Components at different levels in the hierarchy. The records include where a Component starts and ends, its flavor [to avoid the term Type] such as code, metadata or text, its place in the tree structure and much, much more."
+Why this granularity, in the words of his JuliaCon 2026 proposal: "Moreover, metadata needs to be absorbed,
 i.e.: parsed and interpreted, from somewhere before it can be applied somewhere. Thus far, both
 tasks had been executed on a Block-level [a section of consecutive lines]. BLS now provides a
 distinctly finer granularity by introducing Components such as Block, Line and Segment. This not
@@ -80,9 +62,7 @@ Component that a [condition](../reference/syntax-and-semantics.md#condition) may
 Component's [settribute](../reference/syntax-and-semantics.md#settribute). BLS reads a Julia file
 on its [comment marker](../reference/syntax-and-semantics.md#comment-marker) `#`, a file of the C family (e.g. C, Rust, etc.)
 on `//`, a LaTeX file on `%` — the three formats this release knows, named when GoMeta is called
-(Julia is the default), never inferred from the file. Which kind of parsing applies to which kind
-of input is BLS's responsibility, and the author states that this machinery will be expanded to
-further kinds of input. The [Development tools](../reference/development-tools.md) page shows the
+(Julia is the default), never inferred from the file. Which kind of parsing applies to which kind of input is BLS's responsibility, and this machinery will be expanded to further kinds of input. The [Development tools](../reference/development-tools.md) page shows the
 BLS Component tree of the first example file as the tools print it.
 
 ## 3. The metadata: metaLines
@@ -110,14 +90,7 @@ apply: to content that carries the [label](../reference/syntax-and-semantics.md#
 is code. A label — `:label4` — is a tag the Labels Alterant applies to the Components in a
 statement's reach.
 
-How the metadata reaches the content, in the words of the author's proposal: "Any line starting
-with #~ is considered to be a metaline i.e.: it will be processed as metadata. Contiguous
-metalines constitute a coherent block of metadata separating it from others. By positioning such
-a block just above a block of code or text [no vertical spacing in between] the former gets
-attached to the latter – similar to how docstrings get associated with Julia structures
-following them. For the purpose of inheritance, a hierarchy of blocks of metadata can be defined
-by appending additional ~s to the head of a metablock's first metaline or, alternatively, adding
-there a digit representing the desired depth within the metahierarchy." His "block of metadata"
+How the metadata reaches the content, in the words of the creator's proposal: "Any line starting with #~ is considered to be a metaline i.e.: it will be processed as metadata. Contiguous metalines constitute a coherent block of metadata separating it from others. By positioning such a block just above a block of code or text [no vertical spacing in between] the former gets attached to the latter – similar to how docstrings get associated with Julia structures following them. For the purpose of inheritance, a hierarchy of blocks of metadata can be defined by appending additional ~s to the head of a metablock's first metaline or, alternatively, adding there a digit representing the desired depth within the metahierarchy." His "block of metadata"
 is the metaBlock; a Block of content written directly below it is
 [attached](../reference/syntax-and-semantics.md#attachment,-inheritance) to it and inherits its
 statements; his "metahierarchy" is the
@@ -143,23 +116,13 @@ exercise the first two. Visib is the example on this site's pages because what t
 evaluates for it can be checked by eye in a rendered copy of the file; it is one Alterant among
 others, and the delivered evaluations are designed for all kinds of future Alterants.
 
-In the words of GoMeta's author: "Suppose we have an Alterant X with possible Alterant values
-X_i, X_j etc. Suppose further that the GoMeta Engine determined that X_i applies to BLS Block
-B_p and X_j applies to BLS Line L_q, a line CONTAINED in Block B_p. This is the kind of
-information emitted by the GoMeta Engine and constitutes its "raison d'être" i.e.: delivering
-this kind of EVALUATION IS the GoMeta Engine's CORE PURPOSE."
+Delivering such evaluations is the GoMeta Engine's core purpose: if the Engine determines that one value of an Alterant applies to a Block and another value of the same Alterant applies to a Line contained in that Block, that is the kind of information it delivers.
 
 A value applies to the Components in its statement's reach — its own metaBlock, the content attached to that
 metaBlock and what nests or is attached below — where its condition holds and no statement of
 the same Alterant closer to the Component overrules it. A value evaluated for a Block applies to
 that Block; the Lines and Segments it contains fall under it as parts of that Block, not
-individually, and a Line's own differing value is recorded as its own. As the author states it,
-the granularity of applying Alterant values to Components is currently restricted to the File,
-the Block and the Line, and in his later word "the apply for on the File level had not been implemented yet"; in a next step it will get finer by including the Segment — his proposal
-already alluded to "the possibility of a finer grained grammar. For instance, a Segment of
-metadata within a Line is applied to the Segments preceding it. This also applies within Blocks
-which are not attached." — his intention, not yet implemented: today a metaSegment applies to
-its Line. Where no
+individually, and a Line's own differing value is recorded as its own. At this release Alterant values are applied to Components at the grain of the Block and the Line — not yet at the File level — and a next step will make the grain finer by including the Segment; the creator's JuliaCon 2026 proposal already alluded to "the possibility of a finer grained grammar. For instance, a Segment of metadata within a Line is applied to the Segments preceding it. This also applies within Blocks which are not attached." Today a metaSegment applies to its Line. Where no
 statement reaches a Block, a Line or a Segment, the Alterant's declared default applies — for Visib, `show`; the File has no value at this release.
 
 The condition in the braces is Julia. GoMeta rewrites its own parts — a label test such as
@@ -178,9 +141,7 @@ in the order of the pipeline:
 - `status` — OK, or an error;
 - `diagnostics` — a run whose status is not OK delivers a non-empty list of diagnostics.
 
-In the words of GoMeta's author: "'altValues_evals' is THE reference / THE interface delivered
-by the GoMeta Engine for all kinds of future Extensions. Many of them will also require the BLS
-Component Tree but that is NOT delivered through the GoMeta Engine but provided by BLS itself."
+`altValues_evals` is the reference interface the GoMeta Engine delivers for all kinds of future Extensions; many of them will also need the BLS Component tree, which is not delivered through the GoMeta Engine but provided by BLS itself.
 
 The evaluated values are read through the Engine's reader,
 [`readAltValuesEvals`](../reference/public-api.md#3.-The-evaluated-values), as rows, one per
@@ -201,9 +162,7 @@ efficiently.
 
 GoMeta evaluates the metadata — more precisely, the GoMeta Engine evaluates it — but does not
 act on those evaluations: that is the Extensions' role; they receive the evaluations through
-GoMeta's interface, `altValues_evals`. In the words of GoMeta's author: "GoMeta evaluates and
-ONLY THEN AND BASED ON THAT the Extensions ACT ON THAT." — and: "Extensions are called
-'Extensions' because they EXTEND THE CORE of GoMeta."
+GoMeta's interface, `altValues_evals`. Only then, and based on those evaluations, do the Extensions act. Extensions are so called because they extend the core of GoMeta.
 
 An Extension must go through GoMeta's public surface, never through anything internal. Its main
 source of information is `altValues_evals` and the BLS Component tree, with the functions
@@ -220,17 +179,12 @@ uses and writes a rendered copy of the file in which each piece appears as its e
 value says. Strictly speaking, though, it is no Extension: it lives under the package's
 development tools, and it is there because it serves a vital purpose for the package's development — it lets what the Engine evaluated be checked by eye.
 
-The run described on this page assumes that the Extensions do not change the input file. Later,
-the author wants Extensions that do — one example being reactive Extensions which, while one works on a file in an
-editor, hide its metadata so that it does not clutter the visible surface, and show it again
-when one wants to work on that metadata. What an Extension is and may do, and what a new
+The run described on this page assumes that the Extensions do not change the input file. Later, Extensions that do are planned — one example being reactive Extensions which, while one works on a file in an editor, hide its metadata so that it does not clutter the visible surface, and show it again when one wants to work on that metadata. What an Extension is and may do, and what a new
 Alterant needs, is the [Extensions](extensions.md) page's.
 
 ## 7. Looking at a run: the development tools
 
-In the words of GoMeta's author: "the output of GoMeta is not readily directly observable. For
-that reason, a couple of tools and colorful printouts can serve to track and illustrate the
-internal process of the package". The development tools print the BLS Component tree and the
+In the words of GoMeta's creator: "the output of GoMeta is not readily directly observable. For that reason, a couple of tools and colorful printouts can serve to track and illustrate the internal process of the package". The development tools print the BLS Component tree and the
 evaluated values of a run; they read the delivery through the public surface and are not part
 of a GoMeta run. The full delivery view of the first example file — every Block and Line with
 its evaluated values, as the development tools print it — is below; its first line is the

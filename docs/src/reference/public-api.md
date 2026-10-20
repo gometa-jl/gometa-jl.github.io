@@ -1,22 +1,11 @@
-```@raw html
----
-u_version: "0.1"
----
-```
-
 # Public API
 
 This page is the reference for the surface a program relies on when it uses GoMeta, release
 **0.4.0** (alpha): the four names `using GoMeta` brings into scope, the further names reached
 qualified as `GoMeta.<name>`, and the door through which a program travels the
-[BLS](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) Component tree. It is
-written from the package at that release and from the design as its author states it; the
-package's own test suite pins the set of names the package declares public, and this page
-lists exactly that set. The terms the page uses are defined where they first appear or in the Syntax & semantics page's
+[BLS](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) Component tree. It is written from the package at that release and from the design as GoMeta's creator states it; the package's own test suite pins the set of names the package declares public, and this page lists exactly that set. The terms the page uses are defined where they first appear or in the Syntax & semantics page's
 [Glossary](syntax-and-semantics.md#Glossary); the delivered object and the Component's handle
-are defined here. Until at least version 0.7 every change of this surface is a clean cut: a
-renamed or removed name is gone, with no alias and no deprecation period — the author's policy;
-the package's own API document keeps the register of every such change (section 10).
+are defined here. Until at least version 0.7 every change of this surface is a clean cut: a renamed or removed name is gone, with no alias and no deprecation period — the policy of GoMeta's creator; the package's own API document keeps the register of every such change (see section 10 below).
 
 ## 1. One call: the entry
 
@@ -40,7 +29,7 @@ order of the pipeline:
 - `status` — of type `GoMeta.ProcessStatus`: `PROCESS_OK` or `PROCESS_ERROR`;
 - `diagnostics` — a vector of `GoMeta.Diagnostic` records, each with a `code` (a `Symbol`), a
   `severity` (`:error`, `:warning` or `:info` — the declared set; this release produces the
-  first two), a `message` and a `context`. The status
+  first alone), a `message` and a `context`. The status
   is `PROCESS_ERROR` exactly when a record of severity `:error` is among them: a failed run never comes with
   an empty list.
 
@@ -86,12 +75,12 @@ holds the run's options:
   that keeps the rows of several files apart gives each its own. A namespace longer than
   65535 bytes makes `GoMetaConfig(; …)` throw an `ArgumentError` when the configuration is constructed; the positional form carries no such guard.
 - `user_mh_profile` is reserved and experimental: the body of a [metaLine](syntax-and-semantics.md#metaLine) fed into the run
-  before the file's own metadata. Leave it at `nothing`.
+  before the file's own metadata; an empty or whitespace-only string feeds nothing, like `nothing`, and a heading in the fed body is refused (section 8). Leave it at `nothing`.
 
 ::: details Measured: an unknown `flavor_tag` — what `goMeta` throws
 
 ```
-probe: 2026-10-17T19:43:41 (local clock) · goMeta(bytes; config = GoMetaConfig(flavor_tag = :python)) over the proposal example
+input: file_for_Example_Proposal_JuliaCon.jl · goMeta(bytes; config = GoMetaConfig(flavor_tag = :python))
 GoMetaConfig constructed: GoMetaConfig(:python, nothing, nothing, :default)
 goMeta threw: flavor_for: unknown flavor_tag :python — the closed inventory is (:julia, :c, :latex) and there is NO fallback
 ```
@@ -113,8 +102,7 @@ handle.
 The attributes at this release: `:label_<name> => true`, one row per
 [label](syntax-and-semantics.md#label) that applies; `:visib => :show`, `:hide` or `:discard`;
 `:head_<level> => "…"` for a heading (a same-level repeat on one handle `:head_<level>_<k>`); `:id_<name> => Int16` for the experimental Id Alterant,
-one row per non-zero field. A program should skip an attribute family it does not know rather
-than fail on it: later releases may bring further Alterants and their families, and the author gives no guarantee that a later release delivers the evaluated values in the same form.
+one row per non-zero field. A program should skip an attribute family it does not know rather than fail on it: later releases may bring further Alterants and their families, and GoMeta's creator gives no guarantee that a later release delivers the evaluated values in the same form.
 
 `GoMeta.serialize_evals(rows)` turns the rows into bytes: one row per line, four tab-separated
 columns, a tab, newline, carriage return or backslash in an attribute name escaped.
@@ -163,7 +151,7 @@ same file — every evals row at its Component — is embedded on the
 [Syntax & semantics](syntax-and-semantics.md#11.-The-examples) page.
 
 ```
-probe: 2026-10-17T19:43:38 (local clock) · input file_for_Example_Proposal_JuliaCon.jl sha256 fb44c903fc614d795d210e46d04335e3dc1eb47bcf3eb8b7b5b45b1d88971214
+input: file_for_Example_Proposal_JuliaCon.jl · sha256 fb44c903fc614d795d210e46d04335e3dc1eb47bcf3eb8b7b5b45b1d88971214
 status = PROCESS_OK · diagnostics = 0 · evals rows = 28
 registered Alterant names (DEFAULT_REGISTRY.plugins' altName): [:labels, :Visib, :id, :heading]
 
@@ -296,13 +284,12 @@ The records `register!` takes — the Alterant and its actions, built with keywo
 - `GoMeta.ActionSpec(; name, plugin::Int8, accepts_string_slot = 0, validate = nothing)` — one action of an
   Alterant: its name; the index of its Alterant; which argument slot, if any, takes a quoted
   text; and a validation of that text.
-- `GoMeta.CaptureDecl(attr_scheme, mode_gate; attr_stem = nothing)` — `attr_scheme` one of `:per_key`, `:single`, `:per_field`, `:per_occurrence`; `mode_gate` `nothing` or `:localOnly` — how the Alterant's applied state
+- `GoMeta.CaptureDecl(attr_scheme; attr_stem = nothing)` — `attr_scheme` one of `:per_key`, `:single`, `:per_field`, `:per_entry` — how the Alterant's applied state
   becomes evals rows; without it an Alterant records no rows.
 - `GoMeta.NoDefault()` and `GoMeta.Declared(value)` — the two forms of an Alterant's default;
   `GoMeta.DefaultSlot` is their common type.
 
-The Labels Alterant's names are a closed list of 38, read from a file in the package
-(`src/alterants-std/labels_vocabulary.txt`); which names it holds, and how a name is added, are under the author's review. The check that `goMeta` makes at its entry guards against
+The Labels Alterant's names are a closed list of 39, written into the Alterant's own file (`src/alterants-std/labels.jl`); for now a further name is added there, by hand, and improvements to the Labels Alterant will come later. The check that `goMeta` makes at its entry guards against
 accidents by conforming code — an unpublished registry, a published one changed afterwards —
 not against a loaded module that sets out to defeat it: load only Alterants you trust, as you
 would any Julia file you `include`.
@@ -325,8 +312,7 @@ pair byte for byte — the rendered copy against the committed reference files, 
 
 ## 8. What a program sees when something is wrong
 
-**Two statuses.** A run that completes delivers `PROCESS_OK`, its `diagnostics` empty or holding
-warnings. A run whose registry `goMeta` refuses delivers `PROCESS_ERROR` with one coded `Diagnostic`,
+**Two statuses.** A run that completes delivers `PROCESS_OK`, its `diagnostics` empty. A run whose registry `goMeta` refuses delivers `PROCESS_ERROR` with one coded `Diagnostic`,
 before any line is read: `REG_UNPUBLISHED` (an unsealed registry; the message names the path
 builder → validate → publish) or `POST_SEAL_MUTATION` (a published registry changed afterwards;
 the message names the first changed field). A file with no metadata at all is not an error:
@@ -335,16 +321,14 @@ the message names the first changed field). A file with no metadata at all is no
 **The registry's own refusals.** `register!` throws (and `next_plugin_index`, at capacity, the second code)
 `RegistrationRefused` with `REG_PROTOCOL` (an action record that names another Alterant) or
 `REG_SLOT_EXHAUSTED` (more than 127 Alterants or actions). `validate` returns a `REG_PROTOCOL`
-row for each declared value outside the accepted domain and for each capture rule broken;
+row for each declared value outside the accepted domain;
 `publish` throws `RegistrationRefused` carrying them. `REG_DERIVED_TABLES` names a registry
 assembled directly from its parts, outside the lifecycle, whose parts do not agree with its
-declarations — build through the lifecycle instead. At a run, the validation an Alterant of mode `:localOnly` declares for its quoted text — when it answers
+declarations — build through the lifecycle instead. At a run, the validation an action declares for its quoted text — when it answers
 `false`, returns no `Bool` or throws — makes `goMeta` throw a stable message naming
-`REG_VALIDATE_FALSE`, `RES_RETURN_TYPE` or `CB_VALIDATE_THROW`.
+`REG_VALIDATE_FALSE`, `RES_RETURN_TYPE` or `CB_VALIDATE_THROW`; a validation that throws its own message in GoMeta's form — an `ErrorException` whose text begins with `GoMeta` followed by a space — makes `goMeta` throw that message unchanged, and an `InterruptException` passes through unchanged too.
 
-**Warnings.** `WARN_CAPTURE_FLOOR` and `WARN_CAPTURE_UNREADABLE` can come back on an OK run
-from an Alterant of mode `:localOnly` — the Heading's — whose applied state has no capture
-declaration, or one its store does not fit.
+**Warnings.** None at this release: a run that ends `PROCESS_OK` delivers an empty `diagnostics` vector.
 
 **What a file's author meets.** These make `goMeta` throw — with a stable message of GoMeta's, most naming the
 offending token, or, where a bullet says so, with Julia's own error; nothing is delivered:
@@ -363,10 +347,9 @@ offending token, or, where a bullet says so, with Julia's own error; nothing is 
   may ask, "unknown condition key"; a condition Julia cannot parse, or one that fails when Julia
   evaluates it — Julia's own error; an argument an Alterant's setter cannot take — its own
   error, Julia's;
-- a digit depth beyond 8 (`#~9`), "meta depth out of range"; a ninth statement in one depth
-  level (the bound is the number of registered actions, 8 with the shipped registry), "more than 8 actions in one meta-hierarchy slot"; more than one Visib value set for
-  one Component, "more than one Visib value set for one component";
-- an unknown `flavor_tag` (section 2).
+- a digit depth beyond 8 (`#~9`), "meta depth out of range"; a ninth statement in one depth level (the bound is 8 — a size GoMeta's creator chose to start with; if it proves too small it may easily be increased by hand — not the number of registered actions, 9 with the shipped registry), "more than 8 actions in one meta-hierarchy slot"; more than one Visib value set for one Component, "more than one Visib value set for one component";
+- an unknown `flavor_tag` (section 2);
+- a heading in the body fed through `user_mh_profile` (section 2), "a heading (Heading Alterant) in the profile feed has no Component of the file levels to be local to".
 
 GoMeta's own messages among these are stable within this release and the package's test suite asserts them.
 
@@ -381,7 +364,7 @@ are kept as they are.
 In the development tool's printouts a "cell" is a BLS Component that carries evaluated values — the tool's word; this site says Component. Its "(no evals — defaults apply)" marks a Component with no evaluated values of its own; it falls under the value of a Component that contains it, else under the Alterant's declared default.
 
 ```
-probe: 2026-10-17T19:43:41 (local clock) · input crlf_input.jl sha256 9b01c3a8fcfae089dad5bb33d52c7d4971f254986d40bbd35a61fcf4f326c5eb · bytes 186 · CR bytes in the input: 8
+input: crlf_input.jl · sha256 9b01c3a8fcfae089dad5bb33d52c7d4971f254986d40bbd35a61fcf4f326c5eb · bytes 186 · CR bytes in the input: 8
 status = PROCESS_OK · diagnostics = 0
 
 == the FULL delivery view ==

@@ -1,6 +1,5 @@
 ```@raw html
 ---
-u_version: "0.1"
 description: "GoMeta can be embedded in all kinds of other programming languages as well as in Word documents or be attached to files themselves."
 layout: page
 navbar: true
@@ -18,15 +17,13 @@ footer: true
   <section class="gm-hero gm-hero-v2">
     <div class="gm-hero-text">
       <div class="gm-hero-top">
-        <!-- Hero v3 (owner's Figma sketch 2026-08-24, frame 46:2): typed Courier Prime
-             wordmark replaces the wordmark PNGs; title/taglines/chips leave the hero. -->
+        <!-- The hero's top row: the typed Courier Prime wordmark beside the GoMeta mark (one image for dark mode, one for light). -->
         <h1 class="gm-hero-word">GoMeta</h1>
         <img class="gm-mark-top gm-only-dark" src="/mark-dark.svg" loading="lazy" alt="GoMeta mark — two notebooks spelling /#/~">
         <img class="gm-mark-top gm-only-light" src="/mark-light.svg" loading="lazy" alt="GoMeta mark — two notebooks spelling /#/~">
       </div>
       <div class="gm-metaline gm-metaline-full" role="img" aria-label="Example metaLine"><span class="gm-metaline-inner"><span class="h">#</span><span class="t">~</span><span class="r"> This is a metaLine: How to embed meaning into comments.</span></span></div>
-      <!-- "What is GoMeta?" ensemble — deck slide 8, converted per the owner's Figma
-           sketch (geometry = sketch coordinates relative to the 1088px content column). -->
+      <!-- "What is GoMeta?" ensemble — slide 8 of the JuliaCon 2026 talk (geometry = coordinates relative to the 1088px content column). -->
       <div class="gm-s8" role="group" aria-label="What is GoMeta — key points">
         <div class="gm-s8-box gm-s8-key"><span><strong>THE</strong> key <em>distinguishing</em> feature</span></div>
         <div class="gm-s8-box gm-s8-mint"><span><span class="gm8-m">GoMeta</span> can be <span class="gm8-a">embedded</span> in all kinds of other <br><span class="gm8-a">programming languages</span> as well as <br>in <span class="gm8-a">Word documents</span> or be <br><span class="gm8-a">attached to files</span> themselves.</span></div>
@@ -53,9 +50,7 @@ footer: true
     <input type="radio" name="gmt" id="gmt-syntax">
     <input type="radio" name="gmt" id="gmt-blocks">
     <input type="radio" name="gmt" id="gmt-cases">
-    <!-- Labels and panels are INTERLEAVED siblings: on desktop the grid re-assembles
-         the two-column master-detail; on mobile the single column becomes an accordion
-         (each panel opens directly under its label — owner 2026-08-25 mobile fix). -->
+    <!-- Labels and panels are INTERLEAVED siblings: on desktop the grid re-assembles the two-column master-detail; on mobile the single column becomes an accordion (each panel opens directly under its label). -->
     <div class="gm-tabs-grid">
       <label class="gm-tabbox gm-tb-mint" for="gmt-core"><strong>What is <span class="gm-name">GoMeta</span>?</strong> The idea</label>
       <div class="gm-tabpanel gm-tp-core">
@@ -75,7 +70,7 @@ footer: true
             <li><strong>One source file, all kinds of output formats</strong> &mdash; shipped today: one notebook and its executed twin, and two manual pages, from one marked file.</li>
             <li><strong>Share on your terms</strong> &mdash; marking private passages would allow automated removal before sharing; <span class="gm-name">GoMeta</span>&rsquo;s own source has been processed this way.</li>
           </ul>
-          <p>And, in the author&rsquo;s words: &ldquo;This is not just for programmers any more.&rdquo;</p>
+          <p>And, in the words of <span class="gm-name">GoMeta</span>&rsquo;s creator: &ldquo;This is not just for programmers any more.&rdquo;</p>
           <p><a href="/concepts/why-use-gometa">Why use <span class="gm-name">GoMeta</span>? &rarr;</a></p>
         </div>
         <label class="gm-tabbox gm-tb-cyan" for="gmt-blocks"><strong>How does <span class="gm-name">GoMeta</span> work?</strong> One run, from a file to the Extensions</label>

@@ -1,9 +1,3 @@
-```@raw html
----
-u_version: "0.1"
----
-```
-
 # Getting started
 
 GoMeta.jl adds interpretable `#~` metadata to ordinary Julia source files. This page takes you
@@ -46,11 +40,11 @@ In Julia, `#` is the [comment marker](../reference/syntax-and-semantics.md#comme
 that opens with the marker `#~` — the comment marker followed by a tilde — is a **[metaLine](../reference/syntax-and-semantics.md#metaLine)**:
 the rest of the line carries the metadata, GoMeta's statement, and, after a `##`, an ordinary
 comment if you want one. Here the statement `hide{ :label4 , isCode }` names a value of the
-[Alterant](../reference/syntax-and-semantics.md) **Visib** — `hide` — and, in the braces, the condition under which that value may
+[Alterant](../reference/syntax-and-semantics.md#Alterant) **Visib** — `hide` — and, in the braces, the condition under which that value may
 apply: to content that carries the label `:label4` or is code. GoMeta evaluates the metadata —
 more precisely, the GoMeta Engine evaluates it — but does not act on those evaluations: that
 is the Extensions' role; they receive the evaluations through GoMeta's interface,
-[`altValues_evals`](../reference/public-api.md). Your file stays an ordinary Julia file. In a file of another format the
+[`altValues_evals`](../reference/public-api.md#1.-One-call:-the-entry). Your file stays an ordinary Julia file. In a file of another format the
 marker is that format's comment marker followed by the tilde — `//~` in the C family (e.g. C, Rust, etc.), `%~` in
 LaTeX, the three formats this release knows, named when GoMeta is called (Julia is the
 default), never inferred from the file.
@@ -60,7 +54,7 @@ instances can take — Visib's are `show`, `hide` and `discard`, and for any one
 file only one of them applies at a time — and the GoMeta Engine evaluates which value applies
 to each piece. It is not exactly analogous to a Type: an Alterant usually brings functionality
 of its own, which may be invoked during the GoMeta Engine's process, for instance when a value is set. Visib, the visibility
-Alterant, is the example throughout this page; the principles it illustrates here hold for every Alterant, while which values an Alterant has, and whether more than one of them may apply to one piece at a time, are each Alterant's own.
+Alterant, is the example throughout this page; the principles it illustrates here hold for every Alterant, while which values an Alterant has, how far a value reaches, and whether more than one of them may apply to one piece at a time, are each Alterant's own.
 
 The condition in the braces is Julia. GoMeta rewrites its own parts — a label test such as
 `:label4`, a BLS key word such as `isCode`, which asks about the state of the piece — into
@@ -140,9 +134,8 @@ evals[1]                                                    # one row: the Compo
 
 `altValues_evals` is the interface the GoMeta Engine delivers to the Extensions: the evaluated
 Alterant values, each recorded at its Component. The reader returns it as rows,
-one per evaluated value — a tuple of the [Component's handle](../reference/public-api.md) (bytes), the attribute, the value
-and the [polarity](../reference/public-api.md) (always `true` at this release). Labels arrive as `:label_label1` …
-`:label_label5` with the value `true`; the evaluated visibility as `:visib`. In this example
+one per evaluated value — a tuple of the [Component's handle](../reference/public-api.md#3.-The-evaluated-values) (bytes), the attribute, the value
+and the [polarity](../reference/public-api.md#3.-The-evaluated-values) (always `true` at this release). Labels arrive as attributes (e.g. `:label_label1`, `:label_label5`, etc.) with the value `true`; the evaluated visibility as `:visib`. In this example
 the first row belongs to line 7, whose trailing `#~ discard` gives that Line the Visib value
 `discard`: `(…, :visib, :discard, true)`.
 
@@ -158,8 +151,8 @@ print(String(copy(out.render_bytes)))        # the rendered copy of the file —
 GoMeta's own run ends with the delivery. Acting on it is the Extensions' role. For a first look
 the package ships a development tool, the **basic renderer**. It behaves like an Extension: it
 reads the two products through the same public surface every Extension uses — the delivered
-tree through the functions BLS provides to travel it, every visibility value from the Engine's
-answer function, [`evaluatedAltValue`](../reference/public-api.md) — and writes a rendered copy of the file in which each piece appears as its
+BLS Component tree through the functions BLS provides to travel it, every visibility value from the Engine's
+answer function, [`evaluatedAltValue`](../reference/public-api.md#4.-The-answers) — and writes a rendered copy of the file in which each piece appears as its
 evaluated Visib value says — shown as it is, hidden (its non-empty lines commented out with `## `), or discarded
 (left out). Strictly speaking, though, it is no Extension: it lives under the package's
 development tools, and it is there because it serves a vital purpose for the package's
@@ -182,7 +175,7 @@ end, so that Line's Visib value is `discard`, and the renderer left the line out
 Block that starts at line 10 is [attached](../reference/syntax-and-semantics.md#attachment,-inheritance) to the metadata above it and [inherits](../reference/syntax-and-semantics.md#attachment,-inheritance) from the file's
 first metaLine; `hide{ :label4 , isCode }` applies to it because it is code, so the Block's
 Visib value is `hide`. Its Lines carry no value of their own: they are hidden as parts of a
-hidden Block — the way every Alterant's value reaches a Block's children. The renderer
+hidden Block — the way a Visib value reaches a Block's children. The renderer
 therefore commented the `using Plots` line out with `## `.
 
 ::: details The full delivery view of this run — every Block and Line with its evaluated values, as the development tools print it

@@ -1,15 +1,7 @@
-```@raw html
----
-u_version: "0.1"
----
-```
-
 # What is GoMeta?
 
 GoMeta.jl is an *interpretable-metadata* engine, written in Julia, designed to work between,
-behind and within your data: in any programming language and any file format. In the words of
-GoMeta's author: "The concept/idea of GoMeta is to embed its formalized metadata within all
-kinds of comments and enable Extensions to do something based on its output." His proposal for
+behind and within your data: in any programming language and any file format. As GoMeta's creator states it, the idea is to embed formalized metadata within all kinds of comments and to enable [Extensions](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension) to act on GoMeta's output. His proposal for
 JuliaCon 2026 puts it this way: "The core concept remains the same: Add interpretable meaning to
 comments within a Julia file by means of brief, simple, expressive and extendable metadata. The
 crux of the idea lies in its potential to serve a wider variety of different packages and even
@@ -22,10 +14,10 @@ machine-interpretable metadata (e.g. labels, visibility actions, conditions, etc
 beside the content they describe. GoMeta evaluates the metadata — more precisely, the
 [GoMeta Engine](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension) evaluates it
 — but does not act on those evaluations: that is the
-[Extensions](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension)' role; they
+Extensions' role; they
 receive the evaluations through GoMeta's interface, `altValues_evals`.
 
-GoMeta's author explains GoMeta by asking and answering three questions. This page answers the
+GoMeta's creator explains GoMeta by asking and answering three questions. This page answers the
 first — what GoMeta is. [Why use GoMeta?](why-use-gometa.md) answers the second, and
 [How does GoMeta work?](how-does-gometa-work.md) the third.
 
@@ -42,14 +34,12 @@ first — what GoMeta is. [Why use GoMeta?](why-use-gometa.md) answers the secon
 3. **Pass the evaluations on to the Extensions, which act on them.** An Extension — a
    renderer, an Extension that produces a notebook or documentation, a program of your own —
    reads the two products through GoMeta's public surface and executes the task it was designed
-   for. In the author's words, "Extensions are called 'Extensions' because they EXTEND THE CORE
-   of GoMeta." The package ships a basic renderer as a development tool for looking at a run —
+   for. Extensions are so called because they extend the core of GoMeta. The package ships a basic renderer as a development tool for looking at a run —
    strictly speaking no Extension, though it behaves like one: it lives under the package's development tools, and it is there because it serves a vital purpose for the package's development.
 
 ## A language and a framework
 
-In the words of GoMeta's author: "On the one hand, GoMeta is a domain specific language for
-metadata and on the other a framework with facilities on which Extensions can build." The
+In the words of GoMeta's creator: "On the one hand, GoMeta is a domain specific language for metadata and on the other a framework with facilities on which Extensions can build." The
 language is the notation of the metaLines (e.g. statements, labels, conditions, the meta hierarchy, etc.)
 written in the comments of an ordinary file; the
 [Syntax & semantics](../reference/syntax-and-semantics.md) page is its reference. The framework
@@ -62,20 +52,14 @@ that run, and the [Public API](../reference/public-api.md) page names what a pro
 GoMeta's metadata lives in comments, so the file stays an ordinary file of its format and the
 host language never sees the metadata. At this release GoMeta reads three
 [comment markers](../reference/syntax-and-semantics.md#comment-marker): Julia's `#`, the C family's `//` (e.g. C, Rust, etc.), and LaTeX's `%` — the marker is named when GoMeta is called (Julia is the
-default), never inferred from the file. The author intends GoMeta for all kinds of comments: his
-talk lists Julia and Python, C and Rust, and LaTeX as implemented, Word documents (the `.fodt`
-format to start with), and, not yet, spreadsheets and metadata attached to images, video and the
-like. That reach is the reason for the name — GoMeta works in between them, behind them, within them — stated in the author's words on the [front page](../index.md).
+default), never inferred from the file. GoMeta is meant for all kinds of comments: the creator's JuliaCon 2026 talk lists Julia and Python, C and Rust, and LaTeX as implemented, Word documents (the `.fodt` format to start with), and, not yet, spreadsheets and metadata attached to images, video and the like. That reach is the reason for the name — GoMeta works in between them, behind them, within them — stated in the creator's words on the [front page](../index.md).
 
 ## Status
 
-GoMeta was presented and released at JuliaCon 2026; in the author's words, the package "finally
-implements a vastly matured offspring of a [my] half-baked idea proposed at JuliaCon2025."
+GoMeta was presented and released at JuliaCon 2026; in the creator's words, the package "finally implements a vastly matured offspring of a [my] half-baked idea proposed at JuliaCon2025."
 GoMeta.jl `0.4.0` is **alpha**: a working, tested engine for the **v0 subset** of the GoMeta
 language. The seven committed example pairs render byte for byte under the shipped test suite,
-and input the grammar does not accept meets a stable refusal: GoMeta stops with a message that says what it could not accept, and nothing is delivered. The surface may still move — until at least
-version 0.7 every change of the public surface is a clean cut (no leftover of an older version in a newer one), the author's policy, and the
-package's own documents keep the register of every such change. The language grows by design;
+and input the grammar does not accept meets a stable refusal: GoMeta stops with a message that says what it could not accept, and nothing is delivered. The surface may still move — by the creator's policy, until at least version 0.7 every change of the public surface is a clean cut (no leftover of an older version in a newer one), and the package's API document (`docs/public-api.md` in the repository) keeps the register of every such change. The language grows by design;
 the v0 subset forecloses none of it.
 
 GoMeta is **Fair Source** — licensed under the Functional Source License, Version 1.1, MIT

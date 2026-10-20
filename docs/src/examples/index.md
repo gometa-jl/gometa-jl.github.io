@@ -1,9 +1,3 @@
-```@raw html
----
-u_version: "0.1"
----
-```
-
 # Examples
 
 Every example here starts from ordinary Julia files, each carrying `#~`
@@ -19,10 +13,7 @@ notebook or a documentation build actually runs — both from the same metadata.
 
 The repository's `examples/` directory holds seven input files under `InFileFolder/` and, for
 each, its committed rendered copy under `OutFileFolder/` — byte for byte what the basic renderer
-writes from the Engine's run; the shipped test suite pins the same bytes. Two of the seven are
-the author's own example files, in general the law of the notation: `file_for_Example_Proposal_JuliaCon.jl`
-and `file_for_Example_Extended.jl` — the [Syntax & semantics](../reference/syntax-and-semantics.md#11.-The-examples)
-page lists what each exercises and shows, for each, every Block and Line with what the Engine evaluated. Five feature files
+writes from the Engine's run; the shipped test suite pins the same bytes. Two of the seven are the example files of GoMeta's creator, in general the law of the notation: `file_for_Example_Proposal_JuliaCon.jl` and `file_for_Example_Extended.jl` — the [Syntax & semantics](../reference/syntax-and-semantics.md#11.-The-examples) page lists what each exercises and shows, for each, every Block and Line with what the Engine evaluated. Five feature files
 each show one feature of the notation, named in the file's header: `feature_contiguous_metablock.jl`,
 `feature_contiguous_metablock_blankline.jl`, `feature_explicit_close.jl`,
 `feature_order_of_application.jl` and `feature_triple_tilde.jl`. Each input's `##` comments state
@@ -81,8 +72,7 @@ julia --startup-file=no --project=. extensions/find_by_label.jl            # per
 julia --startup-file=no --project=. extensions/find_by_label.jl label5     # one label, all hits
 ```
 
-In the author's words, these worked examples "have to be thoroughly reviewed at some stage";
-they may change.
+The worked examples on this page may still change.
 
 From here: [Getting started](../tutorials/getting-started.md) — one complete run on the first
 example file; [How does GoMeta work?](../concepts/how-does-gometa-work.md) — one run, from a file

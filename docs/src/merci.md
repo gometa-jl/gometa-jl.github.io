@@ -1,6 +1,5 @@
 ```@raw html
 ---
-u_version: "0.1"
 title: "Merci"
 layout: page
 navbar: true
@@ -33,9 +32,7 @@ footer: false
       </div>
       <div class="m-box m-green m-leuven">
         <p class="m-h m-track1">... and the same goes for my<br>beloved Leuven Crew <span class="m-track3">🇧🇪🇬🇷🇵🇹🇹🇷</span></p>
-        <!-- hard break, not a wrap: the browser and Figma's text engine break this line in
-             different places (Figma splits at a non-breaking space where the browser will not),
-             so the owner's intended last line is pinned explicitly and matches in both. -->
+        <!-- hard break, not a wrap: the browser and Figma's text engine break this line in different places (Figma splits at a non-breaking space where the browser will not), so the last line GoMeta's creator intended is pinned explicitly and matches in both. -->
         <p class="m-tiny">[I shall be better organized the next time I&rsquo;m in the neighborhood 😜 ...<br>I was too late🐒]</p>
       </div>
       <div class="m-box m-note">

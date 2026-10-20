@@ -1,17 +1,7 @@
-```@raw html
----
-u_version: "0.1"
----
-```
-
 # Syntax & semantics
 
 This page is the reference for the notation of GoMeta — the **[metaLines](#metaLine)** written into a
-file's comments — and for what the GoMeta Engine evaluates from them. It is written for the
-release **0.4.0** (alpha) from the package's own reference document and from the design as its
-author states it. The two example files committed with the package, and the author's proposal
-they illustrate, are, in general, the law of the notation: where this page and a committed example could
-ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
+file's comments — and for what the GoMeta Engine evaluates from them. It is written for the release **0.4.0** (alpha) from the package's own reference document and from the design as GoMeta's creator states it. The two example files committed with the package, and the [talk proposal for JuliaCon 2026](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) by GoMeta's creator, which they illustrate, are, in general, the law of the notation: where this page and a committed example could ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
 
 ## 0. What GoMeta does
 
@@ -22,12 +12,11 @@ every Block, Line and Segment carrying a [flavor](#flavor): Meta, Text or Code. 
 that BLS Component tree: for each Component, which value of which [Alterant](#Alterant) applies. GoMeta
 evaluates the metadata — more precisely, the GoMeta Engine evaluates it — but does not act on
 those evaluations: that is the [Extensions](#the-GoMeta-Engine,-Extension)' role; they receive the evaluations through GoMeta's
-interface, [`altValues_evals`](../reference/public-api.md).
+interface, [`altValues_evals`](../reference/public-api.md#1.-One-call:-the-entry).
 
 Throughout this page the Alterant **Visib**, with its values `show`, `hide` and `discard`, is
 the example, because what the GoMeta Engine evaluates for it can be checked by eye in a rendered copy of the file.
-Visib is one Alterant among others; the principles this page states — how a value is written,
-where it reaches, how a closer [statement](#statement,-metaSegment) overrules — hold for every Alterant, while which values an Alterant has, and whether more than one of them may apply to one piece at a time, are each Alterant's own.
+Visib is one Alterant among others; the principles this page states — how a value is written — hold for every Alterant, while which values an Alterant has, how far a value reaches, whether a closer [statement](#statement,-metaSegment) overrules, and whether more than one of them may apply to one piece at a time, are each Alterant's own.
 
 ## Glossary
 
@@ -72,7 +61,7 @@ Labels, Heading and Id; the examples exercise the first two (§13).
 
 A **statement** is one instruction on a metaLine: the value of an Alterant,
 with optional arguments in `()` and an optional condition in `{}` that says when the value
-applies — `hide{ isCode }`, `:label1`, `discard{ :label2 , isCode}`. A metaLine may carry
+applies (e.g. `hide{ isCode }`, `:label1`, `discard{ :label2 , isCode}`, etc.). A metaLine may carry
 several statements. A **metaSegment** is a Segment of metadata within a content line: the marker `#~` after the line's content and the statements after it, if any; its statements apply to that line.
 
 ### altValue, evals
@@ -101,14 +90,12 @@ The **BLS key words** are facts about a Component that BLS records when it reads
 
 ### settribute
 
-In the words of GoMeta's author: "A '**settribute**' data store / container (usually for smallish
-entries) which can be set to a range of particular values. It is used for SETTINGS and
-ATTRIBUTES alike. Hence the term 'settribute'." Every Component carries one. The BLS key words
+A **settribute** is a data store, usually for smallish entries, that can be set to a range of particular values; it is used for settings and attributes alike — hence the name, given by GoMeta's creator. Every Component carries one. The BLS key words
 are the entries BLS sets in it when it reads the file.
 
 ### depth, the meta hierarchy
 
-A metaBlock sits at a **depth**: `#~` is depth 1, `#~2` depth 2, and so on — written as a digit, or
+A metaBlock sits at a **depth** (e.g. `#~` is depth 1, `#~2` depth 2, etc.) — written as a digit, or
 as the number of tildes (`#~~~` is depth 3). The depths form the **meta hierarchy**, like the
 levels of headings: a deeper metaBlock nests under the shallower one open above it and inherits
 from it. `#~0` is the file level.
@@ -171,7 +158,7 @@ is no shelter: a `%~ hide` inside it is a live metaLine and hides the lines that
 `\end{verbatim}` line included. To write a marker inside a string, glue a character to its front
 as above.
 
-::: details The four probes behind these sentences — what GoMeta evaluated for each input, as the development tools print it; the third ends in the refusal
+::: details Measured: four inputs with markers inside strings — what GoMeta evaluated for each, as the development tools print it; the third ends in the refusal
 
 In the development tool's printouts a "cell" is a BLS Component that carries evaluated values —
 the tool's word; this site says Component. Its "(no evals — defaults apply)" marks a Component with no evaluated values of its own; it falls under the value of a Component that contains it, else under the Alterant's declared default.
@@ -228,7 +215,7 @@ File  strings_julia_B.jl  —  2 evals rows on 2 cells  (of 4 Blocks · 11 Lines
 
 ```
 goMeta threw (no delivery):
-GoMeta absorb: unknown alterant action "right" — not one of the registered sorted_alt_actions = [:(:), :cell, :discard, :file, :head, :hide, :parent, :show] (v0's closed action set; see docs/public-api.md §3.4)
+GoMeta absorb: unknown alterant action "right" — not one of the registered sorted_alt_actions = [:(:), :cell, :discard, :file, :head, :hide, :ids, :parent, :show] (v0's closed action set; see docs/public-api.md §3.4)
 ```
 
 ```
@@ -271,9 +258,9 @@ Depth is written as a digit after the marker, or as the number of tildes.
 | `#~~~` | 3 |
 
 `#~0` addresses the **file level**, the shallowest depth, above depth 1. The depths
-form the meta hierarchy, like the levels of headings in a document: a [metaBlock](#metaBlock) at depth 2
-nests under the depth-1 metaBlock open above it and [inherits](#attachment,-inheritance) from it, a metaBlock at depth 3
-under the depth-2 one, and so on. Two metaBlocks at the same depth are **siblings**: one does
+form the meta hierarchy, like the levels of headings in a document: a deeper metaBlock nests under the shallower one open above it and [inherits](#attachment,-inheritance) from it (e.g. a [metaBlock](#metaBlock) at depth 2
+under the depth-1 metaBlock, a metaBlock at depth 3
+under the depth-2 one, etc.). Two metaBlocks at the same depth are **siblings**: one does
 not inherit from the other. In the digit form the package reads depths from 1 to 8; `#~9` is
 refused with a message.
 
@@ -281,7 +268,7 @@ refused with a message.
 
 Contiguous metaLines form one metaBlock. A `##` comment line between them belongs to the
 metaBlock and does not break it. An empty line after a metaLine starts a new Block: only Code
-and Text Blocks may contain empty lines. The depth of a metaBlock is the depth of its first
+and Text Blocks may contain interior empty lines. The depth of a metaBlock is the depth of its first
 metaLine.
 
 ```julia
@@ -321,18 +308,15 @@ label2)` two, and `:label1{ isText && containsMeta }` applies `:label1` only to 
 contains metadata. Labels accumulate: a Block attached to a depth-2 metaBlock carries the labels
 that apply to it from that metaBlock and from the depth-1 metaBlock it nests under.
 
-At this release the Labels Alterant knows a fixed list of 38 names: `label1` to `label5` and
-33 pictographs such as `🍒`, `💡` and `🔥`. Applying a name outside the list is refused with
+At this release the Labels Alterant knows a fixed list of 39 names: `label1` to `label5`, `doc` and
+33 pictographs (e.g. `🍒`, `💡`, `🔥`, etc.). Applying a name outside the list is refused with
 a message that names the accepted set; asking in a condition for a name that is unknown, or
-not applied, answers false. The list lives with the Labels Alterant; which names it holds, and how a name is added, are under the author's review.
+not applied, answers false. The list is written into the Labels Alterant's own code, and for now a further name is added there, by hand; improvements to the Labels Alterant will come later, and its design may change.
 
 ## 6. Conditions
 
 The optional `{}` after a value or a label states the condition under which it gets applied.
-As the author explains the first example: *the optional `{}` following `hide` on line 1
-allows the user to specify conditions under which `hide` may get applied — a Block inheriting
-from it will be hidden if it has been attributed `:label4` or is a code Block, provided there
-is no opposing statement closer to that Block overruling it.*
+As GoMeta's creator explains the first example in his talk proposal for JuliaCon 2026, the optional `{}` following `hide` on line 1 allows the user to specify conditions under which `hide` may get applied: a Block inheriting from it is hidden if it has been attributed `:label4` or is a code Block, provided there is no opposing statement closer to that Block overruling it.
 
 | written | meaning | from the examples |
 |---|---|---|
@@ -382,8 +366,7 @@ Segments are hidden, or discarded, or labelled, because they are parts of that B
 because each of them inherited the value on its own. This is the principle for every Alterant:
 a Block's Id, say, reaches its Lines indirectly too.
 
-**The closest statement wins.** Where two statements of the same Alterant reach a Component,
-the one closer to it overrules: a `show` at depth 2 overrules a `hide` inherited from depth 1;
+**The closest applicable statement wins.** Where two Visib statements reach a Component, the closer applicable one overrules: a `show` at depth 2 overrules a `hide` inherited from depth 1;
 a metaSegment at the end of a line overrules both for that line. In the first example file the
 line 30 (*This `Line`, however, will NOT get hidden.*) ends in `#~ show` and stays shown inside a hidden
 Block.
@@ -422,14 +405,11 @@ not yet implemented.
 
 Parentheses pass arguments to a value: `someAlterantsValue(arg1, arg2)`. The Labels Alterant's colon takes
 labels as its arguments, in the two equivalent forms `:label1 :label2` and `:(label1, label2)`.
-Visib's values take no arguments; `hide()` is read as `hide`. The Id Alterant's values `cell`,
-`parent` and `file` take one integer argument (`cell(7)`); the Id Alterant is a placeholder at
-this release and its syntax may change — do not build durable content on it.
+Visib's values take no arguments; `hide()` is read as `hide`. The Id Alterant's values `cell`, `parent` and `file` take one integer argument each (`cell(7)`), and its value `ids` takes the three at once: `ids(c, p, f)` sets `cell`, `parent` and `file` to `c`, `p` and `f`, exactly as `cell(c) parent(p) file(f)` would; the Id Alterant is a placeholder at this release and its syntax may change — do not build durable content on it.
 
 ## 11. The examples
 
-Two example files are the author's and are the law of the notation; five further inputs are
-examples the package's tests use. All seven stand under `examples/InFileFolder/`, each with its
+Two example files are by GoMeta's creator and are, in general, the law of the notation; five further inputs are examples the package's tests use. All seven stand under `examples/InFileFolder/`, each with its
 rendered copy under `examples/OutFileFolder/`, and the shipped test suite pins every rendered
 copy byte for byte.
 
@@ -443,16 +423,7 @@ copy byte for byte.
 | `feature_contiguous_metablock_blankline.jl` | the same two metaLines with an empty line between them |
 | `feature_triple_tilde.jl` | `#~~~` as depth 3 under a depth-2 metaBlock |
 
-The author's proposal introduces the first file so: "All this is readily exemplified by a
-self-explanatory toy example. It is contained in the GoMeta folder together with instructions
-and additional tools revealing some insights into the package's inner workings." — and explains
-its opening: "The first three lines in the code below form a Block of metadata at level 1. The
-optional {} following hide on line 1 allows the user to specify conditions under which hide may
-get applied. In this case, a Block, say aBlock, inheriting from it will be hidden, if it has
-been attributed :label4 or is a code Block provided there is no opposing statement closer to
-aBlock overruling it. Analogously, :label1 gets assigned to anything which inherits from this
-first meta Block, if it is text and containsMeta or is itself meta, provided there is no other
-statement closer by, overruling this." The committed file's comment lines differ from the
+The JuliaCon 2026 talk proposal of GoMeta's creator explains the opening of the first file: "The first three lines in the code below form a Block of metadata at level 1. The optional {} following hide on line 1 allows the user to specify conditions under which hide may get applied. In this case, a Block, say aBlock, inheriting from it will be hidden, if it has been attributed :label4 or is a code Block provided there is no opposing statement closer to aBlock overruling it. Analogously, :label1 gets assigned to anything which inherits from this first meta Block, if it is text and containsMeta or is itself meta, provided there is no other statement closer by, overruling this." The committed file's comment lines differ from the
 proposal's listing in wording only; the metaLines are the same.
 
 ::: details The full delivery view of the first example — every Block and Line with its evaluated values, as the development tools print it
@@ -714,13 +685,12 @@ julia --startup-file=no --project=tests devtools/devtools.jl evals-tree <file>
 ## 13. What the examples do not exercise
 
 - The Heading and Id Alterants' effects. Their values exist in the package (`head`; `cell`,
-  `parent`, `file`); the examples do not exercise them, and the Id Alterant is a placeholder.
+  `parent`, `file`, `ids`); the examples do not exercise them, and the Id Alterant is a placeholder.
 - `containsText`: BLS records it, but no example asks for it in a condition.
 - The reading of a mixed condition without `()`: Julia's own rules decide it; write the parentheses.
 - A tilde count with a differing digit, such as `#~~3`.
 - A `##` comment and an inline `#~` on the same content line.
-- More than one Visib value on one metaLine, such as `discard{ isCode } show` — the author's
-  rule, given before this release: the first applicable value wins.
+- More than one Visib value on one metaLine, such as `discard{ isCode } show`: the first applicable value wins.
 - The limits of this release: the label list is closed (§5); one depth level of the meta
   hierarchy holds at most eight statements, a ninth is refused with a message; the digit form of
   the depth reads 1 to 8 (§2).

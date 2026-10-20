@@ -1,22 +1,12 @@
-```@raw html
----
-u_version: "0.1"
----
-```
-
 # Development tools
 
-GoMeta's output is a set of evaluated values at the [Components](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File)
-of a file, not a file: as its author puts it, *"the output of GoMeta is not readily directly
-observable. For that reason, a couple of tools and colorful printouts can serve to track and
-illustrate the internal process of the package"*. This page is the reference for those tools
+GoMeta's output is a set of evaluated values at the [Components](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) of a file, not a file: as GoMeta's creator puts it, *"the output of GoMeta is not readily directly observable. For that reason, a couple of tools and colorful printouts can serve to track and illustrate the internal process of the package"*. This page is the reference for those tools
 at release **0.4.0** (alpha): the print tools, which show what a run produced, and the basic
 renderer, which writes a rendered copy of the file. They are not part of a GoMeta run: the
 [GoMeta Engine](syntax-and-semantics.md#the-GoMeta-Engine,-Extension) uses none of them, a run
 gives the same delivery without them, and they change nothing in it. They read the delivery
 through the same public surface an [Extension](syntax-and-semantics.md#the-GoMeta-Engine,-Extension)
-uses — the [Public API](public-api.md). Their purpose, in the author's words — said of the tool that prints the evaluated values: *"So I can see
-what has been evaluated for which Component."* — and of the printout of how BLS parsed a file, so that anyone *"can SEE / CHECK / VERIFY how it was parsed in terms of BLS"*.
+uses — the [Public API](public-api.md). Their purpose: the print of the evaluated values shows what has been evaluated for which Component, and the print of the BLS Component tree lets anyone see and check how BLS parsed the file.
 
 ## 1. The print tools
 
@@ -292,9 +282,7 @@ surface they read has changed.
 ## 2. The basic renderer: a proxy to check by eye
 
 The basic renderer writes a rendered copy of the file in which each piece appears as its
-evaluated Visib value says — shown, hidden or discarded. In the author's words it *"was simply a
-PROXY FOR ME TO CHECK WHAT GoMeta had evaluated to. The REAL IMPORTANT PART IS WHAT GoMeta
-EVALUATES TO - NOT WHAT ITS PROXY EVALUATES TO."* Strictly speaking it is no Extension: it lives under the package's development tools, and it is there because it serves a vital purpose for the package's development. It behaves like one, though: it reads the delivery through the public surface — the BLS Component
+evaluated Visib value says — shown, hidden or discarded. For GoMeta's creator it is simply a proxy to check what GoMeta has evaluated: what matters is what GoMeta evaluates, not what its proxy shows. Strictly speaking it is no Extension: it lives under the package's development tools, and it is there because it serves a vital purpose for the package's development. It behaves like one, though: it reads the delivery through the public surface — the BLS Component
 tree through BLS's own functions, every Visib value through the Engine's answer function,
 [`evaluatedAltValue`](public-api.md) — and it evaluates nothing itself. It is loaded
 explicitly, at the top level:
@@ -306,8 +294,7 @@ print(String(copy(out.render_bytes)))        # the rendered copy
 ```
 
 It returns a pair: the tree print of section 1 (the `tree` verb) and the rendered copy. The tree print is the BLS Component tree as the parser built it and holds no evaluated values; the tools print it and the test suite pins it. No
-Extension takes this pair; an Extension works from the delivery. The package's test suite pins
-the pair byte for byte — the rendered copy against the committed reference files under the examples, the tree print against its committed copy; in the author's words the renderer *"MUST PRODUCE CONSISTENT OUTPUTS"*.
+Extension takes this pair; an Extension works from the delivery. The package's test suite pins the pair byte for byte — the rendered copy against the committed reference files under the examples, the tree print against its committed copy: the renderer must produce consistent outputs.
 
 ## 3. What the rendered copy shows
 
