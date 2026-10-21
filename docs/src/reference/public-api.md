@@ -1,7 +1,7 @@
 # Public API
 
 This page is the reference for the surface a program relies on when it uses GoMeta, release
-**0.4.0** (alpha): the four names `using GoMeta` brings into scope, the further names reached
+**0.4.1** (alpha): the four names `using GoMeta` brings into scope, the further names reached
 qualified as `GoMeta.<name>`, and the door through which a program travels the
 [BLS](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) Component tree. It is written from the package at that release and from the design as GoMeta's creator states it; the package's own test suite pins the set of names the package declares public, and this page lists exactly that set. The terms the page uses are defined where they first appear or in the Syntax & semantics page's
 [Glossary](syntax-and-semantics.md#Glossary); the delivered object and the Component's handle
@@ -75,7 +75,7 @@ holds the run's options:
   that keeps the rows of several files apart gives each its own. A namespace longer than
   65535 bytes makes `GoMetaConfig(; …)` throw an `ArgumentError` when the configuration is constructed; the positional form carries no such guard.
 - `user_mh_profile` is reserved and experimental: the body of a [metaLine](syntax-and-semantics.md#metaLine) fed into the run
-  before the file's own metadata; an empty or whitespace-only string feeds nothing, like `nothing`, and a heading in the fed body is refused (section 8). Leave it at `nothing`.
+  as its user level, the level above `#~0` in the meta hierarchy; an empty or whitespace-only string feeds nothing, like `nothing`, and a heading in the fed body is refused (section 8). Since 0.4.1 the fed body's labels are collected first, as the outermost level, and its other statements are evaluated after the Component's own metadata, with priority — an applicable fed value overrides the value the Component's own metadata decided; the Component's own metadata applies in written order with or without a feed. Leave it at `nothing`.
 
 ::: details Measured: an unknown `flavor_tag` — what `goMeta` throws
 

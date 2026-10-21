@@ -1,7 +1,7 @@
 # Development tools
 
 GoMeta's output is a set of evaluated values at the [Components](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) of a file, not a file: as GoMeta's creator puts it, *"the output of GoMeta is not readily directly observable. For that reason, a couple of tools and colorful printouts can serve to track and illustrate the internal process of the package"*. This page is the reference for those tools
-at release **0.4.0** (alpha): the print tools, which show what a run produced, and the basic
+at release **0.4.1** (alpha): the print tools, which show what a run produced, and the basic
 renderer, which writes a rendered copy of the file. They are not part of a GoMeta run: the
 [GoMeta Engine](syntax-and-semantics.md#the-GoMeta-Engine,-Extension) uses none of them, a run
 gives the same delivery without them, and they change nothing in it. They read the delivery

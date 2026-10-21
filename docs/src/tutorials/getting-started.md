@@ -3,7 +3,7 @@
 GoMeta.jl adds interpretable `#~` metadata to ordinary Julia source files. This page takes you
 from the install through one complete run — the file goes in, [BLS](../reference/syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) (GoMeta's parser: Block, Line, Segment) parses it, the [GoMeta Engine](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension)
 evaluates the metadata, and the basic renderer, a development tool, shows how an [Extension](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension) acts on the result — and on to the checkout's committed
-examples. Current release: **0.4.0** (alpha).
+examples. Current release: **0.4.1** (alpha).
 
 ## Install
 

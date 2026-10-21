@@ -1,7 +1,7 @@
 # Syntax & semantics
 
 This page is the reference for the notation of GoMeta — the **[metaLines](#metaLine)** written into a
-file's comments — and for what the GoMeta Engine evaluates from them. It is written for the release **0.4.0** (alpha) from the package's own reference document and from the design as GoMeta's creator states it. The two example files committed with the package, and the [talk proposal for JuliaCon 2026](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) by GoMeta's creator, which they illustrate, are, in general, the law of the notation: where this page and a committed example could ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
+file's comments — and for what the GoMeta Engine evaluates from them. It is written for the release **0.4.1** (alpha) from the package's own reference document and from the design as GoMeta's creator states it. The two example files committed with the package, and the [talk proposal for JuliaCon 2026](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) by GoMeta's creator, which they illustrate, are, in general, the law of the notation: where this page and a committed example could ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
 
 ## 0. What GoMeta does
 

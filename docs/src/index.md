@@ -130,7 +130,7 @@ footer: true
     </div>
   </section>
   <section class="gm-status">
-    <p><strong>Status: alpha.</strong> <span class="gm-name">GoMeta.jl</span> <code>0.4.0</code> implements the v0 subset of the
+    <p><strong>Status: alpha.</strong> <span class="gm-name">GoMeta.jl</span> <code>0.4.1</code> implements the v0 subset of the
     <span class="gm-name">GoMeta</span> language &mdash; a working, tested engine: the seven
     committed example pairs render byte for byte, pinned by the shipped test suite.
     It&rsquo;s alpha &mdash; the surface may still move before <code>1.0</code>.
@@ -140,7 +140,7 @@ footer: true
     source-available, not OSI-approved open source): free for everyone&rsquo;s own use &mdash;
     at work, at university, in the public sector. Not licensed: offering <span class="gm-name">GoMeta</span> to others in a
     commercial product or service that competes with it or with the Licensor&rsquo;s own
-    <span class="gm-name">GoMeta</span>-based offerings. On the second anniversary of a version&rsquo;s
+    <span class="gm-name">GoMeta</span>-based offerings that exist when the version is made available. On the second anniversary of a version&rsquo;s
     release, that version becomes available under the MIT license &mdash; irrevocably. See the
     <a href="https://github.com/gometa-jl/GoMeta.jl">repository</a> for the license and details.</p>
   </section>

@@ -57,7 +57,7 @@ default), never inferred from the file. GoMeta is meant for all kinds of comment
 ## Status
 
 GoMeta was presented and released at JuliaCon 2026; in the creator's words, the package "finally implements a vastly matured offspring of a [my] half-baked idea proposed at JuliaCon2025."
-GoMeta.jl `0.4.0` is **alpha**: a working, tested engine for the **v0 subset** of the GoMeta
+GoMeta.jl `0.4.1` is **alpha**: a working, tested engine for the **v0 subset** of the GoMeta
 language. The seven committed example pairs render byte for byte under the shipped test suite,
 and input the grammar does not accept meets a stable refusal: GoMeta stops with a message that says what it could not accept, and nothing is delivered. The surface may still move — by the creator's policy, until at least version 0.7 every change of the public surface is a clean cut (no leftover of an older version in a newer one), and the package's API document (`docs/public-api.md` in the repository) keeps the register of every such change. The language grows by design;
 the v0 subset forecloses none of it.
@@ -67,7 +67,7 @@ Future License (**FSL-1.1-MIT**; source-available, not OSI-approved open source)
 everyone's own use — at work, at university, in the public sector — including internal use and
 access, non-commercial education and research, and professional services provided to other
 licensees. Not licensed: offering GoMeta to others in a commercial product or service that
-competes with it or with the Licensor's own GoMeta-based offerings (for that, contact
+competes with it or with the Licensor's own GoMeta-based offerings that exist when the version is made available (for that, contact
 hello@gometa.dev). Each release automatically becomes **MIT-licensed** on its second
 anniversary. See the [repository](https://github.com/gometa-jl/GoMeta.jl) for the LICENSE file
 and details.
