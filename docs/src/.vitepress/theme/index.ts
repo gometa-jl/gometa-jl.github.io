@@ -53,6 +53,22 @@ export const Theme: ThemeConfig = {
         const radio = document.getElementById(label.htmlFor) as HTMLInputElement | null
         if (radio && radio.checked) { e.preventDefault(); radio.checked = false }
       })
+      // The navigation panel on phones (GoMeta's creator, 2026-10-22, NAV-2): a tap on the wordmark
+      // while the panel is open closes it. The theme's wordmark is a plain link to the Home; on the
+      // Home the router finds the same page and only scrolls to the top, and the panel closes only
+      // on a page change or through its own links — so the tap seemed to do nothing. The theme's own
+      // toggle is the hamburger button, which carries `.active` while the panel is open: click it,
+      // then let the link behave as before (a scroll to the top on the Home; elsewhere the navigation
+      // to the Home, whose page change closes the panel anyway). The router's own click handler is a capture
+      // listener on `window` and runs first; it neither stops the event nor minds this listener (no
+      // preventDefault here) and skips the synthetic click by its own `closest("button")` guard; delegated,
+      // so route re-renders cannot orphan it.
+      document.addEventListener('click', (e) => {
+        const title = (e.target as Element | null)?.closest?.('.VPNavBarTitle a.title')
+        if (!title) return
+        const hamburger = document.querySelector<HTMLButtonElement>('.VPNavBarHamburger.active')
+        if (hamburger) hamburger.click()
+      }, true)
       // The markup ships with NO radio pre-checked (a hydration race once
       // re-asserted an SSR `checked` after we uncleared it — mixed state).
       // Instead the initial state is applied here, post-hydration, per viewport:

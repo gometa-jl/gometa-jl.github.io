@@ -264,6 +264,18 @@
   .Layout .VPLocalNav.fixed { display: none; }
 }
 
+/* ---- phones: the light/dark switch in the bar (GoMeta's creator, 2026-10-22, NAV-2) -------------------
+   The theme keeps its appearance switch in the bar's markup on every width but shows it there only from
+   1280 px; below that it sits inside the "…" menu (tablets) or the navigation panel (phones). A phone's
+   reader should see the two themes at once: the switch shows between the looking glass and the hamburger,
+   behind the theme's own divider, which is the switch element's own `.menu + .appearance::before` and so
+   shows only with the switch (his choice among the trials of 2026-10-22, T1). Tablets
+   are untouched. `.Layout` ties the theme's scoped selector; this file loads last and wins. */
+@media (max-width: 767px) {
+  .Layout .VPNavBarAppearance { display: flex; align-items: center; }
+  .Layout .VPNavBarAppearance .VPSwitch::after { content: ""; position: absolute; top: -12px; right: -5px; bottom: -12px; left: -5px; } /* a 48 x 44 tap area around the 40 x 22 switch */
+}
+
 /* ---- readability (R1, measured): real ~60ch prose, 14px code ------------- */
 .vp-doc p, .vp-doc li { max-width: 60ch; }
 .vp-doc :not(pre) > code { font-size: 0.875em; }
