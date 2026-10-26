@@ -414,6 +414,120 @@ the head of a statement, never inside a list: `:(label1, -label2)`, `:+-label1`,
 several names (`:(-label1, label2)`), a sign with no name (`:-`) and a stray comma in a signed list
 (`:(-, )`) are refused with a message naming the forms.
 
+**A worked example.** The file below declares a name, applies it, withholds it, applies it explicitly
+and removes it again; its comments say what each line does. `label🍒` ships with GoMeta and is applied under a condition;
+`label🌲` does not ship and is declared for the file. The full delivery view under it shows every value at its Component and
+ends with the run's line and its four [diagnostic](#diagnostic) rows: the info rows of the declaration and the removal, and the
+warning rows of the plain `:label🌲` under the withhold, one at each of the two Components it reached. The run used a fresh vocabulary file at
+`/tmp/example/.gometa/labels-vocabulary.txt`; on your machine the file is `~/.gometa/labels-vocabulary.txt`, and after the run
+your vocabulary is as it was. The file is this site's at release 0.4.4; it is to join the package's committed examples.
+
+```gometa
+#~0 :++label🌲 ## This meta `Line` at level 0 DECLARES the label label🌲.
+## label🌲 is NOT part of the shipped vocabulary: `:++` adds it to your
+##      vocabulary file - reported by an info row at the end of the run.
+
+#~ :label🌲 :label🍒{ isMeta } ## label🍒 IS part of the shipped vocabulary.
+## Here, label🍒 gets applied ONLY to metadata - due to: `{ isMeta }`.
+a = 1 ## This `Line` of code is ATTACHED to the meta `Block` above.
+## It receives label🌲 - but NOT label🍒, since it is code, not metadata.
+
+#~2 :-label🌲 ## `:-` WITHHOLDS label🌲 from this meta `Block` and all below it.
+b = 2 ## This `Line` of code receives NO label: label🌲 is withheld
+##      and label🍒 only applies to metadata.
+
+#~3 :label🌲 ## A plain `:label🌲` under the withhold does NOT apply.
+## It is reported by a warning row at the end of the run - the run proceeds.
+c = 3 ## This `Line` of code receives NO label either.
+
+#~3 :+label🌲 ## `:+` applies label🌲 EXPLICITLY, despite the withhold above.
+d = 4 ## This `Line` of code receives label🌲 again.
+
+#~0 :--label🌲 ## `:--` REMOVES label🌲 from your vocabulary file again,
+##      reported by an info row: the file is as it was before this run.
+```
+
+::: details The full delivery view of the worked example — every Block and Line with its evaluated values, as the development tools print it, ending with the run's line and its diagnostics
+
+In the development tool's printouts a "cell" is a BLS Component that carries evaluated values — the tool's word; this site says Component. Its "(no evals — defaults apply)" marks a Component with no evaluated values of its own; it falls under the value of a Component that contains it, else under the Alterant's declared default. The view ends with the run's line — its status and its diagnostics, here `── the run: status PROCESS_OK · 4 diagnostic rows` and the rows listed under it.
+
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">file_for_Example_Labels.jl</span><span class="gm-dt-gutter">  —  8 evals rows on 6 cells  (of 10 Blocks · 22 Lines)
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #2  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L1–L3   </span> "#~0 :++label🌲 ## This meta `Line` at…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #2   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L1      </span> "#~0 :++label🌲 ## This meta `Line` at…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #3   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L2      </span> "## label🌲 is NOT part of the shipped…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #4   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L3      </span> "##      vocabulary file - reported by…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #3  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L4–L6   </span> "#~ :label🌲 :label🍒{ isMeta } ## lab…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label🌲</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,3)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label🍒</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,3)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #5   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L4      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #6   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L5      </span> "#~ :label🌲 :label🍒{ isMeta } ## lab…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #7   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L6      </span> "## Here, label🍒 gets applied ONLY to…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #4  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L7–L8   </span> "a = 1 ## This `Line` of code is ATTAC…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label🌲</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #8   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L7      </span> "a = 1 ## This `Line` of code is ATTAC…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #9   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L8      </span> "## It receives label🌲 - but NOT labe…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #5  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L9–L10  </span> "#~2 :-label🌲 ## `:-` WITHHOLDS label…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label🍒</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #10  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L9      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #11  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L10     </span> "#~2 :-label🌲 ## `:-` WITHHOLDS label…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #6  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L11–L12 </span> "b = 2 ## This `Line` of code receives…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #12  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L11     </span> "b = 2 ## This `Line` of code receives…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #13  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L12     </span> "##      and label🍒 only applies to m…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #7  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L13–L15 </span> "#~3 :label🌲 ## A plain `:label🌲` un…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label🍒</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #14  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L13     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #15  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L14     </span> "#~3 :label🌲 ## A plain `:label🌲` un…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #16  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L15     </span> "## It is reported by a warning row at…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #8  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L16     </span> "c = 3 ## This `Line` of code receives…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #17  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L16     </span> "c = 3 ## This `Line` of code receives…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #9  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L17–L18 </span> "#~3 :+label🌲 ## `:+` applies label🌲…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label🌲</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label🍒</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #18  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L17     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #19  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L18     </span> "#~3 :+label🌲 ## `:+` applies label🌲…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #10 </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L19     </span> "d = 4 ## This `Line` of code receives…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label🌲</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,10)]
+</span><span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #20  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L19     </span> "d = 4 ## This `Line` of code receives…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block">Block #11 </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L20–L22 </span> "#~0 :--label🌲 ## `:--` REMOVES label…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #21  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L20     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #22  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L21     </span> "#~0 :--label🌲 ## `:--` REMOVES label…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line">Line #23  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L22     </span> "##      reported by an info row: the …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">── the run: status PROCESS_OK · 4 diagnostic rows
+</span>diagnostic: LABELS_VOCABULARY_FILE_CHANGED (info) — label label🌲 — 1 occurrence(s)
+   GoMeta absorb: `:++label🌲` added label🌲 to the vocabulary file /tmp/example/.gometa/labels-vocabulary.txt — it holds for this run and every later one; `:--label🌲` removes it again; see docs/public-api.md §2
+   stated by: L1–L3
+   file: "/tmp/example/.gometa/labels-vocabulary.txt"
+   change: :added
+   level: 1
+   statement: ":++label🌲"
+diagnostic: LABEL_NOT_APPLIED_WITHHELD (warning) — label label🌲 — 2 occurrence(s)
+   GoMeta apply: the plain `:label🌲` did not apply label🌲 here — withheld; if this run means to withhold it, nothing to do; drop `:-label🌲` (in the user level's profile or in the file) to apply it everywhere; write `:+label🌲` where one statement must apply it regardless — a written `:+label🌲` then holds against a withhold stated above it or in the user level's profile; see docs/public-api.md §3.4
+   stated by: L13–L15
+   at: L13–L15, L16
+   the Labels statements applied there so far: L4–L6, L4–L6, L9–L10, L13–L15 (at: L13–L15)
+   the Labels statements applied there so far: L4–L6, L9–L10, L13–L15 (at: L16)
+diagnostic: LABELS_VOCABULARY_FILE_CHANGED (info) — label label🌲 — 1 occurrence(s)
+   GoMeta absorb: `:--label🌲` removed label🌲 from the vocabulary file /tmp/example/.gometa/labels-vocabulary.txt — it is unknown for this run and every later one; `:++label🌲` adds it again (the shipped file keeps the original list); see docs/public-api.md §2
+   stated by: L20–L22
+   file: "/tmp/example/.gometa/labels-vocabulary.txt"
+   change: :removed
+   level: 1
+   statement: ":--label🌲"
+4 diagnostic row(s) in 3 group(s)
+</pre>
+```
+
+:::
+
 ## 6. Conditions
 
 The optional `{}` after a value or a label states the condition under which it gets applied.
