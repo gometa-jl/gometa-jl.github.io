@@ -130,7 +130,7 @@ footer: true
     </div>
   </section>
   <section class="gm-status">
-    <p><strong>Status: alpha.</strong> <span class="gm-name">GoMeta.jl</span> <code>0.4.1</code> implements the v0 subset of the
+    <p><strong>Status: alpha.</strong> <span class="gm-name">GoMeta.jl</span> <code>0.4.4</code> implements the v0 subset of the
     <span class="gm-name">GoMeta</span> language &mdash; a working, tested engine: the seven
     committed example pairs render byte for byte, pinned by the shipped test suite.
     It&rsquo;s alpha &mdash; the surface may still move before <code>1.0</code>.

@@ -31,7 +31,8 @@ One run delivers [one object](../reference/public-api.md#1.-One-call:-the-entry)
   (every Alterant's answer for one Component) and `childDiffers` (whether a Component's answer differs from its parent's);
 - the BLS Component tree through [BLS's door](../reference/public-api.md#5.-The-BLS-Component-tree-and-its-door)
   — BLS's own public functions, which travel it and read a Component's
-  [flavor](../reference/syntax-and-semantics.md#flavor), its text and the entries BLS recorded for it.
+  [flavor](../reference/syntax-and-semantics.md#flavor), its text and the entries BLS recorded for it;
+- the [diagnostics](../reference/public-api.md#8.-What-a-program-sees-when-something-is-wrong) — a completed run may carry warning and info records: a label not applied, a change of the vocabulary file; an Extension that acts on labels can read them or show them to its user.
 
 ```julia
 import GoMeta

@@ -18,6 +18,8 @@
   src:url('/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2') format('woff2')}
 @font-face{font-family:'JetBrains Mono';font-weight:700;font-style:normal;font-display:swap;
   src:url('/fonts/jetbrains-mono/JetBrainsMono-Bold.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:400;font-style:italic;font-display:swap;
+  src:url('/fonts/jetbrains-mono/JetBrainsMono-Italic.woff2') format('woff2')}
 /* The face of the Home wordmark's "α status" tag (GoMeta's creator, 2026-10-20, BANNER-2): a Latin + Greek subset
    of JuliaMono Bold, renamed "GoMeta Tag" as the SIL OFL's Reserved Font Name rule asks of a modified version
    (the licence and the derivation note in /fonts/gometa-tag/). Courier Prime, the wordmark's face, has no α and
@@ -88,6 +90,20 @@
   --gm-syn-text: #7a5c00;
   --gm-syn-code: #096b4d;
   --gm-syn-com: #35690e;
+  /* the development tools' printouts (pre.gm-dt — the tools' classed .html twins, embedded as raw HTML; GoMeta's creator,
+     2026-10-25): one ink per role and identity on the light fence ground — the guides and, in light, the flavor word Text re-cut by GoMeta's creator for distinctness and contrast (every light ink at 4.9:1 or more, every dark ink at 6.2:1 or more) */
+  --gm-dt-neutral: #6a533c;
+  --gm-dt-gutter: #4a4a4a;
+  --gm-dt-marker: var(--gm-syn-sig);
+  --gm-dt-payload: #4b3421;
+  --gm-dt-text: #9c3d00;
+  --gm-dt-code: #096b4d;
+  --gm-dt-comment: #35690e;
+  --gm-dt-tree: #066374;
+  --gm-dt-hideprefix: #8f3500;
+  --gm-dt-good: #156815;
+  --gm-dt-warn: #665000;
+  --gm-dt-bad: #a3123a;
   /* master-detail nav-box colors — the owner's light palette, rev3 "variant A" (2026-08-26).
      Ratios given as: on the page #f7eedf / on the checked-tab ground #e9dfd0 (8% brown over
      the page). The checked ground is the BINDING one, because one tab opens on every desktop
@@ -203,6 +219,20 @@
   --gm-syn-text: #ffe994;
   --gm-syn-code: #96efbe;
   --gm-syn-com: #5eb91e;
+  /* the development tools' printouts (pre.gm-dt — the tools' classed .html twins, embedded as raw HTML; GoMeta's creator,
+     2026-10-25): one ink per role and identity on the dark fence ground — the guides and, in light, the flavor word Text re-cut by GoMeta's creator for distinctness and contrast (every light ink at 4.9:1 or more, every dark ink at 6.2:1 or more) */
+  --gm-dt-neutral: #e8e6e3;
+  --gm-dt-gutter: #9a9696;
+  --gm-dt-marker: var(--gm-syn-sig);
+  --gm-dt-payload: #ffd6d6;
+  --gm-dt-text: #ffe994;
+  --gm-dt-code: #96efbe;
+  --gm-dt-comment: #5eb91e;
+  --gm-dt-tree: #7bc4dc;
+  --gm-dt-hideprefix: #ffd21f;
+  --gm-dt-good: #84e53f;
+  --gm-dt-warn: #ffd21f;
+  --gm-dt-bad: #ff7a6b;
   /* master-detail nav-box colors (slide-exact) */
   --gm-tab-mint: #31edae;
   --gm-tab-gold: #ffcb1a; /* owner 2026-08-26 (Figma 758:2); 11.35:1. Was #e69f00 */
@@ -301,7 +331,8 @@
    grounds: 5.16:1 light on the chip, 5.98:1 dark). Since the owner's note of 2026-10-19 the same
    markup reaches every fence (the fence rule's post-processing of the untagged and Julia fences —
    the printouts and the sample lines) and the front page's raw-HTML code spans (markup in the page):
-   the two rules below. */
+   the two rules below. The development tools' printouts are no fences since 2026-10-25: they are pre.gm-dt blocks (below) and
+   carry no marker markup — their Meta word takes the --gm-dt-marker token, the markers inside their excerpts stay unpainted. */
 .vp-doc :not(pre) > code .gm-sg { color: var(--gm-syn-sig); font-weight: 700; }
 .vp-doc pre code .gm-sg { color: var(--gm-syn-sig); font-weight: 700; }
 /* keep-all: no intra-token break in short chips (":🔥" stays whole) while long
@@ -339,6 +370,32 @@ html { background-color: var(--vp-c-bg); }
 .gm-syn .gm-tx { color: var(--gm-syn-text); }
 .gm-syn .gm-cd { color: var(--gm-syn-code); }
 .gm-syn .gm-cm { color: var(--gm-syn-com); }
+
+/* ---- the development tools' printouts: pre.gm-dt (GoMeta's creator, 2026-10-25) --------------------------------
+   The two tree views of the development tools (the FULL delivery view, the Component tree) are embedded as the tools' own
+   classed .html twins — raw HTML, a <pre class="gm-dt"> of <span> runs whose classes name the role (gutter, marker, payload,
+   text, code, comment, tree, hideprefix, neutral), the identity (block, line, segment; good, warn, bad; legacy) and the marks
+   (bold, italic); an empty printout line is a line holding an empty gm-dt-empty span. The block takes the fences' ground,
+   outline, radius and metrics; the inks are the --gm-dt-* tokens of each theme above. The plain printouts (the structure tree
+   print, the render, the transcripts) stay untagged fences. */
+.vp-doc pre.gm-dt { margin: 16px 0; padding: 20px 24px; overflow-x: auto; white-space: pre; tab-size: 4;
+  background: var(--vp-code-block-bg); color: var(--gm-dt-neutral); border: 1.5px solid var(--gm-card-outline); border-radius: 12px;
+  font-family: var(--vp-font-family-mono); font-size: 14px; line-height: 1.7; }
+.vp-doc pre.gm-dt:focus-visible { outline: 2px solid var(--gm-signature); outline-offset: 2px; }
+.vp-doc .gm-dt-neutral { color: var(--gm-dt-neutral); }
+.vp-doc .gm-dt-gutter { color: var(--gm-dt-gutter); }
+.vp-doc .gm-dt-marker { color: var(--gm-dt-marker); }
+.vp-doc .gm-dt-payload { color: var(--gm-dt-payload); }
+.vp-doc .gm-dt-text { color: var(--gm-dt-text); }
+.vp-doc .gm-dt-code { color: var(--gm-dt-code); }
+.vp-doc .gm-dt-comment { color: var(--gm-dt-comment); }
+.vp-doc .gm-dt-tree { color: var(--gm-dt-tree); }
+.vp-doc .gm-dt-hideprefix { color: var(--gm-dt-hideprefix); }
+.vp-doc .gm-dt-good { color: var(--gm-dt-good); }
+.vp-doc .gm-dt-warn { color: var(--gm-dt-warn); }
+.vp-doc .gm-dt-bad { color: var(--gm-dt-bad); }
+.vp-doc .gm-dt-bold { font-weight: 700; }
+.vp-doc .gm-dt-italic { font-style: italic; }
 
 /* ---- navbar: pre-hydration-safe sidebar spacing (VP adds .has-sidebar to the
    navbar only at hydration; the SSR title already carries it — key off that so

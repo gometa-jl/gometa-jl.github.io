@@ -1,7 +1,7 @@
 # Syntax & semantics
 
 This page is the reference for the notation of GoMeta — the **[metaLines](#metaLine)** written into a
-file's comments — and for what the GoMeta Engine evaluates from them. It is written for the release **0.4.1** (alpha) from the package's own reference document and from the design as GoMeta's creator states it. The two example files committed with the package, and the [talk proposal for JuliaCon 2026](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) by GoMeta's creator, which they illustrate, are, in general, the law of the notation: where this page and a committed example could ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
+file's comments — and for what the GoMeta Engine evaluates from them. It is written for the release **0.4.4** (alpha) from the package's own reference document and from the design as GoMeta's creator states it. The two example files committed with the package, and the [talk proposal for JuliaCon 2026](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) by GoMeta's creator, which they illustrate, are, in general, the law of the notation: where this page and a committed example could ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
 
 ## 0. What GoMeta does
 
@@ -62,7 +62,7 @@ Labels, Heading and Id; the examples exercise the first two (§13).
 A **statement** is one instruction on a metaLine: the value of an Alterant,
 with optional arguments in `()` and an optional condition in `{}` that says when the value
 applies (e.g. `hide{ isCode }`, `:label1`, `discard{ :label2 , isCode}`, etc.). A metaLine may carry
-several statements. A **metaSegment** is a Segment of metadata within a content line: the marker `#~` after the line's content and the statements after it, if any; its statements apply to that line.
+several statements. At the file level and in the user level a statement may instead be one of the Labels Alterant's [vocabulary statements](#vocabulary,-vocabulary-statement), which applies no value to any Component and takes no condition (§5). A **metaSegment** is a Segment of metadata within a content line: the marker `#~` after the line's content and the statements after it, if any; its statements apply to that line.
 
 ### altValue, evals
 
@@ -70,12 +70,34 @@ An **altValue** is one evaluated value of an Alterant for one Component. The **e
 altValues the GoMeta Engine evaluated for a run, delivered as `altValues_evals` — one row per
 evaluated value, each at its Component.
 
+### diagnostic
+
+A **diagnostic** is one record in the delivery's list of diagnostics: a code, a severity — error, warning or
+info — a message and a context. A run that completes may carry warning and info diagnostics beside its
+result — a label that did not apply, a change of the vocabulary file (§5); an error diagnostic marks a failed
+run ([Public API](public-api.md#8.-What-a-program-sees-when-something-is-wrong)).
+
 ### label
 
 A **label** is a tag the Labels Alterant applies to the Components in a statement's reach. The
 colon is the action and the labels are its arguments: `:(label1, label2)` applies two; for one
 label `:label1` is short for `:(label1)`. A label can be given a condition: `:label1{ isText }`
-applies it only where the condition holds.
+applies it only where the condition holds. A label can also be [withheld, or applied explicitly](#withhold,-explicit-apply). The names a run may apply are the Labels Alterant's [vocabulary](#vocabulary,-vocabulary-statement) (§5).
+
+### withhold, explicit apply
+
+A **withhold** keeps a label out of the set a Component carries: `:-label1` withholds one name,
+`:(-, label1, label2)` several, at the statement's own metaBlock and everything under it until a later
+metaBlock of the same or a shallower depth replaces the slot. An **explicit apply**, `:+label1` or
+`:(+, label1)`, applies a label whether or not a withhold stands above it. A plain `:label1` met by a
+withhold applies nothing and is reported by a warning [diagnostic](#diagnostic) (§5).
+
+### vocabulary, vocabulary statement
+
+The **vocabulary** is the set of names the Labels Alterant applies as labels: the names of the user
+level's **vocabulary file** — a copy of the file shipped with GoMeta, made at the first need — which
+the **vocabulary statements** edit, for every later run as well: `:++label6` adds a name to the
+vocabulary, `:--label1` removes one from it (§5).
 
 ### condition
 
@@ -98,7 +120,8 @@ are the entries BLS sets in it when it reads the file.
 A metaBlock sits at a **depth** (e.g. `#~` is depth 1, `#~2` depth 2, etc.) — written as a digit, or
 as the number of tildes (`#~~~` is depth 3). The depths form the **meta hierarchy**, like the
 levels of headings: a deeper metaBlock nests under the shallower one open above it and inherits
-from it. `#~0` is the file level.
+from it. `#~0` is the file level; above it lies the **user level**, which a program may feed through the
+configuration ([Public API](public-api.md#2.-The-configuration)).
 
 ### attachment, inheritance
 
@@ -123,7 +146,12 @@ A metaLine has the shape
 - The **marker** `#~` opens it: the [comment marker](#comment-marker) of the file's format followed by a tilde.
   Without a [depth](#depth,-the-meta-hierarchy) the metaLine is at depth 1.
 - The **statements** carry the metadata: values of Alterants, each with its optional `()`
-  arguments and `{}` [condition](#condition), and [labels](#label). They are read from left to right.
+  arguments and `{}` [condition](#condition), and [labels](#label) — applied, or withheld and applied
+  explicitly with a sign at the head of the statement (§5). They are read from left to right.
+- At the file level (`#~0`) and in the [user level](#depth,-the-meta-hierarchy) a statement may also be one of the
+  Labels Alterant's [vocabulary statements](#vocabulary,-vocabulary-statement): `:++label6` or `:(++, label-3, label🏔️, label_💡)` adds names to the
+  Labels Alterant's vocabulary, `:--label1` or `:(--, label1, label2)` removes names from it — in the user level's
+  vocabulary file, so for every later run as well (§5). Such a statement is read once and applies to no Component.
 - Everything after a `##` on the same line is a **comment** for the reader; GoMeta does not
   read it as metadata.
 
@@ -161,56 +189,60 @@ as above.
 ::: details Measured: four inputs with markers inside strings — what GoMeta evaluated for each, as the development tools print it; the third ends in the refusal
 
 In the development tool's printouts a "cell" is a BLS Component that carries evaluated values —
-the tool's word; this site says Component. Its "(no evals — defaults apply)" marks a Component with no evaluated values of its own; it falls under the value of a Component that contains it, else under the Alterant's declared default.
+the tool's word; this site says Component. Its "(no evals — defaults apply)" marks a Component with no evaluated values of its own; it falls under the value of a Component that contains it, else under the Alterant's declared default. Each view ends with the run's line — its status and its diagnostics, here `── the run: status PROCESS_OK · no diagnostics`.
 
-```
-File  strings_julia_A.jl  —  4 evals rows on 4 cells  (of 4 Blocks · 11 Lines)
-├─ Block #2  Text  L1       "# Probe A: a multi-line string whose …"   (no evals — defaults apply)
-│  └─ Line #2   Text  L1       "# Probe A: a multi-line string whose …"   (no evals — defaults apply)
-├─ Block #3  Meta  L2       "#~ hide{ isCode }"   (no evals — defaults apply)
-│  └─ Line #3   Meta  L2       "#~ hide{ isCode }"   (no evals — defaults apply)
-├─ Block #4  Code  L3–L10   "x = 1⏎⏎s = """⏎first line of the stri…"
-│  ● visib        => :hide     (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
-│  ├─ Line #4   Code  L3       "x = 1"   (no evals — defaults apply)
-│  ├─ Line #5   Code  L4       ""   (no evals — defaults apply)
-│  ├─ Line #6   Code  L5       "s = """"   (no evals — defaults apply)
-│  ├─ Line #7   Code  L6       "first line of the string"   (no evals — defaults apply)
-│  ├─ Line #8   Code  L7       "second line of the string #~ discard"
-│  │  ● visib        => :discard  (+)   ← Segment #3 "#~ discard"
-│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,8)]  origin=[(direct,1) (direct,4) (direct,8) (direct,3)]
-│  ├─ Line #9   Code  L8       "third line of the string #~ hide"
-│  │  ● visib        => :hide     (+)   ← Segment #5 "#~ hide"
-│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,9)]  origin=[(direct,1) (direct,4) (direct,9) (direct,5)]
-│  ├─ Line #10  Code  L9       "fourth line of the string"   (no evals — defaults apply)
-│  └─ Line #11  Code  L10      """""   (no evals — defaults apply)
-└─ Block #5  Code  L11      "y = 2"
-   ● visib        => :hide     (+)
-       handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
-   └─ Line #12  Code  L11      "y = 2"   (no evals — defaults apply)
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">strings_julia_A.jl</span><span class="gm-dt-gutter">  —  4 evals rows on 4 cells  (of 4 Blocks · 11 Lines)
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #2  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "# Probe A: a multi-line string whose …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #2   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "# Probe A: a multi-line string whose …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #3  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L2      </span> "#~ hide{ isCode }"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #3   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L2      </span> "#~ hide{ isCode }"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #4  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L3–L10  </span> "x = 1⏎⏎s = """⏎first line of the stri…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #4   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L3      </span> "x = 1"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #5   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L4      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #6   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L5      </span> "s = """"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #7   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L6      </span> "first line of the string"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line gm-dt-bold">Line #8   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L7      </span> "second line of the string #~ discard"
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-bad gm-dt-bold">:discard</span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #3 "#~ discard"</span>
+<span class="gm-dt-gutter">│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,8)]  origin=[(direct,1) (direct,4) (direct,8) (direct,3)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line gm-dt-bold">Line #9   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L8      </span> "third line of the string #~ hide"
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #5 "#~ hide"</span>
+<span class="gm-dt-gutter">│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,9)]  origin=[(direct,1) (direct,4) (direct,9) (direct,5)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #10  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L9      </span> "fourth line of the string"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #11  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L10     </span> """""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #5  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L11     </span> "y = 2"
+<span class="gm-dt-gutter">   </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">       handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+</span><span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line">Line #12  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L11     </span> "y = 2"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">── the run: status PROCESS_OK · no diagnostics
+</span></pre>
 ```
 
-```
-File  strings_julia_B.jl  —  2 evals rows on 2 cells  (of 4 Blocks · 11 Lines)
-├─ Block #2  Text  L1       "# Probe B: a multi-line string with a…"   (no evals — defaults apply)
-│  └─ Line #2   Text  L1       "# Probe B: a multi-line string with a…"   (no evals — defaults apply)
-├─ Block #3  Meta  L2       "#~ hide{ isCode }"   (no evals — defaults apply)
-│  └─ Line #3   Meta  L2       "#~ hide{ isCode }"   (no evals — defaults apply)
-├─ Block #4  Code  L3–L10   "x = 1⏎⏎t = """⏎alpha⏎#~ hide⏎beta⏎gam…"
-│  ● visib        => :hide     (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
-│  ├─ Line #4   Code  L3       "x = 1"   (no evals — defaults apply)
-│  ├─ Line #5   Code  L4       ""   (no evals — defaults apply)
-│  ├─ Line #6   Code  L5       "t = """"   (no evals — defaults apply)
-│  ├─ Line #7   Code  L6       "alpha"   (no evals — defaults apply)
-│  ├─ Line #8   Code  L7       "#~ hide"   (no evals — defaults apply)
-│  ├─ Line #9   Code  L8       "beta"   (no evals — defaults apply)
-│  ├─ Line #10  Code  L9       "gamma"   (no evals — defaults apply)
-│  └─ Line #11  Code  L10      """""   (no evals — defaults apply)
-└─ Block #5  Code  L11      "y = 2"
-   ● visib        => :hide     (+)
-       handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
-   └─ Line #12  Code  L11      "y = 2"   (no evals — defaults apply)
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">strings_julia_B.jl</span><span class="gm-dt-gutter">  —  2 evals rows on 2 cells  (of 4 Blocks · 11 Lines)
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #2  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "# Probe B: a multi-line string with a…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #2   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "# Probe B: a multi-line string with a…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #3  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L2      </span> "#~ hide{ isCode }"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #3   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L2      </span> "#~ hide{ isCode }"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #4  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L3–L10  </span> "x = 1⏎⏎t = """⏎alpha⏎#~ hide⏎beta⏎gam…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #4   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L3      </span> "x = 1"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #5   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L4      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #6   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L5      </span> "t = """"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #7   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L6      </span> "alpha"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #8   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L7      </span> "#~ hide"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #9   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L8      </span> "beta"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #10  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L9      </span> "gamma"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #11  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L10     </span> """""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #5  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L11     </span> "y = 2"
+<span class="gm-dt-gutter">   </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">       handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+</span><span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line">Line #12  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L11     </span> "y = 2"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">── the run: status PROCESS_OK · no diagnostics
+</span></pre>
 ```
 
 ```
@@ -218,30 +250,32 @@ goMeta threw (no delivery):
 GoMeta absorb: unknown alterant action "right" — not one of the registered sorted_alt_actions = [:(:), :cell, :discard, :file, :head, :hide, :ids, :parent, :show] (v0's closed action set; see docs/public-api.md §3.4)
 ```
 
-```
-File  strings_latex.tex  —  2 evals rows on 2 cells  (of 4 Blocks · 14 Lines)
-├─ Block #2  Text  L1       "% A probe for the Syntax & semantics …"   (no evals — defaults apply)
-│  └─ Line #2   Text  L1       "% A probe for the Syntax & semantics …"   (no evals — defaults apply)
-├─ Block #3  Code  L2–L7    "\documentclass{article}⏎\begin{docume…"   (no evals — defaults apply)
-│  ├─ Line #3   Code  L2       "\documentclass{article}"   (no evals — defaults apply)
-│  ├─ Line #4   Code  L3       "\begin{document}"   (no evals — defaults apply)
-│  ├─ Line #5   Code  L4       "Ordinary text before the environment."   (no evals — defaults apply)
-│  ├─ Line #6   Code  L5       ""   (no evals — defaults apply)
-│  ├─ Line #7   Code  L6       "\begin{verbatim}"   (no evals — defaults apply)
-│  └─ Line #8   Code  L7       "line one of the verbatim block"   (no evals — defaults apply)
-├─ Block #4  Meta  L8       "%~ hide"
-│  ● visib        => :hide     (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
-│  └─ Line #9   Meta  L8       "%~ hide"   (no evals — defaults apply)
-└─ Block #5  Code  L9–L14   "line two of the verbatim block⏎line t…"
-   ● visib        => :hide     (+)
-       handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
-   ├─ Line #10  Code  L9       "line two of the verbatim block"   (no evals — defaults apply)
-   ├─ Line #11  Code  L10      "line three of the verbatim block"   (no evals — defaults apply)
-   ├─ Line #12  Code  L11      "\end{verbatim}"   (no evals — defaults apply)
-   ├─ Line #13  Code  L12      ""   (no evals — defaults apply)
-   ├─ Line #14  Code  L13      "Ordinary text after the environment."   (no evals — defaults apply)
-   └─ Line #15  Code  L14      "\end{document}"   (no evals — defaults apply)
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">strings_latex.tex</span><span class="gm-dt-gutter">  —  2 evals rows on 2 cells  (of 4 Blocks · 14 Lines)
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #2  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "% A probe for the Syntax &amp; semantics …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #2   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "% A probe for the Syntax &amp; semantics …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #3  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L2–L7   </span> "\documentclass{article}⏎\begin{docume…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #3   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L2      </span> "\documentclass{article}"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #4   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L3      </span> "\begin{document}"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #5   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L4      </span> "Ordinary text before the environment."<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #6   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L5      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #7   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L6      </span> "\begin{verbatim}"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #8   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L7      </span> "line one of the verbatim block"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #4  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L8      </span> "%~ hide"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+</span><span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #9   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L8      </span> "%~ hide"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #5  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L9–L14  </span> "line two of the verbatim block⏎line t…"
+<span class="gm-dt-gutter">   </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">       handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+</span><span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #10  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L9      </span> "line two of the verbatim block"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #11  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L10     </span> "line three of the verbatim block"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #12  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L11     </span> "\end{verbatim}"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #13  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L12     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #14  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L13     </span> "Ordinary text after the environment."<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line">Line #15  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L14     </span> "\end{document}"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">── the run: status PROCESS_OK · no diagnostics
+</span></pre>
 ```
 
 :::
@@ -306,12 +340,79 @@ metaBlocks at shallower depths stay open.
 Labels are tags. A metaLine applies them with the colon: `:label1` applies one, `:(label1,
 label2)` two, and `:label1{ isText && containsMeta }` applies `:label1` only to text that
 contains metadata. Labels accumulate: a Block attached to a depth-2 metaBlock carries the labels
-that apply to it from that metaBlock and from the depth-1 metaBlock it nests under.
+that apply to it from that metaBlock and from the depth-1 metaBlock it nests under — unless a
+statement withholds one: `:-label1` keeps `label1` out of the set from there down (below).
 
-At this release the Labels Alterant knows a fixed list of 39 names: `label1` to `label5`, `doc` and
-33 pictographs (e.g. `🍒`, `💡`, `🔥`, etc.). Applying a name outside the list is refused with
-a message that names the accepted set; asking in a condition for a name that is unknown, or
-not applied, answers false. The list is written into the Labels Alterant's own code, and for now a further name is added there, by hand; improvements to the Labels Alterant will come later, and its design may change.
+GoMeta ships the Labels Alterant's vocabulary as a data file of 46 names: the five names the committed
+examples use — `label1` to `label5` — and `doc`; 33 pictograph names, each the word label glued to a
+pictograph (e.g. `label🍒`, `label💡`, `label🔥`, etc.; a bare pictograph is no shipped name), and seven
+everyday names — `warning`, `note`, `info`, `definition`, `todo`, `public` and `private`. A run reads the
+user level's copy of that file (`~/.gometa/labels-vocabulary.txt`, made from the shipped file at the
+first need; another file through the environment variable `GOMETA_LABELS_VOCABULARY`), and that copy is
+the base of the run's [vocabulary](#vocabulary,-vocabulary-statement); a file extends and prunes it, for
+good, with the Labels Alterant's **vocabulary statements**:
+
+- `:++label6` adds the name `label6` to the Labels Alterant's vocabulary; `:(++, label-3, label🏔️, label_💡)`
+  adds several at once — the names not yet in it (`label🏔️` ships, so that statement adds two);
+- `:--label1` removes the name `label1` from it — a shipped name as well as one added before; `:(--, label1, label2)`
+  removes several at once. Since the statement edits the user level's vocabulary file, `label1` stays removed for every
+  later run on that machine, a later `:label1` reported as unknown, until it is added again or the file reverted — delete
+  it, or copy the shipped file over it.
+
+**Where a vocabulary statement may stand.** In a metaBlock opened by `#~0`, the file level (§2; a
+metaBlock's depth is its first metaLine's, §3), and in the user level a program feeds through the
+configuration ([Public API](public-api.md#2.-The-configuration)). Anywhere else — a metaBlock of
+depth 1 or deeper, an inline metaSegment — it is refused with a message naming the two places.
+
+**What it does.** A vocabulary statement is applied to no Component: it is read once, applies no
+label, leaves no evaluated value, and does not count towards the eight statements a depth level
+holds (§13). It holds from its own metaBlock onward — for that metaBlock and for every Block after
+it; a later metaBlock at `#~0` adds to it and does not undo it. Inside its own metaBlock the order
+does not matter: a label may be applied on the line before the statement that admits it, and a
+name removed there is reported, not applied, wherever a statement of that metaBlock applies it. The run's vocabulary is the names
+of the user level's vocabulary file plus the names added minus the names removed, and for one name
+the later statement wins: a removed name added again is back; adding a name already there, or
+removing one that is not, changes nothing. The vocabulary statements of the user level are read
+before the file's, so for the same name a statement of the file wins over the user level's. A
+vocabulary statement that changes the vocabulary edits the user level's vocabulary file — for every
+later run on that machine — and a run that completes delivers one info [diagnostic](#diagnostic) per
+change, naming the statement, the file and the way back; a file that cannot be written is reported
+by a warning diagnostic and the change holds for that run alone.
+
+**What is reported, and what is refused.** Applying a name outside the run's vocabulary — a name
+never added, removed, or misspelt — applies nothing, under the plain form, the withhold and the
+explicit apply alike; the run completes and delivers one warning [diagnostic](#diagnostic) per name at
+each Component concerned, naming the statement and the remedy — declare the name with `:++…` at `#~0`
+or in the user level, or correct the spelling; a list applies its other names. Asking in a condition
+for a name that is unknown, or not applied, answers false. A malformed vocabulary statement is refused
+when it is read, with a message: a condition on it (`:++label6{ isCode }` — a vocabulary statement
+takes none); a name beginning with `+` or `-`; a name beginning with `#` (the vocabulary file reads
+such a line as a comment); a name with white space or an invisible character inside; a statement
+naming no label (`:++`, `:(++)`); a list with an empty member, a stray comma (`:(++, label6, )`); the
+one-name form given several names (`:(++label6, label7)` — the list form names several). A refused
+run delivers nothing, but a change an earlier vocabulary statement of the same run already made to the
+vocabulary file stays. A quoted name (`:(++, "label6")`) is not a vocabulary statement and is refused
+like any quoted text in a slot that takes none.
+
+The vocabulary lives in one file of the user level — another file through the environment variable
+`GOMETA_LABELS_VOCABULARY` — which the vocabulary statements edit; loading several vocabulary files
+from several sources belongs to a later release.
+
+**The withhold and the explicit apply.** A sign at the head of a label statement withholds a label or
+applies it explicitly. `:-label1` or `:(-, label1, label2)` keeps the named labels out of the set at the
+statement's own metaBlock and everything under it, until a later metaBlock of the same or a shallower
+depth replaces the slot — the Engine's own reach, as for any statement (§4); `:+label1` or `:(+, label1)`
+applies a label whether or not a withhold stands above it. Within one metaBlock the written order
+decides: `:label1 :-label1` ends without `label1`, `:-label1 :+label1` ends with it. A plain `:label1`
+at a Component where `label1` is withheld applies nothing, and the run completes: it delivers one
+warning diagnostic per name at each Component concerned, naming the ways out — drop the withhold, or
+write `:+label1` where one statement must apply the label regardless. A withhold leaves the vocabulary
+untouched: it holds for the run, where `:--label1` removes the name for good. A withhold or an
+explicit apply fed through the user level is applied first at every Component attached to metadata,
+so a file's plain `:label1` under a fed `:-label1` applies nothing and is reported. The sign stands at
+the head of a statement, never inside a list: `:(label1, -label2)`, `:+-label1`, the one-name form given
+several names (`:(-label1, label2)`), a sign with no name (`:-`) and a stray comma in a signed list
+(`:(-, )`) are refused with a message naming the forms.
 
 ## 6. Conditions
 
@@ -327,14 +428,17 @@ As GoMeta's creator explains the first example in his talk proposal for JuliaCon
 
 The atoms of a condition are labels and the [BLS key words](#the-BLS-key-words) — in the examples `isCode`, `isText`, `isMeta` and
 `containsMeta`. Write `()` wherever the reading of a mixed condition could be in doubt, as the
-first example does.
+first example does. A label atom answers false where the label is withheld — after the withhold, in
+written order — as it does for a name that is unknown or not applied; no diagnostic reports a query,
+so a `hide{ :label1 }` may stop firing silently (§5).
 
 **A condition is Julia.** GoMeta rewrites the condition's own parts — a label test such as
 `:label4`, a BLS key word such as `isCode` — into Julia, Julia's parser reads the result once,
 and Julia evaluates it when the Engine applies the statement. A condition can therefore contain
 a Julia expression over those atoms that evaluates to true or false, and it can run code: processing a file you did not write
 runs its conditions as Julia code. Use GoMeta on input you trust, as you would any Julia file
-you `include`.
+you `include`. A vocabulary statement in such a file also edits your vocabulary file for good; each
+change of a completed run is reported by an info diagnostic (§5).
 
 The three names `hide`, `show` and `discard` cannot be asked in a condition: `hide{ show }` is refused.
 
@@ -377,7 +481,11 @@ condition sees only what has been applied before it. In the first example file t
 applied yet when `discard{:label3}` is issued; only after that does the Block receive
 `:label3`. The condition stands, though, and applies to content that comes to carry the label
 later: in the second example file, the line that ends in a bare `#~` inherits `:label4` because of that `#~`
-and is discarded by the `discard{:label4}` issued before that label on line 34.
+and is discarded by the `discard{:label4}` issued before that label on line 34. A
+[vocabulary statement](#vocabulary,-vocabulary-statement) is recorded when its metaBlock is read, so within
+that metaBlock its place does not matter (§5). The same left-to-right order governs the [withhold](#withhold,-explicit-apply):
+`:label1 :-label1` ends without `label1`, `:-label1 :+label1` ends with it; a condition written before a
+withhold still sees the label (§5).
 
 **Siblings.** Two metaBlocks at the same depth are siblings; the later one does not inherit
 from the earlier one.
@@ -404,7 +512,7 @@ not yet implemented.
 ## 10. Arguments
 
 Parentheses pass arguments to a value: `someAlterantsValue(arg1, arg2)`. The Labels Alterant's colon takes
-labels as its arguments, in the two equivalent forms `:label1 :label2` and `:(label1, label2)`.
+labels as its arguments, in the two equivalent forms `:label1 :label2` and `:(label1, label2)`; a sign at the head of the statement withholds a label or applies it explicitly — `:-label1`, `:(-, label1, label2)`, `:+label1`, `:(+, label1)`, at any depth, the sign never inside a list (§5); at the file level and in the user level it also takes a vocabulary statement — a sign glued to one name, `:++label6` or `:--label1`, or the sign as the first argument of a list, `:(++, label-3, label🏔️, label_💡)` or `:(--, label1, label2)` (§5). GoMeta trims every bare argument's two edges of white space and of six invisible separators before the Alterant sees it — a quoted text is untouched; the class is the public `GoMeta.is_argument_space` ([Public API](public-api.md#6.-Extensions-and-the-registry)).
 Visib's values take no arguments; `hide()` is read as `hide`. The Id Alterant's values `cell`, `parent` and `file` take one integer argument each (`cell(7)`), and its value `ids` takes the three at once: `ids(c, p, f)` sets `cell`, `parent` and `file` to `c`, `p` and `f`, exactly as `cell(c) parent(p) file(f)` would; the Id Alterant is a placeholder at this release and its syntax may change — do not build durable content on it.
 
 ## 11. The examples
@@ -428,237 +536,239 @@ proposal's listing in wording only; the metaLines are the same.
 
 ::: details The full delivery view of the first example — every Block and Line with its evaluated values, as the development tools print it
 
-```
-status: PROCESS_OK
-File  file_for_Example_Proposal_JuliaCon.jl  —  28 evals rows on 10 cells  (of 8 Blocks · 35 Lines)
-├─ Block #2  Meta  L1–L3    "#~ hide{ :label4 , isCode } ## This i…"
-│  ● label_label1 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,2)]
-│  ├─ Line #2   Meta  L1       "#~ hide{ :label4 , isCode } ## This i…"   (no evals — defaults apply)
-│  ├─ Line #3   Meta  L2       "## The above `Line` of meta initiated…"   (no evals — defaults apply)
-│  └─ Line #4   Meta  L3       "#~ :label1{ (isText && containsMeta),…"   (no evals — defaults apply)
-├─ Block #3  Text  L4–L7    "# This `Line` of text starts a new `B…"   (no evals — defaults apply)
-│  ├─ Line #5   Text  L4       ""   (no evals — defaults apply)
-│  ├─ Line #6   Text  L5       "# This `Line` of text starts a new `B…"   (no evals — defaults apply)
-│  ├─ Line #7   Text  L6       "# This `Block` is NOT attached to met…"   (no evals — defaults apply)
-│  └─ Line #8   Text  L7       "# However, this `Line` will get disca…"
-│     ● visib        => :discard  (+)   ← Segment #7 "#~ discard"
-│         handle ns=:default  grain=Line  path=[(direct,1) (direct,3) (direct,8)]  origin=[(direct,1) (direct,3) (direct,8) (direct,7)]
-├─ Block #4  Meta  L8–L9    "#~2 :label5 show{ !:label5} ## This i…"
-│  ● label_label1 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
-│  ● label_label5 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
-│  ├─ Line #9   Meta  L8       ""   (no evals — defaults apply)
-│  └─ Line #10  Meta  L9       "#~2 :label5 show{ !:label5} ## This i…"   (no evals — defaults apply)
-├─ Block #5  Code  L10–L20  "using Plots ## This `Line` starts a n…"
-│  ● label_label5 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
-│  ● visib        => :hide     (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
-│  ├─ Line #11  Code  L10      "using Plots ## This `Line` starts a n…"   (no evals — defaults apply)
-│  ├─ Line #12  Code  L11      "## This code `Block` is ATTACHED to m…"   (no evals — defaults apply)
-│  ├─ Line #13  Code  L12      "## Therefore, this code `Block` recei…"   (no evals — defaults apply)
-│  ├─ Line #14  Code  L13      "## `show` from line 9 above does NOT …"   (no evals — defaults apply)
-│  ├─ Line #15  Code  L14      "##      as this can only happen"   (no evals — defaults apply)
-│  ├─ Line #16  Code  L15      "##      if label5 has NOT been applie…"   (no evals — defaults apply)
-│  ├─ Line #17  Code  L16      "## This code `Block` inherits `hide` …"   (no evals — defaults apply)
-│  ├─ Line #18  Code  L17      "##      since this is a code `Block` …"   (no evals — defaults apply)
-│  ├─ Line #19  Code  L18      ""   (no evals — defaults apply)
-│  ├─ Line #20  Code  L19      "println("!!! NOTE !!! Only Code and T…"   (no evals — defaults apply)
-│  └─ Line #21  Code  L20      "println("\t Whereas an empty line aft…"   (no evals — defaults apply)
-├─ Block #6  Meta  L21–L22  "#~3 :label4 discard{:label3} :label3"
-│  ● label_label1 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
-│  ● label_label3 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
-│  ● label_label4 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
-│  ● label_label5 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
-│  ● visib        => :hide     (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
-│  ├─ Line #22  Meta  L21      ""   (no evals — defaults apply)
-│  └─ Line #23  Meta  L22      "#~3 :label4 discard{:label3} :label3"   (no evals — defaults apply)
-├─ Block #7  Text  L23–L30  "# This `Block` of text receives label…"
-│  ● label_label1 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
-│  ● label_label3 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
-│  ● label_label4 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
-│  ● label_label5 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
-│  ● visib        => :hide     (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
-│  ├─ Line #24  Text  L23      "# This `Block` of text receives label…"   (no evals — defaults apply)
-│  ├─ Line #25  Text  L24      "#       plus label5 from further abov…"   (no evals — defaults apply)
-│  ├─ Line #26  Text  L25      "#       plus label1 since it `isText`…"   (no evals — defaults apply)
-│  ├─ Line #27  Text  L26      "# It is NOT "discarded" since label3 …"   (no evals — defaults apply)
-│  ├─ Line #28  Text  L27      "#       when `discard{:label3}` is is…"   (no evals — defaults apply)
-│  ├─ Line #29  Text  L28      "# Only after that it receives label3."   (no evals — defaults apply)
-│  ├─ Line #30  Text  L29      "# Instead, it gets hidden due to labe…"   (no evals — defaults apply)
-│  └─ Line #31  Text  L30      "# This `Line`, however, will NOT get …"
-│     ● label_label1 => true      (+)   ← Segment #13 "#~ show"
-│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
-│     ● label_label3 => true      (+)   ← Segment #13 "#~ show"
-│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
-│     ● label_label4 => true      (+)   ← Segment #13 "#~ show"
-│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
-│     ● label_label5 => true      (+)   ← Segment #13 "#~ show"
-│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
-│     ● visib        => :show     (+)   ← Segment #13 "#~ show"
-│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
-├─ Block #8  Meta  L31–L32  "#~2 :label5"
-│  ● label_label1 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
-│  ● label_label5 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
-│  ├─ Line #32  Meta  L31      ""   (no evals — defaults apply)
-│  └─ Line #33  Meta  L32      "#~2 :label5"   (no evals — defaults apply)
-└─ Block #9  Text  L33–L35  "md"""⏎This is a `Block` of markdown t…"
-   ● label_label1 => true      (+)
-       handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
-   ● label_label5 => true      (+)
-       handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
-   ├─ Line #34  Text  L33      "md""""   (no evals — defaults apply)
-   ├─ Line #35  Text  L34      "This is a `Block` of markdown text. #…"
-   │  ● label_label1 => true      (+)   ← Segment #15 "#~ hide"
-   │      handle ns=:default  grain=Line  path=[(direct,1) (direct,9) (direct,35)]  origin=[(direct,1) (direct,9) (direct,35) (direct,15)]
-   │  ● label_label5 => true      (+)   ← Segment #15 "#~ hide"
-   │      handle ns=:default  grain=Line  path=[(direct,1) (direct,9) (direct,35)]  origin=[(direct,1) (direct,9) (direct,35) (direct,15)]
-   │  ● visib        => :hide     (+)   ← Segment #15 "#~ hide"
-   │      handle ns=:default  grain=Line  path=[(direct,1) (direct,9) (direct,35)]  origin=[(direct,1) (direct,9) (direct,35) (direct,15)]
-   └─ Line #36  Text  L35      """""   (no evals — defaults apply)
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">file_for_Example_Proposal_JuliaCon.jl</span><span class="gm-dt-gutter">  —  28 evals rows on 10 cells  (of 8 Blocks · 35 Lines)
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #2  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L1–L3   </span> "#~ hide{ :label4 , isCode } ## This i…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,2)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #2   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L1      </span> "#~ hide{ :label4 , isCode } ## This i…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #3   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L2      </span> "## The above `Line` of meta initiated…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #4   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L3      </span> "#~ :label1{ (isText &amp;&amp; containsMeta),…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #3  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L4–L7   </span> "# This `Line` of text starts a new `B…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #5   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L4      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #6   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L5      </span> "# This `Line` of text starts a new `B…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #7   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L6      </span> "# This `Block` is NOT attached to met…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line gm-dt-bold">Line #8   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L7      </span> "# However, this `Line` will get disca…"
+<span class="gm-dt-gutter">│     </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-bad gm-dt-bold">:discard</span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #7 "#~ discard"</span>
+<span class="gm-dt-gutter">│         handle ns=:default  grain=Line  path=[(direct,1) (direct,3) (direct,8)]  origin=[(direct,1) (direct,3) (direct,8) (direct,7)]
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #4  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L8–L9   </span> "#~2 :label5 show{ !:label5} ## This i…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #9   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L8      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #10  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L9      </span> "#~2 :label5 show{ !:label5} ## This i…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #5  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L10–L20 </span> "using Plots ## This `Line` starts a n…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #11  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L10     </span> "using Plots ## This `Line` starts a n…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #12  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L11     </span> "## This code `Block` is ATTACHED to m…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #13  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L12     </span> "## Therefore, this code `Block` recei…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #14  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L13     </span> "## `show` from line 9 above does NOT …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #15  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L14     </span> "##      as this can only happen"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #16  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L15     </span> "##      if label5 has NOT been applie…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #17  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L16     </span> "## This code `Block` inherits `hide` …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #18  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L17     </span> "##      since this is a code `Block` …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #19  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L18     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #20  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L19     </span> "println("!!! NOTE !!! Only Code and T…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #21  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L20     </span> "println("\t Whereas an empty line aft…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #6  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L21–L22 </span> "#~3 :label4 discard{:label3} :label3"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label3</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label4</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #22  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L21     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #23  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L22     </span> "#~3 :label4 discard{:label3} :label3"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #7  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L23–L30 </span> "# This `Block` of text receives label…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label3</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label4</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #24  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L23     </span> "# This `Block` of text receives label…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #25  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L24     </span> "#       plus label5 from further abov…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #26  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L25     </span> "#       plus label1 since it `isText`…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #27  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L26     </span> "# It is NOT "discarded" since label3 …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #28  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L27     </span> "#       when `discard{:label3}` is is…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #29  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L28     </span> "# Only after that it receives label3."<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #30  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L29     </span> "# Instead, it gets hidden due to labe…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line gm-dt-bold">Line #31  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L30     </span> "# This `Line`, however, will NOT get …"
+<span class="gm-dt-gutter">│     </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #13 "#~ show"</span>
+<span class="gm-dt-gutter">│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
+</span><span class="gm-dt-gutter">│     </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label3</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #13 "#~ show"</span>
+<span class="gm-dt-gutter">│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
+</span><span class="gm-dt-gutter">│     </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label4</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #13 "#~ show"</span>
+<span class="gm-dt-gutter">│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
+</span><span class="gm-dt-gutter">│     </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #13 "#~ show"</span>
+<span class="gm-dt-gutter">│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
+</span><span class="gm-dt-gutter">│     </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-good gm-dt-bold">:show   </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #13 "#~ show"</span>
+<span class="gm-dt-gutter">│         handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,31)]  origin=[(direct,1) (direct,7) (direct,31) (direct,13)]
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #8  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L31–L32 </span> "#~2 :label5"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #32  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L31     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #33  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L32     </span> "#~2 :label5"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #9  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L33–L35 </span> "md"""⏎This is a `Block` of markdown t…"
+<span class="gm-dt-gutter">   </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">       handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
+</span><span class="gm-dt-gutter">   </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">       handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
+</span><span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #34  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L33     </span> "md""""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line gm-dt-bold">Line #35  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L34     </span> "This is a `Block` of markdown text. #…"
+<span class="gm-dt-gutter">   │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #15 "#~ hide"</span>
+<span class="gm-dt-gutter">   │      handle ns=:default  grain=Line  path=[(direct,1) (direct,9) (direct,35)]  origin=[(direct,1) (direct,9) (direct,35) (direct,15)]
+</span><span class="gm-dt-gutter">   │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #15 "#~ hide"</span>
+<span class="gm-dt-gutter">   │      handle ns=:default  grain=Line  path=[(direct,1) (direct,9) (direct,35)]  origin=[(direct,1) (direct,9) (direct,35) (direct,15)]
+</span><span class="gm-dt-gutter">   │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #15 "#~ hide"</span>
+<span class="gm-dt-gutter">   │      handle ns=:default  grain=Line  path=[(direct,1) (direct,9) (direct,35)]  origin=[(direct,1) (direct,9) (direct,35) (direct,15)]
+</span><span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line">Line #36  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L35     </span> """""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">── the run: status PROCESS_OK · no diagnostics
+</span></pre>
 ```
 
 :::
 
 ::: details The full delivery view of the second example
 
-```
-status: PROCESS_OK
-File  file_for_Example_Extended.jl  —  24 evals rows on 9 cells  (of 9 Blocks · 63 Lines)
-├─ Block #2  Text  L1–L5    "## Test File⏎## NOTE: I've addes some…"   (no evals — defaults apply)
-│  ├─ Line #2   Text  L1       "## Test File"   (no evals — defaults apply)
-│  ├─ Line #3   Text  L2       "## NOTE: I've addes some markers to t…"   (no evals — defaults apply)
-│  ├─ Line #4   Text  L3       "##      They have nothing to do with …"   (no evals — defaults apply)
-│  ├─ Line #5   Text  L4       "##      They are simply meant to assi…"   (no evals — defaults apply)
-│  └─ Line #6   Text  L5       "##      comparing the input file to t…"   (no evals — defaults apply)
-├─ Block #3  Meta  L6–L10   "#~ discard{ :label2 , isCode} ## This…"   (no evals — defaults apply)
-│  ├─ Line #7   Meta  L6       ""   (no evals — defaults apply)
-│  ├─ Line #8   Meta  L7       "#~ discard{ :label2 , isCode} ## This…"   (no evals — defaults apply)
-│  ├─ Line #9   Meta  L8       "#~ :label1{ isText && containsMeta }"   (no evals — defaults apply)
-│  ├─ Line #10  Meta  L9       "## The following meta `Line` within t…"   (no evals — defaults apply)
-│  └─ Line #11  Meta  L10      "#~! discard{ isMeta } ## This `Line` …"   (no evals — defaults apply)
-├─ Block #4  Text  L11–L16  "# With this `Line` of text starts a n…"   (no evals — defaults apply)
-│  ├─ Line #12  Text  L11      ""   (no evals — defaults apply)
-│  ├─ Line #13  Text  L12      "# With this `Line` of text starts a n…"   (no evals — defaults apply)
-│  ├─ Line #14  Text  L13      "# This `Block` is NOT attached to met…"   (no evals — defaults apply)
-│  ├─ Line #15  Text  L14      "# This `Line` should still be "hidden…"
-│  │  ● visib        => :hide     (+)   ← Segment #9 "#~ hide"
-│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,15)]  origin=[(direct,1) (direct,4) (direct,15) (direct,9)]
-│  ├─ Line #16  Text  L15      "# ... and this `Line` should still be…"
-│  │  ● visib        => :discard  (+)   ← Segment #11 "#~ discard"
-│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,16)]  origin=[(direct,1) (direct,4) (direct,16) (direct,11)]
-│  └─ Line #17  Text  L16      "# NOTE: Input line 15 will be missing…"   (no evals — defaults apply)
-├─ Block #5  Meta  L17–L19  "#~2 :label3 :label5 show{ !:label5} #…"
-│  ● label_label3 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
-│  ● label_label5 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
-│  ├─ Line #18  Meta  L17      ""   (no evals — defaults apply)
-│  ├─ Line #19  Meta  L18      "#~2 :label3 :label5 show{ !:label5} #…"   (no evals — defaults apply)
-│  └─ Line #20  Meta  L19      "#~ hide{:label1} ## This comment ends…"   (no evals — defaults apply)
-├─ Block #6  Code  L20–L32  "using Plots ## This `Segment` is a co…"
-│  ● label_label3 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
-│  ● label_label5 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
-│  ● visib        => :discard  (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
-│  ├─ Line #21  Code  L20      "using Plots ## This `Segment` is a co…"   (no evals — defaults apply)
-│  ├─ Line #22  Code  L21      "## This `Block` of code starts with `…"   (no evals — defaults apply)
-│  ├─ Line #23  Code  L22      "## This `Block` is ATTACHED to metada…"   (no evals — defaults apply)
-│  ├─ Line #24  Code  L23      "## Therefore, this code `Block` recei…"   (no evals — defaults apply)
-│  ├─ Line #25  Code  L24      "## `show` [input line 18] does NOT ge…"   (no evals — defaults apply)
-│  ├─ Line #26  Code  L25      "##      as this can only happen if la…"   (no evals — defaults apply)
-│  ├─ Line #27  Code  L26      ""   (no evals — defaults apply)
-│  ├─ Line #28  Code  L27      "## Instead, this code `Block` inherit…"   (no evals — defaults apply)
-│  ├─ Line #29  Code  L28      "##      since it is code i.e.: `isCod…"   (no evals — defaults apply)
-│  ├─ Line #30  Code  L29      ""   (no evals — defaults apply)
-│  ├─ Line #31  Code  L30      "println("!!! NOTE !!! Only Code and T…"   (no evals — defaults apply)
-│  ├─ Line #32  Code  L31      "println("\t Whereas an empty line aft…"   (no evals — defaults apply)
-│  └─ Line #33  Code  L32      "## @: Input line 32. It marks the end…"   (no evals — defaults apply)
-├─ Block #7  Meta  L33–L34  "#~3 discard{:label4} :label4 ## This …"
-│  ● label_label3 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
-│  ● label_label4 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
-│  ● label_label5 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
-│  ├─ Line #34  Meta  L33      ""   (no evals — defaults apply)
-│  └─ Line #35  Meta  L34      "#~3 discard{:label4} :label4 ## This …"   (no evals — defaults apply)
-├─ Block #8  Text  L35–L49  "# Here starts a new `Block` of text #…"
-│  ● label_label1 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
-│  ● label_label3 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
-│  ● label_label4 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
-│  ● label_label5 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
-│  ● visib        => :hide     (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
-│  ├─ Line #36  Text  L35      "# Here starts a new `Block` of text #…"   (no evals — defaults apply)
-│  ├─ Line #37  Text  L36      "#       which receives label4 from li…"   (no evals — defaults apply)
-│  ├─ Line #38  Text  L37      "#       and label3 and label5 from li…"   (no evals — defaults apply)
-│  ├─ Line #39  Text  L38      "#       and receives label1 from line…"   (no evals — defaults apply)
-│  ├─ Line #40  Text  L39      "#       since it is a `Block` of text…"
-│  │  ● label_label1 => true      (+)   ← Segment #28 "#~"
-│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
-│  │  ● label_label3 => true      (+)   ← Segment #28 "#~"
-│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
-│  │  ● label_label4 => true      (+)   ← Segment #28 "#~"
-│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
-│  │  ● label_label5 => true      (+)   ← Segment #28 "#~"
-│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
-│  │  ● visib        => :discard  (+)   ← Segment #28 "#~"
-│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
-│  ├─ Line #41  Text  L40      ""   (no evals — defaults apply)
-│  ├─ Line #42  Text  L41      "# This `Block` does NOT get "discarde…"   (no evals — defaults apply)
-│  ├─ Line #43  Text  L42      "#       NOT been applied yet when `di…"   (no evals — defaults apply)
-│  ├─ Line #44  Text  L43      "# Instead this `Block` gets "hidden" …"   (no evals — defaults apply)
-│  ├─ Line #45  Text  L44      "#       text and contains meta, there…"   (no evals — defaults apply)
-│  ├─ Line #46  Text  L45      "#       and consequently inheriting t…"   (no evals — defaults apply)
-│  ├─ Line #47  Text  L46      "## NOTE: Line 39, however, will get "…"   (no evals — defaults apply)
-│  ├─ Line #48  Text  L47      "##      since this `Line` inherits la…"   (no evals — defaults apply)
-│  ├─ Line #49  Text  L48      "##      and consequently `discard{:la…"   (no evals — defaults apply)
-│  └─ Line #50  Text  L49      "## @: Input line 49. It is at the end…"   (no evals — defaults apply)
-├─ Block #9  Meta  L50–L51  "#~2 :label2 ## This is a comment with…"
-│  ● label_label2 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
-│  ● visib        => :discard  (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
-│  ├─ Line #51  Meta  L50      ""   (no evals — defaults apply)
-│  └─ Line #52  Meta  L51      "#~2 :label2 ## This is a comment with…"   (no evals — defaults apply)
-└─ Block #10 Text  L52–L63  "md"""⏎This is a `Block` of markdown t…"
-   ● label_label2 => true      (+)
-       handle ns=:default  grain=Block  path=[(direct,1) (direct,10)]
-   ● visib        => :discard  (+)
-       handle ns=:default  grain=Block  path=[(direct,1) (direct,10)]
-   ├─ Line #53  Text  L52      "md""""   (no evals — defaults apply)
-   ├─ Line #54  Text  L53      "This is a `Block` of markdown text."   (no evals — defaults apply)
-   ├─ Line #55  Text  L54      ""   (no evals — defaults apply)
-   ├─ Line #56  Text  L55      "It is ATTACHED to the one-`Line` meta…"   (no evals — defaults apply)
-   ├─ Line #57  Text  L56      "It therefore inherits label2."   (no evals — defaults apply)
-   ├─ Line #58  Text  L57      ""   (no evals — defaults apply)
-   ├─ Line #59  Text  L58      "This meta `Block`, however, neither i…"   (no evals — defaults apply)
-   ├─ Line #60  Text  L59      "starting with "#~3" nor that further …"   (no evals — defaults apply)
-   ├─ Line #61  Text  L60      ""   (no evals — defaults apply)
-   ├─ Line #62  Text  L61      "It DOES inherit from the first meta `…"   (no evals — defaults apply)
-   ├─ Line #63  Text  L62      "Which is why it gets "discarded" - du…"   (no evals — defaults apply)
-   └─ Line #64  Text  L63      """""   (no evals — defaults apply)
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">file_for_Example_Extended.jl</span><span class="gm-dt-gutter">  —  24 evals rows on 9 cells  (of 9 Blocks · 63 Lines)
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #2  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1–L5   </span> "## Test File⏎## NOTE: I've addes some…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #2   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "## Test File"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #3   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L2      </span> "## NOTE: I've addes some markers to t…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #4   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L3      </span> "##      They have nothing to do with …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #5   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L4      </span> "##      They are simply meant to assi…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #6   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L5      </span> "##      comparing the input file to t…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #3  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L6–L10  </span> "#~ discard{ :label2 , isCode} ## This…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #7   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L6      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #8   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L7      </span> "#~ discard{ :label2 , isCode} ## This…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #9   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L8      </span> "#~ :label1{ isText &amp;&amp; containsMeta }"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #10  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L9      </span> "## The following meta `Line` within t…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #11  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L10     </span> "#~! discard{ isMeta } ## This `Line` …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #4  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L11–L16 </span> "# With this `Line` of text starts a n…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #12  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L11     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #13  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L12     </span> "# With this `Line` of text starts a n…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #14  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L13     </span> "# This `Block` is NOT attached to met…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line gm-dt-bold">Line #15  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L14     </span> "# This `Line` should still be "hidden…"
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #9 "#~ hide"</span>
+<span class="gm-dt-gutter">│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,15)]  origin=[(direct,1) (direct,4) (direct,15) (direct,9)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line gm-dt-bold">Line #16  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L15     </span> "# ... and this `Line` should still be…"
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-bad gm-dt-bold">:discard</span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #11 "#~ discard"</span>
+<span class="gm-dt-gutter">│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,4) (direct,16)]  origin=[(direct,1) (direct,4) (direct,16) (direct,11)]
+</span><span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #17  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L16     </span> "# NOTE: Input line 15 will be missing…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #5  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L17–L19 </span> "#~2 :label3 :label5 show{ !:label5} #…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label3</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #18  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L17     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #19  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L18     </span> "#~2 :label3 :label5 show{ !:label5} #…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #20  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L19     </span> "#~ hide{:label1} ## This comment ends…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #6  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L20–L32 </span> "using Plots ## This `Segment` is a co…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label3</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-bad gm-dt-bold">:discard</span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #21  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L20     </span> "using Plots ## This `Segment` is a co…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #22  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L21     </span> "## This `Block` of code starts with `…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #23  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L22     </span> "## This `Block` is ATTACHED to metada…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #24  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L23     </span> "## Therefore, this code `Block` recei…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #25  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L24     </span> "## `show` [input line 18] does NOT ge…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #26  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L25     </span> "##      as this can only happen if la…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #27  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L26     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #28  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L27     </span> "## Instead, this code `Block` inherit…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #29  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L28     </span> "##      since it is code i.e.: `isCod…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #30  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L29     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #31  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L30     </span> "println("!!! NOTE !!! Only Code and T…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #32  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L31     </span> "println("\t Whereas an empty line aft…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #33  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L32     </span> "## @: Input line 32. It marks the end…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #7  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L33–L34 </span> "#~3 discard{:label4} :label4 ## This …"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label3</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label4</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #34  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L33     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #35  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L34     </span> "#~3 discard{:label4} :label4 ## This …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #8  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L35–L49 </span> "# Here starts a new `Block` of text #…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label3</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label4</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,8)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #36  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L35     </span> "# Here starts a new `Block` of text #…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #37  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L36     </span> "#       which receives label4 from li…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #38  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L37     </span> "#       and label3 and label5 from li…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #39  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L38     </span> "#       and receives label1 from line…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line gm-dt-bold">Line #40  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L39     </span> "#       since it is a `Block` of text…"
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #28 "#~"</span>
+<span class="gm-dt-gutter">│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
+</span><span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label3</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #28 "#~"</span>
+<span class="gm-dt-gutter">│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
+</span><span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label4</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #28 "#~"</span>
+<span class="gm-dt-gutter">│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
+</span><span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label5</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #28 "#~"</span>
+<span class="gm-dt-gutter">│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
+</span><span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-bad gm-dt-bold">:discard</span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #28 "#~"</span>
+<span class="gm-dt-gutter">│  │      handle ns=:default  grain=Line  path=[(direct,1) (direct,8) (direct,40)]  origin=[(direct,1) (direct,8) (direct,40) (direct,28)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #41  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L40     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #42  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L41     </span> "# This `Block` does NOT get "discarde…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #43  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L42     </span> "#       NOT been applied yet when `di…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #44  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L43     </span> "# Instead this `Block` gets "hidden" …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #45  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L44     </span> "#       text and contains meta, there…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #46  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L45     </span> "#       and consequently inheriting t…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #47  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L46     </span> "## NOTE: Line 39, however, will get "…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #48  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L47     </span> "##      since this `Line` inherits la…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #49  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L48     </span> "##      and consequently `discard{:la…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #50  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L49     </span> "## @: Input line 49. It is at the end…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #9  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L50–L51 </span> "#~2 :label2 ## This is a comment with…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label2</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
+</span><span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-bad gm-dt-bold">:discard</span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,9)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #51  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L50     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #52  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L51     </span> "#~2 :label2 ## This is a comment with…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #10 </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L52–L63 </span> "md"""⏎This is a `Block` of markdown t…"
+<span class="gm-dt-gutter">   </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label2</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">       handle ns=:default  grain=Block  path=[(direct,1) (direct,10)]
+</span><span class="gm-dt-gutter">   </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-bad gm-dt-bold">:discard</span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">       handle ns=:default  grain=Block  path=[(direct,1) (direct,10)]
+</span><span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #53  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L52     </span> "md""""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #54  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L53     </span> "This is a `Block` of markdown text."<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #55  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L54     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #56  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L55     </span> "It is ATTACHED to the one-`Line` meta…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #57  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L56     </span> "It therefore inherits label2."<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #58  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L57     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #59  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L58     </span> "This meta `Block`, however, neither i…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #60  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L59     </span> "starting with "#~3" nor that further …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #61  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L60     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #62  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L61     </span> "It DOES inherit from the first meta `…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #63  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L62     </span> "Which is why it gets "discarded" - du…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line">Line #64  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L63     </span> """""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">── the run: status PROCESS_OK · no diagnostics
+</span></pre>
 ```
 
 :::
@@ -676,7 +786,7 @@ folder (printed; `--out <dir>` keeps them where you say) and compares every rend
 for byte with the committed one under `examples/OutFileFolder/`. To test a reading of this
 page, copy or edit an input, rerun, and read the resulting copy — and read the delivery view
 the development tools print for it, which shows what the Engine evaluated for each Block and
-Line:
+Line and ends with the run's status and its diagnostics — where a label that did not apply is reported:
 
 ```
 julia --startup-file=no --project=tests devtools/devtools.jl evals-tree <file>
@@ -691,6 +801,7 @@ julia --startup-file=no --project=tests devtools/devtools.jl evals-tree <file>
 - A tilde count with a differing digit, such as `#~~3`.
 - A `##` comment and an inline `#~` on the same content line.
 - More than one Visib value on one metaLine, such as `discard{ isCode } show`: the first applicable value wins.
-- The limits of this release: the label list is closed (§5); one depth level of the meta
-  hierarchy holds at most eight statements, a ninth is refused with a message; the digit form of
-  the depth reads 1 to 8 (§2).
+- The limits of this release: the vocabulary of a run is the user level's vocabulary file plus what the
+  run's own vocabulary statements add and remove, and the statements edit that file for good (§5); one depth level of the
+  meta hierarchy holds at most eight statements — a vocabulary statement takes none of them — and a ninth
+  is refused with a message; the digit form of the depth reads 1 to 8 (§2).

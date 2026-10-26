@@ -1,7 +1,7 @@
 # Public API
 
 This page is the reference for the surface a program relies on when it uses GoMeta, release
-**0.4.1** (alpha): the four names `using GoMeta` brings into scope, the further names reached
+**0.4.4** (alpha): the four names `using GoMeta` brings into scope, the further names reached
 qualified as `GoMeta.<name>`, and the door through which a program travels the
 [BLS](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) Component tree. It is written from the package at that release and from the design as GoMeta's creator states it; the package's own test suite pins the set of names the package declares public, and this page lists exactly that set. The terms the page uses are defined where they first appear or in the Syntax & semantics page's
 [Glossary](syntax-and-semantics.md#Glossary); the delivered object and the Component's handle
@@ -28,8 +28,9 @@ order of the pipeline:
   through `readAltValuesEvals` (section 3);
 - `status` — of type `GoMeta.ProcessStatus`: `PROCESS_OK` or `PROCESS_ERROR`;
 - `diagnostics` — a vector of `GoMeta.Diagnostic` records, each with a `code` (a `Symbol`), a
-  `severity` (`:error`, `:warning` or `:info` — the declared set; this release produces the
-  first alone), a `message` and a `context`. The status
+  `severity` (`:error`, `:warning` or `:info`), a `message` and a `context`: a completed run may carry
+  warning diagnostics — a label withheld or unknown where a statement applies it, a vocabulary file that
+  cannot be written — and info diagnostics — a change of the vocabulary file (section 8). The status
   is `PROCESS_ERROR` exactly when a record of severity `:error` is among them: a failed run never comes with
   an empty list.
 
@@ -39,13 +40,16 @@ act on those evaluations: that is the
 [Extensions](syntax-and-semantics.md#the-GoMeta-Engine,-Extension)' role; they receive the
 evaluations through GoMeta's interface, `altValues_evals`.
 
-The Engine reads no file, no clock and no environment: for the same bytes, the same
-configuration and the same registry it delivers the same result. Two things lie outside that
-guarantee because they are not the Engine's: a [condition](syntax-and-semantics.md#condition)
-is Julia and does what its author wrote, and the functions of a custom registry's Alterants
-(section 6) do what their author wrote. Processing a file you did not write therefore runs its
-conditions as Julia code: use GoMeta on input you trust, as you would any Julia file you
-`include`.
+The Engine reads no clock, and no environment but the one variable named below; the one file it reads, and writes, is the Labels
+Alterant's vocabulary file of the user level (section 6; or the file the environment variable
+`GOMETA_LABELS_VOCABULARY` names): for the same bytes, the same configuration, the same registry and
+the same state of that file it delivers the same result — a program that must not depend on it points
+that variable at a file of its own. Two things lie outside that guarantee because they are not the
+Engine's: a [condition](syntax-and-semantics.md#condition) is Julia and does what its author wrote,
+and the functions of a custom registry's Alterants (section 6) do what their author wrote. Processing
+a file you did not write therefore runs its conditions as Julia code: use GoMeta on input you trust,
+as you would any Julia file you `include`. A vocabulary statement in such a file also edits your
+vocabulary file for good, each change of a completed run reported by an info diagnostic (section 8).
 
 The BLS Component tree in the delivery is the one object the run built: every program that reads one
 delivery shares it, and one that changes it changes it for every other.
@@ -75,7 +79,7 @@ holds the run's options:
   that keeps the rows of several files apart gives each its own. A namespace longer than
   65535 bytes makes `GoMetaConfig(; …)` throw an `ArgumentError` when the configuration is constructed; the positional form carries no such guard.
 - `user_mh_profile` is reserved and experimental: the body of a [metaLine](syntax-and-semantics.md#metaLine) fed into the run
-  as its user level, the level above `#~0` in the meta hierarchy; an empty or whitespace-only string feeds nothing, like `nothing`, and a heading in the fed body is refused (section 8). Since 0.4.1 the fed body's labels are collected first, as the outermost level, and its other statements are evaluated after the Component's own metadata, with priority — an applicable fed value overrides the value the Component's own metadata decided; the Component's own metadata applies in written order with or without a feed. Leave it at `nothing`.
+  as its user level, the level above `#~0` in the meta hierarchy; an empty or whitespace-only string feeds nothing, like `nothing`, and a heading in the fed body is refused (section 8). Since 0.4.1 the fed body's labels are collected first, as the outermost level, and its other statements are evaluated after the Component's own metadata, with priority — an applicable fed value overrides the value the Component's own metadata decided; the Component's own metadata applies in written order with or without a feed. Since 0.4.2 the fed body may also carry the Labels Alterant's [vocabulary statements](syntax-and-semantics.md#vocabulary,-vocabulary-statement), `:++label6` / `:(++, label-3, label🏔️, label_💡)` and `:--label1` / `:(--, label1, label2)`: they are read when the body is fed, before any line of the file, so for the same name a vocabulary statement of the file wins over the fed one — the opposite direction from a fed value, which overrides the file's. Since 0.4.3 a fed vocabulary statement edits the user level's vocabulary file as a file's does (section 6), and a withhold or an explicit apply in the fed body (`:-label1`, `:+label1`; [Syntax & semantics §5](syntax-and-semantics.md#5.-Labels)) is applied first at every Component attached to metadata, so a file's plain `:label1` under a fed withhold applies nothing and is reported by a warning diagnostic (section 8). Leave it at `nothing`.
 
 ::: details Measured: an unknown `flavor_tag` — what `goMeta` throws
 
@@ -119,7 +123,7 @@ Component — decided by its own statement, by another Component's statement, or
 
 - `GoMeta.evaluatedAltValue(delivery, component, alterant; registry = DEFAULT_REGISTRY)` returns a `GoMeta.EvaluatedAltValue`
   with three fields. `value` is in the Alterant's own shape: Visib a `Symbol`, Labels a sorted
-  vector of names, Heading a `String` (or `nothing`, its default), Id a named tuple. `source` is one of `:own` (the
+  vector of names — a label withheld at a Component is not among them, and a Line whose own metaSegment withholds its only labels has no row of its own and answers its Block's set — Heading a `String` (or `nothing`, its default), Id a named tuple. `source` is one of `:own` (the
   Component's own [statement](syntax-and-semantics.md#statement,-metaSegment) decided it),
   `:indirect` (another Component's statement decided it — e.g. for an
   [attached](syntax-and-semantics.md#attachment,-inheritance) Block and its Lines, the metaBlock from which that
@@ -274,13 +278,31 @@ the registration lifecycle:
 
 The records `register!` takes — the Alterant and its actions, built with keywords — and the two an Alterant's record carries:
 
-- `GoMeta.Alterant(; altName, setMode, altConstructor, setAltInstance, getAltInstance = nothing, precedencesTuple = nothing, default = NoDefault(), capture = nothing)`
+- `GoMeta.Alterant(; altName, setMode, altConstructor, setAltInstance, getAltInstance = nothing, precedencesTuple = nothing, default = NoDefault(), capture = nothing, onRead = nothing)`
   — the Alterant: its name; how its values combine (`:accumulate` collects every applicable
   value, `:mutExclusive` stops at the first, `:mutExclusivePerField` is the Id compound's,
   `:localOnly` is applied only locally, where the statement stands); the type of its instances; its setter,
-  whose methods are the actions' forms; its query getter, needed for an action a condition may
+  whose methods are the actions' forms — a setter may return a vector of `Diagnostic` records, which the Engine
+  delivers on the run's diagnostics with the place added to each record's context (the Component, the stating
+  statement, the Alterant's statements applied there so far) and the severity copied: a warning or info record
+  leaves the run `PROCESS_OK`, an error record makes it `PROCESS_ERROR` though the run completes with its whole
+  delivery; a vector typed `Any` is ignored like any other return, and a severity outside the three is delivered
+  without effect on the status; the Engine reads such a vector and never a label, and this agreement may change
+  in a later version; its query getter, needed for an action a condition may
   ask (`nothing` otherwise); its precedence tuple, always `nothing` at this release; its default;
-  and its capture declaration.
+  its capture declaration; and, since 0.4.2, its read-time hook `onRead` — `nothing`, the default, for every
+  shipped Alterant but Labels. The Engine calls the hook when it reads one of the Alterant's statements that
+  carries arguments (a statement without arguments never reaches it), before the statement is queued, and reads
+  its return in one grammar: `nothing` — the statement is queued as written; a vector of `Diagnostic` records
+  alone — the records are delivered as a setter's are, with the read-time place (the stating statement, its level,
+  its text), and the statement is queued; a pair of a state and such a vector — the statement is consumed and the
+  records delivered; any other value — the statement is consumed at the read (nothing is queued, its condition is
+  not kept, no row is recorded, the declared validation does not run for it) and the value becomes the Alterant's
+  state for the run, handed back at the hook's next call and to the instance constructor as `altConstructor(run)`;
+  where no state was minted, and for an Alterant without a hook, the constructor is called bare, `altConstructor()`,
+  so a registration with a hook accepts both calls. An error the hook throws is Julia's own, out of `goMeta`. The
+  Labels Alterant's hook records the [vocabulary statements](syntax-and-semantics.md#vocabulary,-vocabulary-statement)
+  this way and returns, with its state, the info diagnostics of each change it makes to the vocabulary file.
 - `GoMeta.ActionSpec(; name, plugin::Int8, accepts_string_slot = 0, validate = nothing)` — one action of an
   Alterant: its name; the index of its Alterant; which argument slot, if any, takes a quoted
   text; and a validation of that text.
@@ -289,7 +311,7 @@ The records `register!` takes — the Alterant and its actions, built with keywo
 - `GoMeta.NoDefault()` and `GoMeta.Declared(value)` — the two forms of an Alterant's default;
   `GoMeta.DefaultSlot` is their common type.
 
-The Labels Alterant's names are a closed list of 39, written into the Alterant's own file (`src/alterants-std/labels.jl`); for now a further name is added there, by hand, and improvements to the Labels Alterant will come later. The check that `goMeta` makes at its entry guards against
+The Labels Alterant's vocabulary is the user level's vocabulary file — `~/.gometa/labels-vocabulary.txt`, a copy of the 46-name file shipped with the package (`data/alterants-std/labels-vocabulary.txt`), made at the first need; another file through the environment variable `GOMETA_LABELS_VOCABULARY` — which the vocabulary statements of a file at `#~0` and of the fed user level edit (section 2; [Syntax & semantics §5](syntax-and-semantics.md#5.-Labels)); the shipped file is never written and is the way back; a missing shipped file refuses the run. The file's form: one name per line, a line beginning with `#` a comment, a blank line ignored, each line's two edges trimmed. The twenty-eighth public name, `GoMeta.is_argument_space(c)`, is that trim's class: true for a character GoMeta trims at the two edges of every bare argument before an Alterant sees it — the ordinary white space and the six invisible separators U+2028, U+2029, U+180E, U+200B, U+2060, U+FEFF — and false for every other character, the zero-width joiner and the variation selectors that shape pictographs among them; an Alterant that reads names from lines of its own trims them with `strip(GoMeta.is_argument_space, line)`, as the Labels Alterant does. The check that `goMeta` makes at its entry guards against
 accidents by conforming code — an unpublished registry, a published one changed afterwards —
 not against a loaded module that sets out to defeat it: load only Alterants you trust, as you
 would any Julia file you `include`.
@@ -312,7 +334,7 @@ pair byte for byte — the rendered copy against the committed reference files, 
 
 ## 8. What a program sees when something is wrong
 
-**Two statuses.** A run that completes delivers `PROCESS_OK`, its `diagnostics` empty. A run whose registry `goMeta` refuses delivers `PROCESS_ERROR` with one coded `Diagnostic`,
+**Two statuses.** A run that completes delivers `PROCESS_OK`, its `diagnostics` empty or carrying warning and info records (below); a custom Alterant's error record (section 6) makes a completed run `PROCESS_ERROR` with its whole delivery. A run whose registry `goMeta` refuses delivers `PROCESS_ERROR` with one coded `Diagnostic`,
 before any line is read: `REG_UNPUBLISHED` (an unsealed registry; the message names the path
 builder → validate → publish) or `POST_SEAL_MUTATION` (a published registry changed afterwards;
 the message names the first changed field). A file with no metadata at all is not an error:
@@ -328,15 +350,23 @@ declarations — build through the lifecycle instead. At a run, the validation a
 `false`, returns no `Bool` or throws — makes `goMeta` throw a stable message naming
 `REG_VALIDATE_FALSE`, `RES_RETURN_TYPE` or `CB_VALIDATE_THROW`; a validation that throws its own message in GoMeta's form — an `ErrorException` whose text begins with `GoMeta` followed by a space — makes `goMeta` throw that message unchanged, and an `InterruptException` passes through unchanged too.
 
-**Warnings.** None at this release: a run that ends `PROCESS_OK` delivers an empty `diagnostics` vector.
+**Warnings and information.** A run that ends `PROCESS_OK` may carry `LABEL_NOT_APPLIED_WITHHELD` (a warning: a plain label statement met by a withhold), `LABEL_NOT_APPLIED_UNKNOWN` (a warning: a label outside the run's vocabulary, under any form), `LABELS_VOCABULARY_FILE_NOT_WRITTEN` (a warning: a vocabulary file that could not be written, the change holding for that run alone) and `LABELS_VOCABULARY_FILE_CHANGED` (information: a change of the vocabulary file, the way back named) — the two label codes one record per name at each Component concerned, the two file codes one record per change, the label and the place in its context, the message naming the remedy or the way back; `isempty(delivery.diagnostics)` is the one-line check that every label statement applied.
 
 **What a file's author meets.** These make `goMeta` throw — with a stable message of GoMeta's, most naming the
 offending token, or, where a bullet says so, with Julia's own error; nothing is delivered:
 
-- an unknown action, "unknown alterant action", naming the registered actions; a name applied
-  as a label from outside the list, "unknown label", naming the accepted names (a label only
-  asked for in a condition is not refused for being unknown: the label test answers false); an empty label list
-  (`#~ :` or `:()`) and an empty label query (`{ :() }`);
+- an unknown action, "unknown alterant action", naming the registered actions (a label applied from outside the
+  run's vocabulary is not refused: it is reported, above, and a label only asked for in a condition answers false);
+  an empty label list (`#~ :` or `:()`), an empty label query (`{ :() }`) and a label list with an empty member, a
+  stray comma (`:(label1, )`); a malformed withhold or explicit apply — `:(-label1, label2)`, `:-`, `:(-, )`,
+  `:+-label1`, `:(label1, -label2)` — with a message naming the forms;
+- a vocabulary statement (section 2; [Syntax & semantics §5](syntax-and-semantics.md#5.-Labels)) anywhere but a
+  metaBlock opened by `#~0` or the fed user level, "is legal at `#~0` and in the user level's profile only", naming
+  the place it stood in; a malformed one — with a condition, with a name beginning with `+`, `-` or `#`, with white
+  space or an invisible character inside a name, naming no label, with an empty member in its list, or the one-name
+  form given several names — each with a message naming the forms; a vocabulary file with white space or an
+  invisible character inside a name (the line named), and a missing shipped vocabulary file; a refusal delivers
+  nothing, but an edit an earlier vocabulary statement of the run made to the vocabulary file stays;
 - a malformed metaLine: a character where the grammar allows none, "unexpected character"; an
   unterminated `(`, `{` or `"`; a quoted text in a slot that takes none, "string argument not
   accepted"; more than one inline marker on one line; the inert marker's `!` before the [depth](syntax-and-semantics.md#depth,-the-meta-hierarchy)
@@ -347,7 +377,7 @@ offending token, or, where a bullet says so, with Julia's own error; nothing is 
   may ask, "unknown condition key"; a condition Julia cannot parse, or one that fails when Julia
   evaluates it — Julia's own error; an argument an Alterant's setter cannot take — its own
   error, Julia's;
-- a digit depth beyond 8 (`#~9`), "meta depth out of range"; a ninth statement in one depth level (the bound is 8 — a size GoMeta's creator chose to start with; if it proves too small it may easily be increased by hand — not the number of registered actions, 9 with the shipped registry), "more than 8 actions in one meta-hierarchy slot"; more than one Visib value set for one Component, "more than one Visib value set for one component";
+- a digit depth beyond 8 (`#~9`), "meta depth out of range"; a ninth statement in one depth level (the bound is 8 — a size GoMeta's creator chose to start with; if it proves too small it may easily be increased by hand — not the number of registered actions, 9 with the shipped registry; a vocabulary statement is not counted), "more than 8 actions in one meta-hierarchy slot"; more than one Visib value set for one Component, "more than one Visib value set for one component";
 - an unknown `flavor_tag` (section 2);
 - a heading in the body fed through `user_mh_profile` (section 2), "a heading (Heading Alterant) in the profile feed has no Component of the file levels to be local to".
 
@@ -361,39 +391,44 @@ are kept as they are.
 
 ::: details Measured: a file with CRLF endings through the Engine and the door
 
-In the development tool's printouts a "cell" is a BLS Component that carries evaluated values — the tool's word; this site says Component. Its "(no evals — defaults apply)" marks a Component with no evaluated values of its own; it falls under the value of a Component that contains it, else under the Alterant's declared default.
+The transcript below is one run's, in three parts: the input's fingerprint and the run's status; the full delivery view of the run, as the development tools print it — in the development tool's printouts a "cell" is a BLS Component that carries evaluated values — the tool's word; this site says Component; its "(no evals — defaults apply)" marks a Component with no evaluated values of its own; it falls under the value of a Component that contains it, else under the Alterant's declared default; the view ends with the run's line, its status and its diagnostics — and the bytes: every Line's content through the door with its count of carriage returns, the rendered copy with its byte counts, and the count over the whole document.
 
 ```
 input: crlf_input.jl · sha256 9b01c3a8fcfae089dad5bb33d52c7d4971f254986d40bbd35a61fcf4f326c5eb · bytes 186 · CR bytes in the input: 8
 status = PROCESS_OK · diagnostics = 0
+```
 
-== the FULL delivery view ==
-File  crlf_input.jl  —  5 evals rows on 4 cells  (of 6 Blocks · 8 Lines)
-├─ Block #2  Text  L1       "# A probe for the Public API page: a …"   (no evals — defaults apply)
-│  └─ Line #2   Text  L1       "# A probe for the Public API page: a …"   (no evals — defaults apply)
-├─ Block #3  Meta  L2       "#~ hide{ isCode } ## the first metaLi…"   (no evals — defaults apply)
-│  └─ Line #3   Meta  L2       "#~ hide{ isCode } ## the first metaLi…"   (no evals — defaults apply)
-├─ Block #4  Code  L3–L4    "x = 1⏎y = 2"
-│  ● visib        => :hide     (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
-│  ├─ Line #4   Code  L3       "x = 1"   (no evals — defaults apply)
-│  └─ Line #5   Code  L4       "y = 2"   (no evals — defaults apply)
-├─ Block #5  Text  L5–L6    "# a text line after an empty line"   (no evals — defaults apply)
-│  ├─ Line #6   Text  L5       ""   (no evals — defaults apply)
-│  └─ Line #7   Text  L6       "# a text line after an empty line"   (no evals — defaults apply)
-├─ Block #6  Meta  L7       "#~ :label1"
-│  ● label_label1 => true      (+)
-│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
-│  └─ Line #8   Meta  L7       "#~ :label1"   (no evals — defaults apply)
-└─ Block #7  Code  L8       "z = 3 #~ show"
-   ● label_label1 => true      (+)
-       handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
-   └─ Line #9   Code  L8       "z = 3 #~ show"
-      ● label_label1 => true      (+)   ← Segment #5 "#~ show"
-          handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,9)]  origin=[(direct,1) (direct,7) (direct,9) (direct,5)]
-      ● visib        => :show     (+)   ← Segment #5 "#~ show"
-          handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,9)]  origin=[(direct,1) (direct,7) (direct,9) (direct,5)]
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">crlf_input.jl</span><span class="gm-dt-gutter">  —  5 evals rows on 4 cells  (of 6 Blocks · 8 Lines)
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #2  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "# A probe for the Public API page: a …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #2   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "# A probe for the Public API page: a …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #3  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L2      </span> "#~ hide{ isCode } ## the first metaLi…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #3   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L2      </span> "#~ hide{ isCode } ## the first metaLi…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #4  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L3–L4   </span> "x = 1⏎y = 2"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,4)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #4   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L3      </span> "x = 1"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #5   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L4      </span> "y = 2"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #5  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L5–L6   </span> "# a text line after an empty line"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #6   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L5      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #7   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L6      </span> "# a text line after an empty line"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #6  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L7      </span> "#~ :label1"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #8   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L7      </span> "#~ :label1"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #7  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L8      </span> "z = 3 #~ show"
+<span class="gm-dt-gutter">   </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">       handle ns=:default  grain=Block  path=[(direct,1) (direct,7)]
+</span><span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line gm-dt-bold">Line #9   </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L8      </span> "z = 3 #~ show"
+<span class="gm-dt-gutter">      </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">label_label1</span> =&gt; <span class="gm-dt-neutral gm-dt-bold">true    </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #5 "#~ show"</span>
+<span class="gm-dt-gutter">          handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,9)]  origin=[(direct,1) (direct,7) (direct,9) (direct,5)]
+</span><span class="gm-dt-gutter">      </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-good gm-dt-bold">:show   </span><span class="gm-dt-gutter">  (+)</span><span class="gm-dt-gutter">   ← Segment #5 "#~ show"</span>
+<span class="gm-dt-gutter">          handle ns=:default  grain=Line  path=[(direct,1) (direct,7) (direct,9)]  origin=[(direct,1) (direct,7) (direct,9) (direct,5)]
+</span><span class="gm-dt-gutter">── the run: status PROCESS_OK · no diagnostics
+</span></pre>
+```
 
+```
 == the content bytes of every Line through the door (BLS.content): does a Line keep its \r? ==
 Text  "# A probe for the Public API page: a fil…"  CR bytes: 0 · length 65
 Meta  "#~ hide{ isCode } ## the first metaLine"  CR bytes: 0 · length 39
