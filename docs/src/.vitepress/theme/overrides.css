@@ -306,6 +306,43 @@
   .Layout .VPNavBarAppearance .VPSwitch::after { content: ""; position: absolute; top: -12px; right: -5px; bottom: -12px; left: -5px; } /* a 48 x 44 tap area around the 40 x 22 switch */
 }
 
+/* ---- the theme switch's outline in dark mode (GoMeta's creator, 2026-10-26) ---------------------------------
+   The switch's 1 px border is the theme's input border token, which takes this file's dark outline brown
+   #5b4935 — about 2:1 against the bar, too faint for a control's boundary (3:1). The token below is read by the
+   switch alone: #9a7f55 reads 4.55:1 on the bar, 3.93:1 on the "…" menu's ground, where the switch lives on
+   tablets, and 4.09:1 on the phone panel's row; the violet hover stays the theme's; light mode is untouched
+   (its border reads 3.89:1). */
+.dark { --vp-input-border-color: #9a7f55; }
+
+/* ---- tablets: the whole navigation bar on screen (GoMeta's creator, 2026-10-26) ------------------------------
+   From 768 px the theme sets the bar's right part as one row that does not wrap: the search box with its label and
+   its key hint, the menu, the "…" menu (from 768 to 1279 px the only place of the light/dark switch and of the
+   GitHub link) and the readability menu (the book). Up to 887 px that row is wider than the screen and its right
+   end is cut off, and from 888 to 919 px its right end runs into the bar's 32 px margin. In that range the search
+   shows as the looking glass alone, as on phones, at the head of the
+   menu — the button keeps its name, its click and its keyboard shortcuts — and the menu's names stand 16 px apart
+   instead of 24, so the whole row ends inside the bar's margin. Pages with a sidebar give the sidebar 272 px of
+   the bar from 960 px; there the looking glass stays from 920 up to 1077 px. `.Layout` ties the theme's scoped
+   selectors; this file loads last and wins. */
+@media (min-width: 768px) and (max-width: 919px) {
+  .Layout .VPNavBarSearch { justify-content: flex-end; padding-left: 0; }
+  .Layout .DocSearch-Button .DocSearch-Button-Placeholder,
+  .Layout .DocSearch-Button .DocSearch-Button-Keys { display: none; }
+  .Layout .DocSearch-Button,
+  .Layout .DocSearch-Button:hover { justify-content: center; border-color: transparent; padding: 0; width: 48px; height: 55px; background: transparent; }
+  .Layout .DocSearch-Button .DocSearch-Search-Icon { top: 0; margin-right: 0; width: 16px; height: 16px; color: var(--vp-c-text-1); }
+  .Layout .VPNavBarMenu .VPNavBarMenuLink,
+  .Layout .VPNavBarMenu .VPNavBarMenuGroup > .button { padding: 0 8px; }
+}
+@media (min-width: 920px) and (max-width: 1077px) {
+  .Layout .VPNavBar:has(.VPNavBarTitle.has-sidebar) .VPNavBarSearch { justify-content: flex-end; padding-left: 0; }
+  .Layout .VPNavBar:has(.VPNavBarTitle.has-sidebar) .DocSearch-Button .DocSearch-Button-Placeholder,
+  .Layout .VPNavBar:has(.VPNavBarTitle.has-sidebar) .DocSearch-Button .DocSearch-Button-Keys { display: none; }
+  .Layout .VPNavBar:has(.VPNavBarTitle.has-sidebar) .DocSearch-Button,
+  .Layout .VPNavBar:has(.VPNavBarTitle.has-sidebar) .DocSearch-Button:hover { justify-content: center; border-color: transparent; padding: 0; width: 48px; height: 55px; background: transparent; }
+  .Layout .VPNavBar:has(.VPNavBarTitle.has-sidebar) .DocSearch-Button .DocSearch-Search-Icon { top: 0; margin-right: 0; width: 16px; height: 16px; color: var(--vp-c-text-1); }
+}
+
 /* ---- readability (R1, measured): real ~60ch prose, 14px code ------------- */
 .vp-doc p, .vp-doc li { max-width: 60ch; }
 .vp-doc :not(pre) > code { font-size: 0.875em; }
@@ -338,6 +375,18 @@
 /* keep-all: no intra-token break in short chips (":🔥" stays whole) while long
    inline paths still wrap at / and - (nowrap clipped them at 390px — rejected) */
 .vp-doc :not(pre) > code { word-break: keep-all; }
+/* No break inside a short token of a prose code span (GoMeta's creator, 2026-10-26): a label name such as
+   label🌲 was cut between the word and the pictograph at a line's end, a signed form such as :-label1 after
+   its sign, a call such as Vector{UInt8}(codeunits(s)) between } and ( — keep-all above binds none of these.
+   The span.gm-nb markup comes from the inline-code renderer rule in config.mts, which wraps only tokens short
+   enough for the narrowest column (the width rule lives there); a longer token (a long path, say) carries no gm-nb and
+   wraps as before, at / and - and by the emergency break. */
+.vp-doc :not(pre) > code .gm-nb { white-space: nowrap; }
+/* A heading sets its code at .875em of 18–32 px, where a token short enough for a paragraph column can be wider
+   than a phone's: headings keep the browser's breaks (no heading holds a code span today). The same specificity
+   as the rule above, (0,2,2) — it must follow it. */
+.vp-doc h1 code .gm-nb, .vp-doc h2 code .gm-nb, .vp-doc h3 code .gm-nb,
+.vp-doc h4 code .gm-nb, .vp-doc h5 code .gm-nb, .vp-doc h6 code .gm-nb { white-space: normal; }
 
 /* Brand mono everywhere: style.css hard-sets JuliaMono (CDN) on pre/code;
    this later element-level rule wins and keeps the CDN font unused. */

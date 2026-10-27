@@ -223,15 +223,62 @@ export default defineConfig({
       const gmMarkAll = /(^|[\s(\["']|&quot;)((?:#|\/\/|%)~[0-9~]*!?|#\])(?=[\s)\]"']|&quot;|$)/g
       const gmMarkHead = /^((?:#|\/\/|%)~[0-9~]*!?|#\])(?=\s|$)/
       const gmDefaultCodeInline = md.renderer.rules.code_inline!
+      // No break inside a short token of a prose code span (GoMeta's creator, 2026-10-26): a label name
+      // such as label🌲 was cut between the word and the pictograph at a line's end, a signed form such as
+      // :-label1 after its sign, a call such as Vector{UInt8}(codeunits(s)) between } and ( — the
+      // stylesheet's word-break: keep-all binds none of these. Markup only, the text unchanged: a TOKEN,
+      // a whitespace-free run of the span's text, is wrapped in <span class="gm-nb"> (overrides.css:
+      // white-space: nowrap) when it measures 2 to GM_NB_MAX cells, so that it is never wider than the
+      // narrowest prose column — 28 cells are 247.2 px at the body size (8.4 px a cell + the chip's 12 px)
+      // against 252 px at a 320 px viewport, 217.8 px in the 14 px contexts against 238 px. A pictograph
+      // glyph is about 2.1 cells wide in the site's code font and counts 3 (safe for any emoji font); a
+      // presentation selector (U+FE0E, U+FE0F), a joiner, a skin-tone modifier and a tag character
+      // (U+E0020–E007F) add no width and count 0; the keycap mark U+20E3 counts 0 too, so a keycap sequence
+      // (# or a digit with it, one wide glyph) is under-counted at 1 — none stands in the site's text; every
+      // other code point 1. A longer token is left to the browser: it wraps at /, - and the commas and,
+      // when wider than the column, by the emergency break (the theme's overflow-wrap: break-word on p
+      // and li); nowrap would clip it. The pass runs after the marker pass, so a token may hold the
+      // <span class="gm-sg">…</span> a marker got: the run pattern steps over a tag as one unit (the
+      // space inside a tag never splits a token) and the spans nest gm-nb > gm-sg. The text is escaped
+      // when it is post-processed (markdown-it escapes & < > " and nothing else), so a raw '<' is always
+      // a tag and an entity is one character of the count.
+      const GM_NB_MAX = 28
+      const gmNbPicto = /[\p{Extended_Pictographic}\p{Regional_Indicator}\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}]/u
+      const gmNbMod = /[\u{FE0E}\u{FE0F}\u{200D}\u{20E3}\u{1F3FB}-\u{1F3FF}\u{E0020}-\u{E007F}]/u
+      const gmNbRun = /(?:<[^>]*>|[^\s<])+/gu
+      const gmNbCells = (run: string): number => {
+        let n = 0
+        for (const ch of run.replace(/<[^>]*>/g, '').replace(/&(?:amp|lt|gt|quot);/g, 'x')) n += gmNbMod.test(ch) ? 0 : gmNbPicto.test(ch) ? 3 : 1
+        return n
+      }
+      const gmNoBreak = (inner: string): string =>
+        inner.replace(gmNbRun, (run) => { const n = gmNbCells(run); return n >= 2 && n <= GM_NB_MAX ? `<span class="gm-nb">${run}</span>` : run })
+      // A table cell gets no no-break spans (GoMeta's creator, 2026-10-27): Chrome sizes a cell's column from its
+      // longest token, and a span boundary inside the chip changes that measure by the chip's padding (the Syntax
+      // page's condition table at 320–360 px: one column 6 px narrower, one cell a line taller), while no token
+      // inside a table cell was ever cut at any width. The cell's open and close tokens set a flag on the page's
+      // render environment; the tags themselves are written as before (an earlier rule, if any, still runs).
+      for (const [cellOpen, cellClose] of [['td_open', 'td_close'], ['th_open', 'th_close']] as const) {
+        const prevOpen = md.renderer.rules[cellOpen], prevClose = md.renderer.rules[cellClose]
+        md.renderer.rules[cellOpen] = (tokens, idx, options, env, self) => {
+          env.gmInCell = true
+          return prevOpen ? prevOpen(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options)
+        }
+        md.renderer.rules[cellClose] = (tokens, idx, options, env, self) => {
+          env.gmInCell = false
+          return prevClose ? prevClose(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options)
+        }
+      }
       md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
         const tok = tokens[idx]
-        if (!gmMarkAny.test(tok.content)) return gmDefaultCodeInline(tokens, idx, options, env, self)
-        if (gmMarkHead.test(tok.content)) tok.attrJoin('class', 'gm-ml')
+        const marked = gmMarkAny.test(tok.content)
+        if (marked && gmMarkHead.test(tok.content)) tok.attrJoin('class', 'gm-ml')
         const html = gmDefaultCodeInline(tokens, idx, options, env, self)
         const open = html.indexOf('>') + 1, close = html.lastIndexOf('</code>')
         if (open <= 0 || close < open) return html
-        const inner = html.slice(open, close).replace(gmMarkAll, (_m, pre, t) => `${pre}<span class="gm-sg">${t}</span>`)
-        return html.slice(0, open) + inner + html.slice(close)
+        let inner = html.slice(open, close)
+        if (marked) inner = inner.replace(gmMarkAll, (_m, pre, t) => `${pre}<span class="gm-sg">${t}</span>`)
+        return html.slice(0, open) + (env && env.gmInCell ? inner : gmNoBreak(inner)) + html.slice(close)
       }
     },
     theme: {
