@@ -539,7 +539,7 @@ diagnostic: LABELS_VOCABULARY_FILE_CHANGED (info) — label label🌲 — 1 occu
 ## 6. Conditions
 
 The optional `{}` after a value or a label states the condition under which it gets applied.
-As the talk proposal for JuliaCon 2026 explains the first example, the optional `{}` following `hide` on line 1 allows the user to specify conditions under which `hide` may get applied: a Block inheriting from it is hidden if it has been attributed `:label4` or is a code Block, provided there is no opposing statement closer to that Block overruling it.
+As the [talk proposal for JuliaCon 2026](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) explains the first example, the optional `{}` following `hide` on line 1 allows the user to specify conditions under which `hide` may get applied: a Block inheriting from it is hidden if it has been attributed `:label4` or is a code Block, provided there is no opposing statement closer to that Block overruling it.
 
 | written | meaning | from the examples |
 |---|---|---|
@@ -653,7 +653,7 @@ copy byte for byte.
 | `feature_contiguous_metablock_blankline.jl` | the same two metaLines with an empty line between them |
 | `feature_triple_tilde.jl` | `#~~~` as depth 3 under a depth-2 metaBlock |
 
-The JuliaCon 2026 talk proposal explains the opening of the first file: "The first three lines in the code below form a Block of metadata at level 1. The optional {} following hide on line 1 allows the user to specify conditions under which hide may get applied. In this case, a Block, say aBlock, inheriting from it will be hidden, if it has been attributed :label4 or is a code Block provided there is no opposing statement closer to aBlock overruling it. Analogously, :label1 gets assigned to anything which inherits from this first meta Block, if it is text and containsMeta or is itself meta, provided there is no other statement closer by, overruling this." The committed file's comment lines differ from the
+The [JuliaCon 2026 talk proposal](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) explains the opening of the first file: "The first three lines in the code below form a Block of metadata at level 1. The optional {} following hide on line 1 allows the user to specify conditions under which hide may get applied. In this case, a Block, say aBlock, inheriting from it will be hidden, if it has been attributed :label4 or is a code Block provided there is no opposing statement closer to aBlock overruling it. Analogously, :label1 gets assigned to anything which inherits from this first meta Block, if it is text and containsMeta or is itself meta, provided there is no other statement closer by, overruling this." The committed file's comment lines differ from the
 proposal's listing in wording only; the metaLines are the same.
 
 ::: details The full delivery view of the first example — every Block and Line with its evaluated values, as the development tools print it

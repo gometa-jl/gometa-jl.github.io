@@ -1,7 +1,7 @@
 # What is GoMeta?
 
 GoMeta.jl is an *interpretable-metadata* engine, written in Julia, designed to work between,
-behind and within your data: in any programming language and any file format. The idea is to embed formalized metadata within all kinds of comments and to enable [Extensions](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension) to act on GoMeta's output. The JuliaCon 2026 proposal puts it this way: "The core concept remains the same: Add interpretable meaning to
+behind and within your data: in any programming language and any file format. The idea is to embed formalized metadata within all kinds of comments and to enable [Extensions](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension) to act on GoMeta's output. The [JuliaCon 2026 proposal](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) puts it this way: "The core concept remains the same: Add interpretable meaning to
 comments within a Julia file by means of brief, simple, expressive and extendable metadata. The
 crux of the idea lies in its potential to serve a wider variety of different packages and even
 facilitating interactions between them." — "However, in order to truly fulfill what had been
@@ -16,7 +16,7 @@ beside the content they describe. GoMeta evaluates the metadata — more precise
 Extensions' role; they
 receive the evaluations through GoMeta's interface, `altValues_evals`.
 
-The JuliaCon 2026 talk explains GoMeta by asking and answering three questions. This page answers the
+The [JuliaCon 2026 talk](https://gometa.dev/talk/) explains GoMeta by asking and answering three questions. This page answers the
 first — what GoMeta is. [Why use GoMeta?](why-use-gometa.md) answers the second, and
 [How does GoMeta work?](how-does-gometa-work.md) the third.
 
@@ -38,7 +38,7 @@ first — what GoMeta is. [Why use GoMeta?](why-use-gometa.md) answers the secon
 
 ## A language and a framework
 
-In the words of the JuliaCon 2026 talk: "On the one hand, GoMeta is a domain specific language for metadata and on the other a framework with facilities on which Extensions can build." The
+In the words of the [JuliaCon 2026 talk](https://gometa.dev/talk/): "On the one hand, GoMeta is a domain specific language for metadata and on the other a framework with facilities on which Extensions can build." The
 language is the notation of the metaLines (e.g. statements, labels, conditions, the meta hierarchy, etc.)
 written in the comments of an ordinary file; the
 [Syntax & semantics](../reference/syntax-and-semantics.md) page is its reference. The framework
@@ -51,11 +51,11 @@ that run, and the [Public API](../reference/public-api.md) page names what a pro
 GoMeta's metadata lives in comments, so the file stays an ordinary file of its format and the
 host language never sees the metadata. At this release GoMeta reads three
 [comment markers](../reference/syntax-and-semantics.md#comment-marker): Julia's `#`, the C family's `//` (e.g. C, Rust, etc.), and LaTeX's `%` — the marker is named when GoMeta is called (Julia is the
-default), never inferred from the file. GoMeta is meant for all kinds of comments: the JuliaCon 2026 talk lists Julia and Python, C and Rust, and LaTeX as implemented, Word documents (the `.fodt` format to start with), and, not yet, spreadsheets and metadata attached to images, video and the like. That reach is the reason for the name — GoMeta works in between them, behind them, within them — stated on the [front page](../index.md).
+default), never inferred from the file. GoMeta is meant for all kinds of comments: the [JuliaCon 2026 talk](https://gometa.dev/talk/) lists Julia and Python, C and Rust, and LaTeX as implemented, Word documents (the `.fodt` format to start with), and, not yet, spreadsheets and metadata attached to images, video and the like. That reach is the reason for the name — GoMeta works in between them, behind them, within them — stated on the [front page](../index.md).
 
 ## Status
 
-GoMeta was presented and released at JuliaCon 2026 by its creator, Jerae Sieburgh; in the words of the talk proposal, the package "finally implements a vastly matured offspring of a [my] half-baked idea proposed at JuliaCon2025."
+GoMeta was presented and released at JuliaCon 2026 by its creator, Jerae Sieburgh; in the words of the [talk proposal](https://pretalx.com/juliacon-2026/talk/XYMFMZ/), the package "finally implements a vastly matured offspring of a [my] half-baked idea proposed at JuliaCon2025."
 GoMeta.jl `0.4.4` is **alpha**: a working, tested engine for the **v0 subset** of the GoMeta
 language. The seven committed example pairs render byte for byte under the shipped test suite,
 and input the grammar does not accept meets a stable refusal: GoMeta stops with a message that says what it could not accept, and nothing is delivered; a label GoMeta cannot apply — withheld, or not in the vocabulary — does not stop the run: it is reported by a warning diagnostic and the run completes. The surface may still move — by GoMeta's policy, until at least version 0.7 every change of the public surface is a clean cut (no leftover of an older version in a newer one), and the package's API document (`docs/public-api.md` in the repository) keeps the register of every such change. The language grows by design;

@@ -1,7 +1,7 @@
 # Why use GoMeta?
 
-The JuliaCon 2026 talk explains GoMeta by asking and answering three questions. This page answers the
-second. Why would someone want to use GoMeta? Among the answers are the four use cases and GoMeta's reach: it can be used within all kinds of comments, across languages and file types. The four use cases come first, in the words of the JuliaCon 2026 proposal; then why the metadata lives in comments; then the reach beyond programmers — and to AI agents.
+The [JuliaCon 2026 talk](https://gometa.dev/talk/) explains GoMeta by asking and answering three questions. This page answers the
+second. Why would someone want to use GoMeta? Among the answers are the four use cases and GoMeta's reach: it can be used within all kinds of comments, across languages and file types. The four use cases come first, in the words of the [JuliaCon 2026 proposal](https://pretalx.com/juliacon-2026/talk/XYMFMZ/); then why the metadata lives in comments; then the reach beyond programmers — and to AI agents.
 
 ## 1. Four use cases
 
@@ -41,7 +41,7 @@ your own. What ships with this release for each of the four: a demo program unde
 
 ## 2. Why in comments?
 
-The answers, from the JuliaCon 2026 talk's slides and proposal:
+The answers, from the [JuliaCon 2026 talk's slides](https://gometa.dev/talk/) and [proposal](https://pretalx.com/juliacon-2026/talk/XYMFMZ/):
 
 - **One source file, all kinds of output formats** — the slides' list of output formats: "HTML - pdf - Jupyter notebook - Documenter markdown - Standard markdown - Clean Julia script - . . ." In the proposal's words: "Similar to Literate & Co., segments of code and text can live
   happily together, weaved into the same files. These serve as source files which can
@@ -60,9 +60,9 @@ The answers, from the JuliaCon 2026 talk's slides and proposal:
 
 ## 3. Not just for programmers — and for AI agents too
 
-At this release GoMeta reads three [comment markers](../reference/syntax-and-semantics.md#comment-marker) — Julia's `#`, the C family's `//` (e.g. C, Rust, etc.), LaTeX's `%` — and it is meant for all kinds of comments, documents and files; [What is GoMeta?](what-is-gometa.md) lists the carriers the JuliaCon 2026 talk names and their state. In the creator's words: "This is not just for programmers any more."
+At this release GoMeta reads three [comment markers](../reference/syntax-and-semantics.md#comment-marker) — Julia's `#`, the C family's `//` (e.g. C, Rust, etc.), LaTeX's `%` — and it is meant for all kinds of comments, documents and files; [What is GoMeta?](what-is-gometa.md) lists the carriers the [JuliaCon 2026 talk](https://gometa.dev/talk/) names and their state. In the creator's words: "This is not just for programmers any more."
 
-GoMeta's aims, and a forecast in the JuliaCon 2026 proposal, reach further. On the webs: one of the main aims of GoMeta is to interlink documents and files — more generally, content contained in different documents or files — so that, for instance, a paragraph in one document can refer to a sub-section of another; the aim is to create webs of atomic data units, useful not only for humans but also for AI agents. And from the proposal, on
+GoMeta's aims, and a forecast in the [JuliaCon 2026 proposal](https://pretalx.com/juliacon-2026/talk/XYMFMZ/), reach further. On the webs: one of the main aims of GoMeta is to interlink documents and files — more generally, content contained in different documents or files — so that, for instance, a paragraph in one document can refer to a sub-section of another; the aim is to create webs of atomic data units, useful not only for humans but also for AI agents. And from the proposal, on
 the labeling itself: "In the near future, AI will automate much of the labeling in the
 background. Crucially, if this black box is confined within a formalized framework of metadata,
 intermediary steps can be systematically recorded, making the process not only better traceable
