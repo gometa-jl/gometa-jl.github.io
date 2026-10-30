@@ -871,3 +871,60 @@ html:not(.dark) #gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"] { bac
   background: var(--vp-code-bg); border-radius: 4px; padding: 3px 6px; }
 .dark .gm-home :not(pre) > code { color: var(--gm-head); }
 .gm-home :not(pre) > code .gm-sg { color: var(--gm-syn-sig); font-weight: 700; }
+
+/* ===== The examples ladder (2026-10-30; GoMeta's creator's choices of 12:11 — RULINGS DISP-1): line numbers in the box,
+   the lines a rung ADDED marked by a bold number in the signature pink, a faint tint over the whole line and a bar at
+   its left edge (V3); a line a rung TOUCHED by a dotted number, a lighter tint and a yellow bar; runs of unchanged lines
+   folded behind a toggle and a box that scrolls inside itself with an expand bar (F5) — all without a script. The line
+   numbers and the labels' words are written by the stylesheet, so the copy button copies the file alone. ===== */
+:root {
+  /* the tints LIGHTER than the fences' beige, so every ink keeps at least its bare-ground contrast (the display
+     seat's computation of 2026-10-30: a darkening tint, even at alpha 0.04, put the Text ink under 4.5:1) */
+  --gm-new-bg: rgba(255, 214, 236, 0.45);
+  --gm-chg-bg: rgba(255, 240, 180, 0.45);
+  --gm-ln-ink: var(--vp-c-text-3);
+}
+.dark {
+  --gm-new-bg: rgba(245, 98, 178, 0.13);
+  --gm-chg-bg: rgba(255, 233, 148, 0.12);
+}
+.gm-syn .gm-l { display: inline-block; min-width: 100%; box-sizing: border-box; }
+.gm-ln-on .gm-l::before { content: attr(data-ln); display: inline-block; width: 2.4em; margin-right: 1.2em;
+  text-align: right; color: var(--gm-ln-ink); font-variant-numeric: tabular-nums; user-select: none; }
+.gm-ln-on .gm-new::before { color: var(--gm-syn-sig); font-weight: 700; }
+.gm-ln-on .gm-chg::before { text-decoration: underline dotted; text-underline-offset: 3px; }
+.gm-ln-on .gm-new { background: var(--gm-new-bg); box-shadow: inset 3px 0 0 var(--gm-syn-sig); }
+.gm-ln-on .gm-chg { background: var(--gm-chg-bg); box-shadow: inset 3px 0 0 var(--gm-syn-text); }
+/* Folding: a run of unchanged lines collapses behind one label; the checkbox is the toggle; the words are CSS content
+   (data-n carries "N lines"); an opened run keeps its label as the handle that folds it again. */
+.gm-run-toggle { position: absolute; opacity: 0; width: 0; height: 0; }
+.gm-run-label { display: inline-block; min-width: 100%; box-sizing: border-box; cursor: pointer; font-style: italic;
+  color: var(--vp-c-text-2); background: var(--vp-c-default-soft); padding-left: 3.6em; }
+.gm-run-label::before { content: "⋯ " attr(data-n) " unchanged — click to show ⋯"; }
+.gm-run-label:hover { color: var(--vp-c-text-1); }
+.gm-run-body { display: none; }
+.gm-run-toggle:checked ~ .gm-run-label::before { content: "⋯ fold these " attr(data-n) " again ⋯"; }
+.gm-run-toggle:checked ~ .gm-run-label { display: block; }   /* the opened run's handle on its own line: in white-space: pre the
+                                                                 first revealed line would share its line box (the CrossReview
+                                                                 seats C1/D2 of 2026-10-30, confirmed by the opened-fold shot) */
+.gm-run-toggle:checked ~ .gm-run-body { display: inline; }
+.gm-run-toggle:focus-visible ~ .gm-run-label, .gm-expand:focus-visible ~ .gm-expand-label {
+  outline: 2px solid var(--vp-c-brand-1); outline-offset: -2px; }
+/* Scrolling: the box shows --gm-rows lines of 14px × 1.7 and scrolls inside; the bar under it shows the whole file —
+   the folds open with it. */
+.gm-scroll-on { position: relative; }
+.gm-scroll-on pre.gm-scroll { font-size: 14px; max-height: calc(var(--gm-rows) * 1.7em + 40px); overflow-y: auto;
+  margin-bottom: 0; border-radius: 0; }
+.gm-expand { position: absolute; opacity: 0; width: 0; height: 0; }
+.gm-expand-label { display: block; text-align: center; cursor: pointer; font-size: 13px; font-style: italic;
+  color: var(--vp-c-text-2); background: var(--vp-c-default-soft); padding: 6px 8px; border-radius: 0; }
+.gm-expand-label:hover { color: var(--vp-c-text-1); }
+.gm-expand-label::after { content: "▾ show the whole file ▾"; }
+.gm-expand:checked ~ .gm-expand-label::after { content: "▴ show less ▴"; }
+.gm-expand:checked ~ pre.gm-scroll { max-height: none; }
+.gm-expand:checked ~ pre .gm-run-toggle, .gm-expand:checked ~ pre .gm-run-label { display: none; }   /* the toggles too: else
+                                                                 invisible keyboard stops under the bar (the seats C2/D3) */
+.gm-expand:checked ~ pre .gm-run-body { display: inline; }
+/* In a scroll box the lang tag and the copy button stand clear of a classic vertical scrollbar (the scrollbar shot of 2026-10-30). */
+.vp-doc .gm-scroll-on > span.lang { right: 24px; }
+.vp-doc .gm-scroll-on > button.copy { right: 28px; }

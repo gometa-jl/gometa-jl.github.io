@@ -189,21 +189,89 @@ export default defineConfig({
       // editor: the julia-tagged fences (and the gometa fences, by their own rule below). The
       // PRINTOUTS — the development tools' views and every other printout, which are the untagged
       // fences — keep their own style: no marker pink inside them.
+      // The examples ladder (GoMeta's creator's choices of 2026-10-30 12:11 — RULINGS DISP-1): a gometa fence's info string may
+      // carry options after the language — `ln` (line numbers, written by the stylesheet from data-ln so the copy button
+      // copies the file alone), `new=A-B,C` and `chg=A,B` (the lines a rung added / touched: the classes gm-new / gm-chg on
+      // the line — the stylesheet marks them by a bold pink number, a tint and a bar), `fold=N` (runs of unmarked lines beyond
+      // N context lines collapse behind a CSS-only toggle; the label's words are CSS content), `scroll=N` (the box shows N
+      // lines and scrolls inside itself; a CSS-only expand bar under it). Without options the output is byte-identical to
+      // the former rule (measured 2026-10-30 on the Getting started page's two fences).
+      const gmRanges = (spec: string | undefined): Set<number> => {
+        const s = new Set<number>()
+        if (!spec) return s
+        for (const part of spec.split(',')) {
+          const m = part.match(/^(\d+)(?:-(\d+))?$/)
+          if (!m) continue
+          const a = parseInt(m[1], 10), b = m[2] ? parseInt(m[2], 10) : a
+          for (let i = a; i <= b; i++) s.add(i)
+        }
+        return s
+      }
       md.renderer.rules.fence = (tokens, idx, options, env, self) => {
         const tok = tokens[idx]
-        const lang = tok.info.trim()
+        const info = tok.info.trim()
+        const words = info.split(/\s+/)
+        const lang = words[0]
         if (lang !== 'gometa') {
           const html = gmDefaultFence(tokens, idx, options, env, self)
           return lang === 'julia' ? gmMarkFence(html) : html
         }
+        const opt: Record<string, string> = {}
+        for (const w of words.slice(1)) { const eq = w.indexOf('='); if (eq < 0) opt[w] = '1'; else opt[w.slice(0, eq)] = w.slice(eq + 1) }
+        const plain = words.length === 1
         let inStr = false
-        const out: string[] = []
+        const lines: string[] = []
         for (const raw of tok.content.replace(/\n$/, '').split('\n')) {
           const [html, next] = gmLine(raw, inStr)
           inStr = next
-          out.push(html)
+          lines.push(html)
         }
-        return `<div class="language-gometa vp-adaptive-theme gm-syn"><button title="Copy Code" class="copy"></button><span class="lang">gometa</span><pre class="shiki" tabindex="0"><code>${out.join('\n')}</code></pre></div>\n`
+        if (plain) {
+          return `<div class="language-gometa vp-adaptive-theme gm-syn"><button title="Copy Code" class="copy"></button><span class="lang">gometa</span><pre class="shiki" tabindex="0"><code>${lines.join('\n')}</code></pre></div>\n`
+        }
+        const uid = (env.gmFenceId = (env.gmFenceId || 0) + 1)   // per page, so another page's fences never renumber this one's
+        const newL = gmRanges(opt['new']), chgL = gmRanges(opt['chg'])
+        const wrap = (i: number) => {
+          const cls = ['gm-l']
+          if (newL.has(i)) cls.push('gm-new')
+          if (chgL.has(i)) cls.push('gm-chg')
+          return `<span class="${cls.join(' ')}" data-ln="${i}">${lines[i - 1]}</span>`
+        }
+        const n = lines.length
+        const chunks: string[] = []
+        const fold = opt['fold'] !== undefined ? parseInt(opt['fold'], 10) : -1
+        if (fold >= 0 && (newL.size + chgL.size) > 0) {
+          const keep = new Array<boolean>(n + 1).fill(false)
+          for (let i = 1; i <= n; i++) if (newL.has(i) || chgL.has(i)) for (let k = Math.max(1, i - fold); k <= Math.min(n, i + fold); k++) keep[k] = true
+          let i = 1, run = 0
+          while (i <= n) {
+            if (keep[i]) { chunks.push(wrap(i)); i++; continue }
+            let j = i
+            while (j <= n && !keep[j]) j++
+            if (j - i < 3) { for (let k = i; k < j; k++) chunks.push(wrap(k)); i = j; continue }   // a fold saves nothing on one or two lines
+            const body: string[] = []
+            for (let k = i; k < j; k++) body.push(wrap(k))
+            const id = `gm-r-${uid}-${++run}`
+            chunks.push(`<span class="gm-run"><input type="checkbox" id="${id}" class="gm-run-toggle"><label for="${id}" class="gm-run-label" data-n="${j - i} lines"></label><span class="gm-run-body">${body.join('\n')}</span></span>`)
+            i = j
+          }
+        } else {
+          for (let i = 1; i <= n; i++) chunks.push(wrap(i))
+        }
+        const box = ['language-gometa', 'vp-adaptive-theme', 'gm-syn']
+        if (opt['ln']) box.push('gm-ln-on')
+        let head = ''
+        let pre = `<pre class="shiki" tabindex="0"><code>${chunks.join('\n')}</code></pre>`
+        const rows = opt['scroll'] ? parseInt(opt['scroll'], 10) : 0
+        if (rows > 0 && n > rows) {   // a box no longer than its rows needs no bar
+          const id = `gm-x-${uid}`
+          box.push('gm-scroll-on')
+          // the expand checkbox stands FIRST in the box: the theme's copy button copies the element two siblings
+          // after itself, which must stay the <pre> (the checkbox between the lang tag and the pre copied nothing)
+          head = `<input type="checkbox" id="${id}" class="gm-expand">`
+          pre = `<pre class="shiki gm-scroll" tabindex="0" style="--gm-rows:${rows}"><code>${chunks.join('\n')}</code></pre><label for="${id}" class="gm-expand-label"></label>`
+        }
+        return `<div class="${box.join(' ')}">${head}<button title="Copy Code" class="copy"></button><span class="lang">gometa</span>${pre}</div>\n`
       }
       // Inline code spans (owner 2026-10-17, STYLE-1 — chosen from the style trials of that day):
       // a GoMeta marker inside a code span — the fence rule's sigil tokens (#~, #~n, #~!, #])

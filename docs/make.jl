@@ -21,7 +21,10 @@ makedocs(;
         "Tutorials" => [
             "Getting started" => "tutorials/getting-started.md",
         ],
-        "Examples" => "examples/index.md",
+        "Examples" => [
+            "Step by step" => "examples/step-by-step.md",
+            "The committed files" => "examples/index.md",
+        ],
         "Reference" => [
             "Syntax & semantics" => "reference/syntax-and-semantics.md",
             "Public API" => "reference/public-api.md",

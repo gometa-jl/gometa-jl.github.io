@@ -112,7 +112,7 @@ file only one of them applies at a time — and the GoMeta Engine evaluates whic
 to each piece. It is not exactly analogous to a Type: an Alterant usually brings functionality
 of its own, which may be invoked during the GoMeta Engine's process, for instance when a value
 is set. The Alterants shipped with this release are Visib, Labels, Heading and Id; the examples
-exercise the first two. Visib is the example on this site's pages because what the Engine
+exercise Visib and Labels, and rung 6 of [the ladder](../examples/step-by-step.md) shows the Heading. Visib is the example on this site's pages because what the Engine
 evaluates for it can be checked by eye in a rendered copy of the file; it is one Alterant among
 others, and the delivered evaluations are designed for all kinds of future Alterants.
 

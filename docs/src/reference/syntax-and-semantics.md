@@ -55,7 +55,7 @@ A **metaBlock** is a BLS Block Component of flavor Meta. One or more contiguous 
 An **Alterant** is, for Julia users, most similar to a Type: it defines which values its instances
 can take. It is not exactly analogous to a Type: an Alterant usually brings functionality of its own, which may be invoked during the GoMeta Engine's process, for instance when a value is set. Visib's values are `show`, `hide` and `discard`; the Labels Alterant's values are labels. A
 value is written bare, without the Alterant's name — `hide` — so that a metaLine stays brief. The Alterants shipped with this release are Visib,
-Labels, Heading and Id; the examples exercise the first two (§13).
+Labels, Heading and Id; the examples exercise Visib and Labels (§13), and rung 6 of [the ladder](../examples/step-by-step.md) shows the Heading.
 
 ### statement, metaSegment
 
@@ -156,6 +156,9 @@ A metaLine has the shape
 - The **statements** carry the metadata: values of Alterants, each with its optional `()`
   arguments and `{}` [condition](#condition), and [labels](#label) — applied, or withheld and applied
   explicitly with a sign at the head of the statement (§5). They are read from left to right.
+- A **heading** is a quoted text first on a metaLine — `#~ "Chapter one"` — a value of the Heading Alterant,
+  applied to the metaBlock that states it and to no other Block; the view records it as `head_<depth>`, `head_1`
+  for this metaLine (rung 6 of [the ladder](../examples/step-by-step.md)).
 - At the file level (`#~0`) and in the [user level](#depth,-the-meta-hierarchy) a statement may also be one of the
   Labels Alterant's [vocabulary statements](#vocabulary,-vocabulary-statement): `:++label6` or `:(++, label-3, label🏔️, label_💡)` adds names to the
   Labels Alterant's vocabulary, `:--label1` or `:(--, label1, label2)` removes names from it — in the user level's
@@ -916,8 +919,9 @@ julia --startup-file=no --project=tests devtools/devtools.jl evals-tree <file>
 
 ## 13. What the examples do not exercise
 
-- The Heading and Id Alterants' effects. Their values exist in the package (`head`; `cell`,
-  `parent`, `file`, `ids`); the examples do not exercise them, and the Id Alterant is a placeholder.
+- The Id Alterant's effects. Its values exist in the package (`cell`, `parent`, `file`, `ids`); no example
+  exercises them, and the Id Alterant is a placeholder. The Heading Alterant's value is seen in use at rung 6 of
+  [the ladder](../examples/step-by-step.md) (`head_1` in its view); the basic renderer writes the metaLine as it is.
 - `containsText`: BLS records it, but no example asks for it in a condition.
 - The reading of a mixed condition without `()`: Julia's own rules decide it; write the parentheses.
 - A tilde count with a differing digit, such as `#~~3`.
