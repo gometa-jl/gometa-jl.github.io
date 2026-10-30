@@ -1,6 +1,6 @@
 # Development tools
 
-GoMeta's output is a set of evaluated values at the [Components](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) of a file, not a file: as GoMeta's creator puts it, *"the output of GoMeta is not readily directly observable. For that reason, a couple of tools and colorful printouts can serve to track and illustrate the internal process of the package"*. This page is the reference for those tools
+GoMeta's output is a set of evaluated values at the [Components](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) of a file, not a file. Consequently, the output of GoMeta is not readily directly observable. For that reason, a couple of tools and colorful printouts can serve to track and illustrate the internal process of the package. This page is the reference for those tools
 at release **0.4.4** (alpha): the print tools, which show what a run produced, and the basic
 renderer, which writes a rendered copy of the file. They are not part of a GoMeta run: the
 [GoMeta Engine](syntax-and-semantics.md#the-GoMeta-Engine,-Extension) uses none of them, a run
@@ -22,7 +22,7 @@ The optional third argument feeds a user level's profile — the body of a metaL
 | verb | prints |
 |---|---|
 | `evals-tree` | the full delivery view: every Block and Line of the [BLS Component tree](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File), each with the [evaluated values](syntax-and-semantics.md#altValue,-evals) recorded at it and every value's handle decoded; a Line that ends in a metaSegment — a `#~` with or without a [statement](syntax-and-semantics.md#statement,-metaSegment) after it — carries its values with that Segment named; a Component without a value of its own is marked so; the view ends with the run's line — its status and its diagnostics, printed also where no Component carries a value |
-| `bls-tree` | the Component-tree view: every Component with its [settribute](syntax-and-semantics.md#settribute) and its named integers; this view carries no status line and no run's line — from a shell the status goes to the error stream |
+| `bls-tree` | the Component-tree view: every Block, Line and Segment with its [settribute](syntax-and-semantics.md#settribute) and its [named integers](syntax-and-semantics.md#NamedElement); this view carries no status line and no run's line — from a shell the status goes to the error stream |
 | `tree` | the BLS Component tree printed one row per input line: each Component's [flavor](syntax-and-semantics.md#flavor) and content, Blocks, Lines and Segments nested |
 | `segments` | the same rows with the input's line numbers in front |
 | `evals` | the evaluated values alone, one row per value |
@@ -95,7 +95,7 @@ example files; the two other views of the first example file follow here.
 
 :::
 
-::: details The Component-tree view of the first example file — every Component with its settribute and its named integers (the `bls-tree` verb)
+::: details The Component-tree view of the first example file — every Block, Line and Segment with its settribute and its named integers (the `bls-tree` verb)
 
 ```@raw html
 <pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">file_for_Example_Proposal_JuliaCon.jl</span><span class="gm-dt-gutter">  —  8 Blocks · 35 Lines · 14 Segments
@@ -288,7 +288,7 @@ surface they read has changed.
 ## 2. The basic renderer: a proxy to check by eye
 
 The basic renderer writes a rendered copy of the file in which each piece appears as its
-evaluated Visib value says — shown, hidden or discarded. For GoMeta's creator it is simply a proxy to check what GoMeta has evaluated: what matters is what GoMeta evaluates, not what its proxy shows. Strictly speaking it is no Extension: it lives under the package's development tools, and it is there because it serves a vital purpose for the package's development. It behaves like one, though: it reads the delivery through the public surface — the BLS Component
+evaluated Visib value says — shown, hidden or discarded. It is simply a proxy to check what GoMeta has evaluated: what matters is what GoMeta evaluates, not what its proxy shows. Strictly speaking it is no Extension: it lives under the package's development tools, and it is there because it serves a vital purpose for the package's development. It behaves like one, though: it reads the delivery through the public surface — the BLS Component
 tree through BLS's own functions, every Visib value through the Engine's answer function,
 [`evaluatedAltValue`](public-api.md) — and it evaluates nothing itself. It is loaded
 explicitly, at the top level:

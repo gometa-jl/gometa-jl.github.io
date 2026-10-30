@@ -1,7 +1,7 @@
 # Syntax & semantics
 
 This page is the reference for the notation of GoMeta — the **[metaLines](#metaLine)** written into a
-file's comments — and for what the GoMeta Engine evaluates from them. It is written for the release **0.4.4** (alpha) from the package's own reference document and from the design as GoMeta's creator states it. The two example files committed with the package, and the [talk proposal for JuliaCon 2026](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) by GoMeta's creator, which they illustrate, are, in general, the law of the notation: where this page and a committed example could ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
+file's comments — and for what the GoMeta Engine evaluates from them. It is written for the release **0.4.4** (alpha) from the package's own reference document and from GoMeta's design. The two example files committed with the package, and the [talk proposal for JuliaCon 2026](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) by Jerae Sieburgh, which they illustrate, are, in general, the law of the notation: where this page and a committed example could ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
 
 ## 0. What GoMeta does
 
@@ -112,8 +112,16 @@ The **BLS key words** are facts about a Component that BLS records when it reads
 
 ### settribute
 
-A **settribute** is a data store, usually for smallish entries, that can be set to a range of particular values; it is used for settings and attributes alike — hence the name, given by GoMeta's creator. Every Component carries one. The BLS key words
+A **settribute** is a data store, usually for smallish entries, that can be set to a range of particular values; it is used for settings and attributes alike — hence the name. Every Component carries one; it is built as a [NamedElement](#NamedElement), described below. The BLS key words
 are the entries BLS sets in it when it reads the file.
+
+### NamedElement
+
+A Component's settribute is built as an instance of a **NamedElement**: a fixed-size data store whose entries are read and set by name. BLS declares the type with a Julia macro of its own, `@namedElement`. Given a type name, the Julia type of the entries and the list of the entries' names, the macro writes the type: a struct around one fixed-size array, a table that maps each name to its position in that array, the constructors, and the functions that read and set an entry by name — `getElement(store, :isCode)` returns one array element. A NamedElement of `Bool` entries is thus a vector of named flags (a bit vector of one `Bool` per entry, not Julia's packed `BitVector`); one of `Int` entries is a vector of named integers.
+
+Every Component carries two such stores: its named integers (`CmpntNamedInt`, nine entries at this release, e.g. its number — the `#N` the views print after Block, Line or Segment — and its parent's, its input line number, the number of its children, where its main string starts and stops, etc.) and its settribute (`ComponentSettribute`, 42 `Bool` entries at this release, e.g. the BLS key words `isMeta`, `isCode`, `isText` and `containsMeta`, a flag per depth such as `depth1`, the attachment facts, `comment`, `isEmpty`, `hasMetaStr`, etc.). The Component-tree view on the [Development tools](development-tools.md) page prints both for every Block, Line and Segment: the `Int64` row is the named-integer store, the `Bool` row names the settribute entries that are set.
+
+The [public surface](public-api.md#5.-The-BLS-Component-tree-and-its-door) offers the read `getElement(c, key)` on a Component `c` and the two types `ComponentSettribute` and `CmpntNamedInt`; the macro and the rest of what it writes are BLS's internals.
 
 ### depth, the meta hierarchy
 
@@ -531,7 +539,7 @@ diagnostic: LABELS_VOCABULARY_FILE_CHANGED (info) — label label🌲 — 1 occu
 ## 6. Conditions
 
 The optional `{}` after a value or a label states the condition under which it gets applied.
-As GoMeta's creator explains the first example in his talk proposal for JuliaCon 2026, the optional `{}` following `hide` on line 1 allows the user to specify conditions under which `hide` may get applied: a Block inheriting from it is hidden if it has been attributed `:label4` or is a code Block, provided there is no opposing statement closer to that Block overruling it.
+As the talk proposal for JuliaCon 2026 explains the first example, the optional `{}` following `hide` on line 1 allows the user to specify conditions under which `hide` may get applied: a Block inheriting from it is hidden if it has been attributed `:label4` or is a code Block, provided there is no opposing statement closer to that Block overruling it.
 
 | written | meaning | from the examples |
 |---|---|---|
@@ -631,7 +639,7 @@ Visib's values take no arguments; `hide()` is read as `hide`. The Id Alterant's 
 
 ## 11. The examples
 
-Two example files are by GoMeta's creator and are, in general, the law of the notation; five further inputs are examples the package's tests use. All seven stand under `examples/InFileFolder/`, each with its
+Two example files, `file_for_Example_Proposal_JuliaCon.jl` and `file_for_Example_Extended.jl`, serve, in general, as the law of the notation; five further inputs are examples the package's tests use. All seven stand under `examples/InFileFolder/`, each with its
 rendered copy under `examples/OutFileFolder/`, and the shipped test suite pins every rendered
 copy byte for byte.
 
@@ -645,7 +653,7 @@ copy byte for byte.
 | `feature_contiguous_metablock_blankline.jl` | the same two metaLines with an empty line between them |
 | `feature_triple_tilde.jl` | `#~~~` as depth 3 under a depth-2 metaBlock |
 
-The JuliaCon 2026 talk proposal of GoMeta's creator explains the opening of the first file: "The first three lines in the code below form a Block of metadata at level 1. The optional {} following hide on line 1 allows the user to specify conditions under which hide may get applied. In this case, a Block, say aBlock, inheriting from it will be hidden, if it has been attributed :label4 or is a code Block provided there is no opposing statement closer to aBlock overruling it. Analogously, :label1 gets assigned to anything which inherits from this first meta Block, if it is text and containsMeta or is itself meta, provided there is no other statement closer by, overruling this." The committed file's comment lines differ from the
+The JuliaCon 2026 talk proposal explains the opening of the first file: "The first three lines in the code below form a Block of metadata at level 1. The optional {} following hide on line 1 allows the user to specify conditions under which hide may get applied. In this case, a Block, say aBlock, inheriting from it will be hidden, if it has been attributed :label4 or is a code Block provided there is no opposing statement closer to aBlock overruling it. Analogously, :label1 gets assigned to anything which inherits from this first meta Block, if it is text and containsMeta or is itself meta, provided there is no other statement closer by, overruling this." The committed file's comment lines differ from the
 proposal's listing in wording only; the metaLines are the same.
 
 ::: details The full delivery view of the first example — every Block and Line with its evaluated values, as the development tools print it

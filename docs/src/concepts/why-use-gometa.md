@@ -1,11 +1,11 @@
 # Why use GoMeta?
 
-GoMeta's creator explains GoMeta by asking and answering three questions. This page answers the
-second. Why would someone want to use GoMeta? Among the answers are the four use cases and GoMeta's reach: it can be used within all kinds of comments, across languages and file types. The four use cases come first, in the creator's own words from his JuliaCon 2026 proposal; then why the metadata lives in comments; then the reach beyond programmers — and to AI agents.
+The JuliaCon 2026 talk explains GoMeta by asking and answering three questions. This page answers the
+second. Why would someone want to use GoMeta? Among the answers are the four use cases and GoMeta's reach: it can be used within all kinds of comments, across languages and file types. The four use cases come first, in the words of the JuliaCon 2026 proposal; then why the metadata lives in comments; then the reach beyond programmers — and to AI agents.
 
 ## 1. Four use cases
 
-In the words of GoMeta's creator — his proposal, once it has said that GoMeta absorbs the metadata and that the result can then be passed to a separate program: "At this point the question may arise: What would such a program or plug-in possibly use this for? What can actually be gained from embedding formalized metadata within comments?" — "To address this question, before continuing with the technicalities of GoMeta, lets consider four, seemingly unrelated use cases which together ought to resonate with the vast majority of JuliaCon's attendees:"
+In the proposal's words — once it has said that GoMeta absorbs the metadata and that the result can then be passed to a separate program: "At this point the question may arise: What would such a program or plug-in possibly use this for? What can actually be gained from embedding formalized metadata within comments?" — "To address this question, before continuing with the technicalities of GoMeta, lets consider four, seemingly unrelated use cases which together ought to resonate with the vast majority of JuliaCon's attendees:"
 
 **Find it again.** "Over time a large number of Julia files can accumulate. Wouldn't it be
 wonderful to speedily retrieve any desired, long forgotten poignant example, powerful code
@@ -41,9 +41,9 @@ your own. What ships with this release for each of the four: a demo program unde
 
 ## 2. Why in comments?
 
-The creator's answers, from his talk's slides and his proposal:
+The answers, from the JuliaCon 2026 talk's slides and proposal:
 
-- **One source file, all kinds of output formats** — his list of output formats: "HTML - pdf - Jupyter notebook - Documenter markdown - Standard markdown - Clean Julia script - . . ." In his words: "Similar to Literate & Co., segments of code and text can live
+- **One source file, all kinds of output formats** — the slides' list of output formats: "HTML - pdf - Jupyter notebook - Documenter markdown - Standard markdown - Clean Julia script - . . ." In the proposal's words: "Similar to Literate & Co., segments of code and text can live
   happily together, weaved into the same files. These serve as source files which can
   subsequently be converted into a variety of formats such as notebooks, standard markdown or
   even documenter markdown files. A suitable system for metadata allows exerting precise control
@@ -56,13 +56,13 @@ The creator's answers, from his talk's slides and his proposal:
   describe.
 - **Webs instead of hierarchies** — "Put things into context by weaving … webs of atomic data units … analogous to our brain." — "Much more capable of representing reality than hierarchies are." A folder tree or a chapter outline places each item at one position;
   labels weave a web, and one piece of content carries as many labels as apply.
-- **A wider tool** — for all kinds of work (e.g. code, reports, teaching material, note keeping, group projects, etc.) — "Extends well beyond a programming tool". In the creator's words: "The concept extends well beyond Julia and can be applied not only to other programming languages but to all sorts of text documents such as lectures notes or any number of scripts concerning a project, research or otherwise."
+- **A wider tool** — for all kinds of work (e.g. code, reports, teaching material, note keeping, group projects, etc.) — "Extends well beyond a programming tool". In the proposal's words: "The concept extends well beyond Julia and can be applied not only to other programming languages but to all sorts of text documents such as lectures notes or any number of scripts concerning a project, research or otherwise."
 
 ## 3. Not just for programmers — and for AI agents too
 
-At this release GoMeta reads three [comment markers](../reference/syntax-and-semantics.md#comment-marker) — Julia's `#`, the C family's `//` (e.g. C, Rust, etc.), LaTeX's `%` — and it is meant for all kinds of comments, documents and files; [What is GoMeta?](what-is-gometa.md) lists the carriers the creator's talk names and their state. In his words: "This is not just for programmers any more."
+At this release GoMeta reads three [comment markers](../reference/syntax-and-semantics.md#comment-marker) — Julia's `#`, the C family's `//` (e.g. C, Rust, etc.), LaTeX's `%` — and it is meant for all kinds of comments, documents and files; [What is GoMeta?](what-is-gometa.md) lists the carriers the JuliaCon 2026 talk names and their state. In the creator's words: "This is not just for programmers any more."
 
-The creator's aims, and a forecast of his talk, reach further. On the webs: one of the main aims of GoMeta is to interlink documents and files — more generally, content contained in different documents or files — so that, for instance, a paragraph in one document can refer to a sub-section of another; the aim is to create webs of atomic data units, useful not only for humans but also for AI agents. And from his talk, on
+GoMeta's aims, and a forecast in the JuliaCon 2026 proposal, reach further. On the webs: one of the main aims of GoMeta is to interlink documents and files — more generally, content contained in different documents or files — so that, for instance, a paragraph in one document can refer to a sub-section of another; the aim is to create webs of atomic data units, useful not only for humans but also for AI agents. And from the proposal, on
 the labeling itself: "In the near future, AI will automate much of the labeling in the
 background. Crucially, if this black box is confined within a formalized framework of metadata,
 intermediary steps can be systematically recorded, making the process not only better traceable

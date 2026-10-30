@@ -3,9 +3,9 @@
 This page is the reference for the surface a program relies on when it uses GoMeta, release
 **0.4.4** (alpha): the four names `using GoMeta` brings into scope, the further names reached
 qualified as `GoMeta.<name>`, and the door through which a program travels the
-[BLS](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) Component tree. It is written from the package at that release and from the design as GoMeta's creator states it; the package's own test suite pins the set of names the package declares public, and this page lists exactly that set. The terms the page uses are defined where they first appear or in the Syntax & semantics page's
+[BLS](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) Component tree. It is written from the package at that release and from GoMeta's design; the package's own test suite pins the set of names the package declares public, and this page lists exactly that set. The terms the page uses are defined where they first appear or in the Syntax & semantics page's
 [Glossary](syntax-and-semantics.md#Glossary); the delivered object and the Component's handle
-are defined here. Until at least version 0.7 every change of this surface is a clean cut: a renamed or removed name is gone, with no alias and no deprecation period — the policy of GoMeta's creator; the package's own API document keeps the register of every such change (see section 10 below).
+are defined here. Until at least version 0.7 every change of this surface is a clean cut: a renamed or removed name is gone, with no alias and no deprecation period — GoMeta's policy; the package's own API document keeps the register of every such change (see section 10 below).
 
 ## 1. One call: the entry
 
@@ -106,7 +106,7 @@ handle.
 The attributes at this release: `:label_<name> => true`, one row per
 [label](syntax-and-semantics.md#label) that applies; `:visib => :show`, `:hide` or `:discard`;
 `:head_<level> => "…"` for a heading (a same-level repeat on one handle `:head_<level>_<k>`); `:id_<name> => Int16` for the experimental Id Alterant,
-one row per non-zero field. A program should skip an attribute family it does not know rather than fail on it: later releases may bring further Alterants and their families, and GoMeta's creator gives no guarantee that a later release delivers the evaluated values in the same form.
+one row per non-zero field. A program should skip an attribute family it does not know rather than fail on it: later releases may bring further Alterants and their families, and there is no guarantee that a later release delivers the evaluated values in the same form.
 
 `GoMeta.serialize_evals(rows)` turns the rows into bytes: one row per line, four tab-separated
 columns, a tab, newline, carriage return or backslash in an attribute name escaped.
@@ -377,7 +377,7 @@ offending token, or, where a bullet says so, with Julia's own error; nothing is 
   may ask, "unknown condition key"; a condition Julia cannot parse, or one that fails when Julia
   evaluates it — Julia's own error; an argument an Alterant's setter cannot take — its own
   error, Julia's;
-- a digit depth beyond 8 (`#~9`), "meta depth out of range"; a ninth statement in one depth level (the bound is 8 — a size GoMeta's creator chose to start with; if it proves too small it may easily be increased by hand — not the number of registered actions, 9 with the shipped registry; a vocabulary statement is not counted), "more than 8 actions in one meta-hierarchy slot"; more than one Visib value set for one Component, "more than one Visib value set for one component";
+- a digit depth beyond 8 (`#~9`), "meta depth out of range"; a ninth statement in one depth level (the bound is 8 — a size chosen to start with; if it proves too small it may easily be increased by hand — not the number of registered actions, 9 with the shipped registry; a vocabulary statement is not counted), "more than 8 actions in one meta-hierarchy slot"; more than one Visib value set for one Component, "more than one Visib value set for one component";
 - an unknown `flavor_tag` (section 2);
 - a heading in the body fed through `user_mh_profile` (section 2), "a heading (Heading Alterant) in the profile feed has no Component of the file levels to be local to".
 

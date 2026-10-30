@@ -13,7 +13,7 @@ notebook or a documentation build actually runs — both from the same metadata.
 
 The repository's `examples/` directory holds seven input files under `InFileFolder/` and, for
 each, its committed rendered copy under `OutFileFolder/` — byte for byte what the basic renderer
-writes from the Engine's run; the shipped test suite pins the same bytes. Two of the seven are the example files of GoMeta's creator, in general the law of the notation: `file_for_Example_Proposal_JuliaCon.jl` and `file_for_Example_Extended.jl` — the [Syntax & semantics](../reference/syntax-and-semantics.md#11.-The-examples) page lists what each exercises and shows, for each, every Block and Line with what the Engine evaluated. Five feature files
+writes from the Engine's run; the shipped test suite pins the same bytes. Two of the seven serve, in general, as the law of the notation: `file_for_Example_Proposal_JuliaCon.jl` and `file_for_Example_Extended.jl` — the [Syntax & semantics](../reference/syntax-and-semantics.md#11.-The-examples) page lists what each exercises and shows, for each, every Block and Line with what the Engine evaluated. Five feature files
 each show one feature of the notation, named in the file's header: `feature_contiguous_metablock.jl`,
 `feature_contiguous_metablock_blankline.jl`, `feature_explicit_close.jl`,
 `feature_order_of_application.jl` and `feature_triple_tilde.jl`. Each input's `##` comments state

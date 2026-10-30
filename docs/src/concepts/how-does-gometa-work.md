@@ -1,6 +1,6 @@
 # How does GoMeta work?
 
-GoMeta's creator explains GoMeta by asking and answering three questions — what GoMeta is, why someone would want to use it, and how it works. This page answers the third by following one
+The JuliaCon 2026 talk explains GoMeta by asking and answering three questions — what GoMeta is, why someone would want to use it, and how it works. This page answers the third by following one
 run from a file to what the [Extensions](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension) receive. GoMeta.jl adds interpretable `#~` metadata to
 ordinary files, inside their comments; in one run,
 [BLS](../reference/syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File), GoMeta's
@@ -37,8 +37,8 @@ and reads each product.
 
 ## 2. BLS reads the file: the BLS Component tree
 
-In the words of GoMeta's creator: "GoMeta handles the metadata. However, before it can begin its work, BLS reads the file[s], extracts features of interest and records them in a tree-like structure based on the content at hand. The basic building block of the aforementioned structure consists of the Component. Blocks, Lines and Segments are all Components at different levels in the hierarchy. The records include where a Component starts and ends, its flavor [to avoid the term Type] such as code, metadata or text, its place in the tree structure and much, much more."
-Why this granularity, in the words of his JuliaCon 2026 proposal: "Moreover, metadata needs to be absorbed,
+In the words of the JuliaCon 2026 proposal: "GoMeta handles the metadata. However, before it can begin its work, BLS reads the file[s], extracts features of interest and records them in a tree-like structure based on the content at hand. The basic building block of the aforementioned structure consists of the Component. Blocks, Lines and Segments are all Components at different levels in the hierarchy. The records include where a Component starts and ends, its flavor [to avoid the term Type] such as code, metadata or text, its place in the tree structure and much, much more."
+Why this granularity, in the proposal's words: "Moreover, metadata needs to be absorbed,
 i.e.: parsed and interpreted, from somewhere before it can be applied somewhere. Thus far, both
 tasks had been executed on a Block-level [a section of consecutive lines]. BLS now provides a
 distinctly finer granularity by introducing Components such as Block, Line and Segment. This not
@@ -90,10 +90,10 @@ apply: to content that carries the [label](../reference/syntax-and-semantics.md#
 is code. A label — `:label4` — is a tag the Labels Alterant applies to the Components in a
 statement's reach.
 
-How the metadata reaches the content, in the words of the creator's proposal: "Any line starting with #~ is considered to be a metaline i.e.: it will be processed as metadata. Contiguous metalines constitute a coherent block of metadata separating it from others. By positioning such a block just above a block of code or text [no vertical spacing in between] the former gets attached to the latter – similar to how docstrings get associated with Julia structures following them. For the purpose of inheritance, a hierarchy of blocks of metadata can be defined by appending additional ~s to the head of a metablock's first metaline or, alternatively, adding there a digit representing the desired depth within the metahierarchy." His "block of metadata"
+How the metadata reaches the content, in the words of the JuliaCon 2026 proposal: "Any line starting with #~ is considered to be a metaline i.e.: it will be processed as metadata. Contiguous metalines constitute a coherent block of metadata separating it from others. By positioning such a block just above a block of code or text [no vertical spacing in between] the former gets attached to the latter – similar to how docstrings get associated with Julia structures following them. For the purpose of inheritance, a hierarchy of blocks of metadata can be defined by appending additional ~s to the head of a metablock's first metaline or, alternatively, adding there a digit representing the desired depth within the metahierarchy." The proposal's "block of metadata"
 is the metaBlock; a Block of content written directly below it is
 [attached](../reference/syntax-and-semantics.md#attachment,-inheritance) to it and inherits its
-statements; his "metahierarchy" is the
+statements; the proposal's "metahierarchy" is the
 [meta hierarchy](../reference/syntax-and-semantics.md#depth,-the-meta-hierarchy) of depths — `#~`
 is depth 1, `#~2` depth 2, and so on — in which a deeper metaBlock nests under the shallower one
 open above it and inherits from it. A `#~` after a line's content — a
@@ -122,7 +122,7 @@ A value applies to the Components in its statement's reach — its own metaBlock
 metaBlock and what nests or is attached below — where its condition holds and no statement of
 the same Alterant closer to the Component overrules it. A value evaluated for a Block applies to
 that Block; the Lines and Segments it contains fall under it as parts of that Block, not
-individually, and a Line's own differing value is recorded as its own. At this release Alterant values are applied to Components at the grain of the Block and the Line — not yet at the File level — and a next step will make the grain finer by including the Segment; the creator's JuliaCon 2026 proposal already alluded to "the possibility of a finer grained grammar. For instance, a Segment of metadata within a Line is applied to the Segments preceding it. This also applies within Blocks which are not attached." Today a metaSegment applies to its Line. Where no
+individually, and a Line's own differing value is recorded as its own. At this release Alterant values are applied to Components at the grain of the Block and the Line — not yet at the File level — and a next step will make the grain finer by including the Segment; the JuliaCon 2026 proposal already alluded to "the possibility of a finer grained grammar. For instance, a Segment of metadata within a Line is applied to the Segments preceding it. This also applies within Blocks which are not attached." Today a metaSegment applies to its Line. Where no
 statement reaches a Block, a Line or a Segment, the Alterant's declared default applies — for Visib, `show`; the File has no value at this release.
 
 The condition in the braces is Julia. GoMeta rewrites its own parts — a label test such as
@@ -188,7 +188,7 @@ Alterant needs, is the [Extensions](extensions.md) page's.
 
 ## 7. Looking at a run: the development tools
 
-In the words of GoMeta's creator: "the output of GoMeta is not readily directly observable. For that reason, a couple of tools and colorful printouts can serve to track and illustrate the internal process of the package". The development tools print the BLS Component tree, the
+The output of GoMeta is not readily directly observable. For that reason, a couple of tools and colorful printouts can serve to track and illustrate the internal process of the package. The development tools print the BLS Component tree, the
 evaluated values of a run, and the run's status and diagnostics; they read the delivery through the public surface and are not part
 of a GoMeta run. The full delivery view of the first example file — every Block and Line with
 its evaluated values, as the development tools print it — is below; its last line is the run's line
