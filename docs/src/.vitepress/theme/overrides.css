@@ -717,6 +717,16 @@ html:not(.dark) .gm-alpha { color: var(--gm-hero-ink); }
 .gm-s8-mint { left: 60px;  top: 41px;  width: 504px; height: 167px; font-size: 20px;
   border-color: var(--gm-tab-mint); }
 .gm-s8-mint .gm8-a, .gm-s8-mint .gm8-m { color: var(--gm-s8-mint-ink); }
+/* THE MINT BOX IS A LINK to the chapter "In what files" of What is GoMeta? (GoMeta's creator, 2026-10-31, S8-2 — his idea
+   of 11:52 for the Home's most visible item, his correction of 14:14 naming this box, his approval at 14:35 of M1 among four
+   variants measured by pixel diff): the <a> keeps the box's look — the theme's link colour, underline and weight reset — and
+   carries the Home's own clickability mark of 2026-08-25 (the triangle on the tab labels and on the Merci link, further down)
+   at its right edge in the box's ink, AT REST: a phone has no hover. The ring on hover or keyboard focus only where a pointer
+   can hover. */
+.gm-s8-link, .vp-doc .gm-s8-link, .vp-doc .gm-s8-link:hover { color: var(--vp-c-text-1); text-decoration: none; font-weight: inherit; }
+@media (hover: hover) { .gm-s8-link:hover, .gm-s8-link:focus-visible { box-shadow: 0 0 0 3px var(--gm-tab-mint); outline: none; } }
+.gm-s8-mint.gm-s8-link::after { content: ""; position: absolute; right: 14px; top: 50%; margin-top: -5px; width: 0; height: 0;
+  border-left: 7px solid var(--gm-s8-mint-ink); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
 .gm-s8-gold { left: 594px; top: 109px; width: 273px; height: 158px; font-size: 19px;
   border-color: var(--gm-tab-gold); }
 .gm-s8-gold .gm8-a, .gm-s8-gold .gm8-m { color: var(--gm-s8-gold-ink); }
@@ -758,6 +768,11 @@ html:not(.dark) .gm-alpha { color: var(--gm-hero-ink); }
   .gm-s8-viol { width: 88%; } .gm-s8-rose { width: 78%; }
   .gm-s8-key, .gm-s8-gold, .gm-s8-viol, .gm-s8-rose { align-self: flex-end; }
   .gm-s8-mint { align-self: flex-start; }
+  /* the mint link's triangle in the stacked layout (S8-2): position: relative for the ::after, with top and left zeroed —
+     the desktop rule's top: 41px; left: 60px would otherwise become an offset and draw the box over the gold one (measured
+     2026-10-31); the triangle 8px from the edge, and a symmetric 26px side padding so the centred text can never come
+     closer than 11px to it at any phone width (3px at 375px without it; the creator's choice, 2026-10-31) */
+  .gm-s8-mint.gm-s8-link { position: relative; top: 0; left: 0; padding-left: 26px; padding-right: 26px; } .gm-s8-mint.gm-s8-link::after { right: 8px; }
   .gm-s8-mag { align-self: center; }
   .gm-intro { margin-left: 0; max-width: 34em; }
 }
