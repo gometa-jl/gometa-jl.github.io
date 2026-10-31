@@ -845,14 +845,18 @@ html:not(.dark) .gm-tabbox:hover { background: rgba(75, 52, 33, 0.06); }
 #gmt-syntax:checked ~ .gm-tabs-grid .gm-tp-syntax { display: block; }
 #gmt-blocks:checked ~ .gm-tabs-grid .gm-tp-blocks { display: block; }
 #gmt-cases:checked  ~ .gm-tabs-grid .gm-tp-cases  { display: block; }
+/* THE ACTIVE TAB BOX carries the green box's fill (GoMeta's creator, 2026-10-31, TAB-1 — his approval of T3 of the tab boxes
+   trial, records/…/HOME-TALK/affordance-trial_2026-10-31/tabs/, on his clarification "the darker background only for the box
+   which is active, instead of the current lighter background"): light the theme's --vp-c-bg-soft, dark #1d140c — the same
+   fill as the green box above (S8-3) — in place of the translucent tints; the hover tints and the other boxes as before. */
 #gmt-core:checked   ~ .gm-tabs-grid label[for="gmt-core"],
 #gmt-syntax:checked ~ .gm-tabs-grid label[for="gmt-syntax"],
 #gmt-blocks:checked ~ .gm-tabs-grid label[for="gmt-blocks"],
-#gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"] { background: rgba(255, 255, 255, 0.07); }
+#gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"] { background: #1d140c; }
 html:not(.dark) #gmt-core:checked   ~ .gm-tabs-grid label[for="gmt-core"],
 html:not(.dark) #gmt-syntax:checked ~ .gm-tabs-grid label[for="gmt-syntax"],
 html:not(.dark) #gmt-blocks:checked ~ .gm-tabs-grid label[for="gmt-blocks"],
-html:not(.dark) #gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"] { background: rgba(75, 52, 33, 0.08); }
+html:not(.dark) #gmt-cases:checked  ~ .gm-tabs-grid label[for="gmt-cases"] { background: var(--vp-c-bg-soft); }
 #gmt-core:checked   ~ .gm-tabs-grid label[for="gmt-core"]::after,
 #gmt-syntax:checked ~ .gm-tabs-grid label[for="gmt-syntax"]::after,
 #gmt-blocks:checked ~ .gm-tabs-grid label[for="gmt-blocks"]::after,
