@@ -513,8 +513,9 @@ html:not(.dark) .gm-home .gm-only-dark { display: none; }
 .gm-btn-alt { background: transparent; color: var(--vp-c-text-1); border: 2px solid var(--vp-c-border);
   border-radius: 12px; display: flex; align-items: center; font-size: 16px; }
 .gm-btn-alt:hover { border-color: var(--vp-c-brand-1); color: var(--vp-c-text-1); }
-/* Hero talk CTA: the tabbox-family outline promoted to primary action; sole hero
-   action since the 2026-08-24 redesign (gm-btn-alt left the page). */
+/* Hero talk CTA: the tabbox-family outline promoted to primary action; one of the
+   hero's two actions since 2026-10-30 (the slides and the proposal page);
+   gm-btn-alt left the page on 2026-08-24. */
 .gm-btn-talk { background: transparent; border: 2px solid var(--vp-c-text-1); color: var(--vp-c-text-1);
   border-radius: 12px; padding: 12px 26px; text-align: center;
   /* true two-axis centering (owner 2026-08-24: text must sit centered vertically too) */
@@ -739,6 +740,10 @@ html:not(.dark) .gm-alpha { color: var(--gm-hero-ink); }
 .gm-s8 .gm8-meta { font-family: 'Courier Prime', 'Courier New', monospace;
   font-weight: 700; font-style: italic; color: var(--gm-tab-viol); }
 .gm-hero-v2 .gm-hero-actions { margin-top: 10px; }
+/* Two hero buttons, symmetric about the page's centre (2026-10-30): the same flex basis each, centred; they wrap to one per row
+   below a 744 px column (an 808 px window) and stay centred there. */
+.gm-hero-v2 .gm-hero-actions-2 { justify-content: center; gap: 24px; margin-top: 28px; }
+.gm-hero-v2 .gm-hero-actions-2 .gm-btn-talk { flex: 0 1 360px; }
 .gm-intro { margin: 32px 0 0 238px; max-width: 612px; }
 @media (max-width: 1120px) {
   /* the fixed scatter needs the full 1088px column; below that, stack */

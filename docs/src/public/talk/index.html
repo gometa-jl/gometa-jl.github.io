@@ -17,6 +17,15 @@
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" href="/favicon_dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="/favicon_light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+<script>/* The slides' theme, decided before the first paint (2026-10-30): ?theme=light|dark in the URL, else this viewer's own
+   choice (localStorage gm-talk-theme), else the site's appearance (VitePress's vitepress-theme-appearance: light / dark; 'auto' or
+   unset = the system's scheme). Dark is the deck as presented; light is the deck's light export. */
+(function(){var t=null;function g(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+try{var q=new URLSearchParams(location.search).get('theme');if(q==='light'||q==='dark')t=q;}catch(e){}
+if(!t){var o=g('gm-talk-theme');if(o==='light'||o==='dark')t=o;}
+if(!t){var s=g('vitepress-theme-appearance')||'auto';   /* the site's own test: dark when 'dark', or 'auto' on a dark system */
+  t=(s==='dark'||(s==='auto'&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}
+if(t==='light')document.documentElement.classList.add('light');})();</script>
 <style>
   html,body{margin:0;padding:0;height:100%;background:#201d1d;color:#ffe3e1;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",Arial,sans-serif;overflow:hidden;}
@@ -71,8 +80,30 @@
   .counter{min-width:64px;text-align:center;font-variant-numeric:tabular-nums;}
   .spacer{flex:1}
   .vlabel{opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
-  @media(max-width:640px){.bar{gap:8px;padding:0 10px;}}
+  @media(max-width:640px){.bar{gap:8px;padding:0 10px;}.backtext{display:none;}}   /* the phone's bar: the arrow alone — the
+     eight controls overflowed and clipped "gometa.dev" at the left edge (seen 2026-10-30) */
+  @media(max-width:420px){.bar{gap:6px;padding:0 8px;}.bar a,.bar button{min-width:40px;padding:6px 8px;}.counter{min-width:52px;}}
+  @media(max-width:359px){.bar{gap:3px;padding:0 4px;}.bar a,.bar button{min-width:34px;padding:6px 4px;}.counter{min-width:46px;}}
   @media(max-width:640px),(max-height:480px){.vlabel{display:none}}
+  /* ===== the light slides (2026-10-30): the chrome on the light deck's own ground #f7eedf, the site's light ink #4b3421 ===== */
+  html.light,html.light body{background:#f7eedf;color:#4b3421;}
+  html.light .stage{background:#f7eedf;}
+  html.light .fsexit,html.light .zoombadge{color:#4b3421;background:rgba(247,238,223,.85);border-color:rgba(75,52,33,.6);}
+  html.light .fsexit:hover{border-color:#4b3421;background:rgba(247,238,223,.97);}
+  html.light .zoombadge:hover{border-color:#4b3421;}
+  html.light .strip{background:#efe4d2;border-top-color:rgba(75,52,33,.22);scrollbar-color:rgba(75,52,33,.35) #efe4d2;}
+  html.light .strip::-webkit-scrollbar-track{background:#efe4d2;}
+  html.light .strip::-webkit-scrollbar-thumb{background:rgba(75,52,33,.35);}
+  html.light .strip::-webkit-scrollbar-thumb:hover{background:rgba(75,52,33,.55);}
+  html.light .th{border-color:rgba(75,52,33,.3);}
+  html.light .th img{background:#f7eedf;}
+  html.light .th span{color:#4b3421;background:rgba(247,238,223,.9);}
+  html.light .th.cur{border-color:#b80074;}
+  html.light .th:hover{border-color:rgba(75,52,33,.7);}
+  html.light .bar{background:#f7eedf;border-top-color:rgba(75,52,33,.25);}
+  html.light .bar a,html.light .bar button{color:#4b3421;border-color:rgba(75,52,33,.6);}
+  html.light .bar button:disabled{opacity:.55;}
+  html.light .bar a:hover,html.light .bar button:hover{border-color:#4b3421;background:rgba(75,52,33,.06);}
 </style></head>
 <body>
   <div class="stage" id="stage">
@@ -82,13 +113,14 @@
   </div>
   <div class="strip" id="strip"></div>
   <nav class="bar" aria-label="Slide navigation">
-    <a href="/">&larr; gometa.dev</a>
+    <a href="/" aria-label="Back to gometa.dev">&larr;<span class="backtext">&nbsp;gometa.dev</span></a>
     <span class="spacer"></span>
     <button id="prev" aria-label="Previous slide">&lsaquo;</button>
     <span class="counter" id="counter" aria-live="polite">1 / 52</span>
     <button id="next" aria-label="Next slide">&rsaquo;</button>
     <button id="fsbtn" aria-label="Fill the window" title="Fill the browser window (F)">&#9974;</button>
-    <button id="striptoggle" aria-pressed="true" title="Show/hide the slide band">&#9646;&#9646;&#9646;</button>
+    <button id="striptoggle" aria-pressed="true" aria-label="Show or hide the slide band" title="Show/hide the slide band">&#9646;&#9646;&#9646;</button>
+    <button id="themebtn" aria-label="Switch to the light slides" title="Light or dark slides">&#9728;&#65038;</button>
     <span class="spacer"></span>
     <span class="vlabel">JuliaCon 2026 &middot; GoMeta &mdash; official slides &middot; double-click = enlarge</span>
   </nav>
@@ -98,17 +130,21 @@
     var stage=document.getElementById('stage'), strip=document.getElementById('strip');
     var fsbtn=document.getElementById('fsbtn'), fsexit=document.getElementById('fsexit');
     var tgl=document.getElementById('striptoggle'), badge=document.getElementById('zoombadge');
+    /* the theme: the head script decided it before the first paint; the light deck lives in slides-light/ + thumbs-light/ */
+    var theme=document.documentElement.classList.contains('light')?'light':'dark';
+    function sdir(){return theme==='light'?'slides-light':'slides';}
+    function tdir(){return theme==='light'?'thumbs-light':'thumbs';}
 
     var html='';
     for(var i=1;i<=N;i++){
       var p=(i<10?'0':'')+i;
-      html+='<button class="th" data-n="'+i+'"><img loading="lazy" src="thumbs/slide-'+p+'.webp" alt="Slide '+i+'"><span>'+i+'</span></button>';
+      html+='<button class="th" data-n="'+i+'"><img loading="lazy" src="'+tdir()+'/slide-'+p+'.webp" alt="Slide '+i+'"><span>'+i+'</span></button>';
     }
     strip.innerHTML=html;
 
     function clamp(n){return Math.min(N,Math.max(1,isNaN(n)?1:n));}
     function pad(n){return (n<10?'0':'')+n;}
-    function src(n){return 'slides/slide-'+pad(n)+'.svg';}
+    function src(n){return sdir()+'/slide-'+pad(n)+'.svg';}
     function preload(n){if(n>=1&&n<=N){(new Image()).src=src(n);}}
     var cur=clamp(parseInt((location.hash||'').replace('#',''),10)||1);
 
@@ -327,6 +363,25 @@
       var b=e.target.closest('.th');if(b)jump(parseInt(b.dataset.n,10));});
     prev.addEventListener('click',function(){go(-1);});
     next.addEventListener('click',function(){go(1);});
+    /* the theme toggle: the button shows the slides it switches TO; the choice is kept in this viewer's own key */
+    var themebtn=document.getElementById('themebtn');
+    function themeUi(){
+      themebtn.innerHTML=(theme==='light')?'&#9790;&#65038;':'&#9728;&#65038;';   /* text presentation (VS15): no colour emoji */
+      themebtn.setAttribute('aria-label',(theme==='light')?'Switch to the dark slides':'Switch to the light slides');
+    }
+    themeUi();
+    themebtn.addEventListener('click',function(e){
+      theme=(theme==='light')?'dark':'light';
+      try{localStorage.setItem('gm-talk-theme',theme);}catch(err){}
+      /* a ?theme= in the URL follows the switch, so a reload or a shared link shows what the reader sees */
+      try{var u=new URL(location.href);if(u.searchParams.has('theme')){u.searchParams.set('theme',theme);history.replaceState(null,'',u.href);}}catch(err){}
+      document.documentElement.classList.toggle('light',theme==='light');
+      strip.querySelectorAll('.th img').forEach(function(im){
+        im.src=tdir()+'/slide-'+pad(parseInt(im.parentNode.dataset.n,10))+'.webp';});
+      img.src=src(cur);preload(cur+1);preload(cur-1);
+      themeUi();
+      if(e&&e.detail)themebtn.blur();   /* after a mouse click Space pages on instead of switching back; keyboard keeps focus */
+    });
 
     document.addEventListener('keydown',function(e){
       if(e.altKey||e.ctrlKey||e.metaKey)return;

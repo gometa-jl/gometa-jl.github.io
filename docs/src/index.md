@@ -32,10 +32,13 @@ footer: true
         <div class="gm-s8-box gm-s8-viol"><span>That is the <strong>reason why</strong> it is called '<span class="gm8-go">Go</span><span class="gm8-meta">Meta</span>'.</span></div>
         <div class="gm-s8-box gm-s8-rose"><span>What other language can do that&nbsp;?</span></div><!-- nbsp: keeps the slide's pre-? space from orphaning the ? on narrow screens -->
       </div>
-      <div class="gm-hero-actions">
-        <!-- target=_self is LOAD-BEARING: /talk/ is a public/ asset, not a VitePress page;
-             without a target attribute the SPA router intercepts the click into its 404. -->
-        <a class="gm-btn gm-btn-talk" href="/talk/" target="_self"><strong>JuliaCon2026 Talk 🔗</strong> <span>Web version of the official slides</span></a>
+      <div class="gm-hero-actions gm-hero-actions-2">
+        <!-- Two buttons, symmetric about the page's centre (2026-10-30): the web version of the
+             official slides, and the official proposal page, which carries the talk's video recording.
+             target=_self is LOAD-BEARING on /talk/: a public/ asset, not a VitePress page; without a target attribute the
+             SPA router intercepts the click into its 404. -->
+        <a class="gm-btn gm-btn-talk" href="/talk/" target="_self"><strong>JuliaCon2026 Slides 🔗</strong> <span>Web version of the official slides</span></a>
+        <a class="gm-btn gm-btn-talk" href="https://pretalx.com/juliacon-2026/talk/XYMFMZ/" target="_blank" rel="noopener"><strong>JuliaCon2026 Talk 🔗</strong> <span>The proposal page with the video</span></a>
       </div>
       <div class="gm-intro">
         <p class="gm-hero-tagline">The core idea of <span class="gm-name">GoMeta</span> is to embed formalized meaning within all kinds of
