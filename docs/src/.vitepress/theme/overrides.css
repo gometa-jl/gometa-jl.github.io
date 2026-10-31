@@ -724,7 +724,20 @@ html:not(.dark) .gm-alpha { color: var(--gm-hero-ink); }
    at its right edge in the box's ink, AT REST: a phone has no hover. The ring on hover or keyboard focus only where a pointer
    can hover. */
 .gm-s8-link, .vp-doc .gm-s8-link, .vp-doc .gm-s8-link:hover { color: var(--vp-c-text-1); text-decoration: none; font-weight: inherit; }
-@media (hover: hover) { .gm-s8-link:hover, .gm-s8-link:focus-visible { box-shadow: 0 0 0 3px var(--gm-tab-mint); outline: none; } }
+/* THE BOX's FILL AND SHADOW (GoMeta's creator, 2026-10-31, S8-3 — his pick SBdTw1 of 19:44 among sixteen variants built and
+   measured by pixel diff, records/…/HOME-TALK/affordance-trial_2026-10-31/): a fill one shade off the page in each mode — light the
+   theme's own --vp-c-bg-soft; dark #1d140c = the dark page's hue 30° at lightness 8 % with the saturation raised to 40 %, because
+   the page's own saturation at that darkness "looks … more black rather than the warm brown" (his words of 19:29) — and a faint
+   drop shadow below the frame; the triangle stays ("the little triangle is still the best indicator", 19:11). The hover ring is
+   a box-shadow too, so it is layered OVER the shadow; only where a pointer can hover. */
+.gm-s8-mint.gm-s8-link { background: var(--vp-c-bg-soft); box-shadow: 0 2px 8px rgba(75, 52, 33, 0.22), 0 1px 2px rgba(75, 52, 33, 0.12); }
+.dark .gm-s8-mint.gm-s8-link { background: #1d140c; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4); }
+@media (hover: hover) {
+  .gm-s8-mint.gm-s8-link:hover, .gm-s8-mint.gm-s8-link:focus-visible { outline: none;
+    box-shadow: 0 0 0 3px var(--gm-tab-mint), 0 2px 8px rgba(75, 52, 33, 0.22), 0 1px 2px rgba(75, 52, 33, 0.12); }
+  .dark .gm-s8-mint.gm-s8-link:hover, .dark .gm-s8-mint.gm-s8-link:focus-visible {
+    box-shadow: 0 0 0 3px var(--gm-tab-mint), 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4); }
+}
 .gm-s8-mint.gm-s8-link::after { content: ""; position: absolute; right: 14px; top: 50%; margin-top: -5px; width: 0; height: 0;
   border-left: 7px solid var(--gm-s8-mint-ink); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
 .gm-s8-gold { left: 594px; top: 109px; width: 273px; height: 158px; font-size: 19px;
