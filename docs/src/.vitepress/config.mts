@@ -367,7 +367,7 @@ export default defineConfig({
     ]
   },
   themeConfig: {
-    outline: { level: [2, 3], label: 'On this page' },
+    outline: { level: [2, 3], label: "This page's index" },
     siteTitle: 'GoMeta',
     lightModeSwitchTitle: 'Switch to light theme',
     darkModeSwitchTitle: 'Switch to dark theme',

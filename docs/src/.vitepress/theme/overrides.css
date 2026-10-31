@@ -284,7 +284,7 @@
    Below the theme's desktop breakpoint the default theme lets the navigation bar scroll away and sticks its
    local strip at the top instead — on the Home, which has neither sidebar nor outline, that strip appears once
    the reader has scrolled and says only "Return to top". The desktop keeps the bar fixed; phones do the same
-   now: the bar fixed, the content padded by its height, the local strip ("Menu · On this page" on pages with a
+   now: the bar fixed, the content padded by its height, the local strip ("Menu · This page's index" since OUTLINE-1, 2026-10-31; on pages with a
    sidebar) stuck below the bar, and the strip's empty variant (the theme's .fixed class) gone — the bar itself
    is the way back up. `.Layout` ties the theme's scoped selectors; this file loads last and wins. */
 @media (max-width: 959px) {
