@@ -274,7 +274,8 @@ export default defineConfig({
         return `<div class="${box.join(' ')}">${head}<button title="Copy Code" class="copy"></button><span class="lang">gometa</span>${pre}</div>\n`
       }
       // Inline code spans (owner 2026-10-17, STYLE-1 — chosen from the style trials of that day):
-      // a GoMeta marker inside a code span — the fence rule's sigil tokens (#~, #~n, #~!, #])
+      // a GoMeta marker inside a code span — the fence rule's sigil tokens (#~, #~n, #~!, #]),
+      // the close of every format pink like Julia's since 2026-10-31 (IWF-1: //] and %] beside #]),
       // widened to the C family's //~ and LaTeX's %~ — is wrapped in <span class="gm-sg"> (the
       // fence's class; overrides.css colours it in the fences' sigil pink, bold), and a span that
       // STARTS with a marker (a whole statement) carries class gm-ml on its <code> (markup kept
@@ -287,9 +288,9 @@ export default defineConfig({
       // bracket or quote inside the span, and before a closing one (e.g. `(#~ …)`), not only at
       // the span's start or after whitespace.
       // (the span's text is already escaped when it is post-processed: a quote is &quot;)
-      const gmMarkAny = /(^|[\s(\["']|&quot;)((?:#|\/\/|%)~[0-9~]*!?|#\])(?=[\s)\]"']|&quot;|$)/
-      const gmMarkAll = /(^|[\s(\["']|&quot;)((?:#|\/\/|%)~[0-9~]*!?|#\])(?=[\s)\]"']|&quot;|$)/g
-      const gmMarkHead = /^((?:#|\/\/|%)~[0-9~]*!?|#\])(?=\s|$)/
+      const gmMarkAny = /(^|[\s(\["']|&quot;)((?:#|\/\/|%)~[0-9~]*!?|(?:#|\/\/|%)\])(?=[\s)\]"']|&quot;|$)/
+      const gmMarkAll = /(^|[\s(\["']|&quot;)((?:#|\/\/|%)~[0-9~]*!?|(?:#|\/\/|%)\])(?=[\s)\]"']|&quot;|$)/g
+      const gmMarkHead = /^((?:#|\/\/|%)~[0-9~]*!?|(?:#|\/\/|%)\])(?=\s|$)/
       const gmDefaultCodeInline = md.renderer.rules.code_inline!
       // No break inside a short token of a prose code span (GoMeta's creator, 2026-10-26): a label name
       // such as label🌲 was cut between the word and the pictograph at a line's end, a signed form such as

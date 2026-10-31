@@ -1,7 +1,7 @@
 # Examples
 
 Every example here starts from ordinary Julia files, each carrying `#~`
-[metaLines](../reference/syntax-and-semantics.md#metaLine) in its comments. The smallest
+[metaLines](../reference/syntax-and-semantics.md#metaLine) in its comments. GoMeta can be embedded in all kinds of formats (e.g. C, Rust, LaTeX, etc.) — there the [GoMeta marker](../reference/syntax-and-semantics.md#GoMeta-marker) is `//~` (the C family) or `%~` (LaTeX); see [Embedding in all kinds of formats](../concepts/what-is-gometa.md#Embedding-in-all-kinds-of-formats). The smallest
 examples pair each input file with the rendered copy the basic renderer — a development tool, strictly speaking no Extension —
 writes from the [GoMeta Engine](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension)'s
 run; the richest derive several outputs from one source file, each with its own choice of what is

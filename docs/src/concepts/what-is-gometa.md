@@ -46,12 +46,19 @@ is the one run that reads a file and delivers the two main products, and the pub
 through which the Extensions read them; [How does GoMeta work?](how-does-gometa-work.md) follows
 that run, and the [Public API](../reference/public-api.md) page names what a program calls.
 
-## In what files
+## Embedding in all kinds of formats
 
 GoMeta's metadata lives in comments, so the file stays an ordinary file of its format and the
-host language never sees the metadata. At this release GoMeta reads three
-[comment markers](../reference/syntax-and-semantics.md#comment-marker): Julia's `#`, the C family's `//` (e.g. C, Rust, etc.), and LaTeX's `%` — the marker is named when GoMeta is called (Julia is the
-default), never inferred from the file. GoMeta is meant for all kinds of comments: the [JuliaCon 2026 talk](https://gometa.dev/talk/) lists Julia and Python, C and Rust, and LaTeX as implemented, Word documents (the `.fodt` format to start with), and, not yet, spreadsheets and metadata attached to images, video and the like. That reach is the reason for the name — GoMeta works in between them, behind them, within them — stated on the [front page](../index.md).
+host language never sees the metadata. Every format has its [comment marker](../reference/syntax-and-semantics.md#comment-marker) — `#` in Julia, `//` in the C family (e.g. C, Rust, etc.), `%` in LaTeX — and the [GoMeta marker](../reference/syntax-and-semantics.md#GoMeta-marker) is that marker followed by the tilde: `#~`, `//~`, `%~`. GoMeta's comment and its close are built the same way, so a file in any of these formats carries the same structure line for line:
+
+| | Julia | the C family | LaTeX |
+|---|---|---|---|
+| the comment marker | `#` | `//` | `%` |
+| the GoMeta marker — a [metaLine](../reference/syntax-and-semantics.md#metaLine) | `#~` | `//~` | `%~` |
+| GoMeta's comment | `##` | `//#` | `%%` |
+| the close | `#]` | `//]` | `%]` |
+
+A metaLine's content — e.g. labels, visibility actions, conditions, etc. — is written the same way in every format; only the marker in front of it changes. At this release GoMeta reads these three comment markers; the marker is named when GoMeta is called (Julia is the default), never inferred from the file, and the committed examples are Julia files. GoMeta is meant for all kinds of comments: the [JuliaCon 2026 talk](https://gometa.dev/talk/) lists Julia and Python, C and Rust, and LaTeX as implemented, Word documents (the `.fodt` format to start with), and, not yet, spreadsheets and metadata attached to images, video and the like. That reach is the reason for the name — GoMeta works in between them, behind them, within them — stated on the [front page](../index.md).
 
 ## Status
 

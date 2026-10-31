@@ -717,7 +717,7 @@ html:not(.dark) .gm-alpha { color: var(--gm-hero-ink); }
 .gm-s8-mint { left: 60px;  top: 41px;  width: 504px; height: 167px; font-size: 20px;
   border-color: var(--gm-tab-mint); }
 .gm-s8-mint .gm8-a, .gm-s8-mint .gm8-m { color: var(--gm-s8-mint-ink); }
-/* THE MINT BOX IS A LINK to the chapter "In what files" of What is GoMeta? (GoMeta's creator, 2026-10-31, S8-2 — his idea
+/* THE MINT BOX IS A LINK to the chapter "Embedding in all kinds of formats" (until 2026-10-31 "In what files") of What is GoMeta? (GoMeta's creator, 2026-10-31, S8-2 — his idea
    of 11:52 for the Home's most visible item, his correction of 14:14 naming this box, his approval at 14:35 of M1 among four
    variants measured by pixel diff): the <a> keeps the box's look — the theme's link colour, underline and weight reset — and
    carries the Home's own clickability mark of 2026-08-25 (the triangle on the tab labels and on the Merci link, further down)

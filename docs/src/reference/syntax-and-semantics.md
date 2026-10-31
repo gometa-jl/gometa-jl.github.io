@@ -23,8 +23,12 @@ Visib is one Alterant among others; the principles this page states — how a va
 ### comment marker
 
 The **comment marker** is the character, or pair of characters, that opens a comment in the file's format: `#` in Julia, `//` in the C family (e.g. C, Rust, etc.),
-`%` in LaTeX. GoMeta's markers are built on it: `#~` opens a metaLine, `##` a comment, `#]` the
-close. In another format the same forms use that format's comment marker (`//~`, `%~`), named when GoMeta is called.
+`%` in LaTeX. The [GoMeta markers](#GoMeta-marker) are built on it: `#~` opens a metaLine; `##` opens a comment and `#]` the
+close. In another format the same forms use that format's comment marker — `//~`, `//#` and `//]` in the C family, `%~`, `%%` and `%]` in LaTeX — named when GoMeta is called.
+
+### GoMeta marker
+
+A **GoMeta marker** is the [comment marker](#comment-marker) of the file's format followed by a tilde: `#~` in Julia, `//~` in the C family (e.g. C, Rust, etc.), `%~` in LaTeX — with its depth where one is written (`#~2`, `//~2`) and the `!` of the inert form (`#~!`). The GoMeta markers symbolize GoMeta: the tilde is part of its logo. GoMeta's comment and its close — `##` and `#]` in Julia, `//#` and `//]` in the C family, `%%` and `%]` in LaTeX — are built on the comment marker in the same way.
 
 ### BLS, Component, Block, Line, Segment, File
 
@@ -170,7 +174,7 @@ Besides the standard metaLine on its own line, three further forms exist: the **
 (§4), the **inline [metaSegment](#statement,-metaSegment)** — a `#~` at the end of a content line, with a statement after it or none (§9) —
 and the **inert marker** `#~!` (`#~2!` at depth 2), whose content is not processed (§9).
 
-**A marker needs its space.** A GoMeta marker — `#~` with its depth or `!` where one is written, `##`, `#]` — is recognised only when white
+**A marker needs its space.** A [GoMeta marker](#GoMeta-marker) — `#~` with its depth or `!` where one is written — and GoMeta's comment `##` and its close `#]` are recognised only when white
 space, or the start or the end of the line, stands before and after it. The white space is any
 horizontal white space of Unicode (e.g. the space, the tab, the no-break space, etc.); a
 line break counts as a boundary. This is deliberate: `someCharacters##someMoreCharacters` and
