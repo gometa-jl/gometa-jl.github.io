@@ -3,7 +3,7 @@
 This page explains where GoMeta's metadata can be embedded — in the comments of all kinds of codes and formats, the reach GoMeta is meant for — and how: the form it takes in the formats this release reads.
 
 GoMeta's metadata lives in comments, so the file stays an ordinary file of its format and the
-host language never sees the metadata. Every format has its [comment marker](../reference/syntax-and-semantics.md#comment-marker) — `#` in Julia, `//` in the C family (e.g. C, Rust, etc.), `%` in LaTeX — and the [GoMeta marker](../reference/syntax-and-semantics.md#GoMeta-marker) is that marker followed by the tilde: `#~`, `//~`, `%~`. GoMeta's comment and its close are built the same way, so a file in any of these formats carries the same structure line for line:
+host language never sees the metadata. Every format has its [comment marker](../reference/syntax-and-semantics.md#comment-marker) — `#` in Julia, `//` in the C family (e.g. C, Rust, etc.), `%` in LaTeX — and the [GoMeta marker](../reference/syntax-and-semantics.md#GoMeta-marker) is that marker followed by the tilde: `#~`, `//~`, `%~`. GoMeta's comment and its close are built the same way, so a file in any of these formats carries the same forms line for line:
 
 | | Julia | the C family | LaTeX |
 |---|---|---|---|
