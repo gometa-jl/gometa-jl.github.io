@@ -59,10 +59,8 @@ run.
 Among what BLS records for every Component are the
 [BLS key words](../reference/syntax-and-semantics.md#the-BLS-key-words) — facts about the
 Component that a [condition](../reference/syntax-and-semantics.md#condition) may ask (e.g. `isMeta`, `isCode`, `containsMeta`, etc.), entries of the
-Component's [settribute](../reference/syntax-and-semantics.md#settribute). BLS reads a Julia file
-on its [comment marker](../reference/syntax-and-semantics.md#comment-marker) `#`, a file of the C family (e.g. C, Rust, etc.)
-on `//`, a LaTeX file on `%` — the three formats this release knows, named when GoMeta is called
-(Julia is the default), never inferred from the file. Which kind of parsing applies to which kind of input is BLS's responsibility, and this machinery will be expanded to further kinds of input. The [Development tools](../reference/development-tools.md) page shows the
+Component's [settribute](../reference/syntax-and-semantics.md#settribute). BLS reads a file
+on its format's [comment marker](../reference/syntax-and-semantics.md#comment-marker) — `#` in Julia; the marker is named when GoMeta is called (Julia is the default), never inferred from the file; the formats this release reads: [Embedding in all kinds of formats](embedding.md). Which kind of parsing applies to which kind of input is BLS's responsibility, and this machinery will be expanded to further kinds of input. The [Development tools](../reference/development-tools.md) page shows the
 BLS Component tree of the first example file as the tools print it.
 
 ## 3. The metadata: metaLines

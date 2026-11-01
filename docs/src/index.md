@@ -26,7 +26,7 @@ footer: true
       <!-- "What is GoMeta?" ensemble — slide 8 of the JuliaCon 2026 talk (geometry = coordinates relative to the 1088px content column). -->
       <div class="gm-s8" role="group" aria-label="What is GoMeta — key points">
         <div class="gm-s8-box gm-s8-key"><span><strong>THE</strong> key <em>distinguishing</em> feature</span></div>
-        <a class="gm-s8-box gm-s8-mint gm-s8-link" href="/concepts/what-is-gometa#Embedding-in-all-kinds-of-formats"><span><span class="gm8-m">GoMeta</span> can be <span class="gm8-a">embedded</span> in all kinds of other <br><span class="gm8-a">programming languages</span> as well as <br>in <span class="gm8-a">Word documents</span> or be <br><span class="gm8-a">attached to files</span> themselves.</span></a>
+        <a class="gm-s8-box gm-s8-mint gm-s8-link" href="/concepts/embedding"><span><span class="gm8-m">GoMeta</span> can be <span class="gm8-a">embedded</span> in all kinds of other <br><span class="gm8-a">programming languages</span> as well as <br>in <span class="gm8-a">Word documents</span> or be <br><span class="gm8-a">attached to files</span> themselves.</span></a>
         <div class="gm-s8-box gm-s8-gold"><span>This allows <span class="gm8-m">GoMeta</span> to <br><span class="gm8-a">connect</span> content of one <br><span class="gm8-a">programming language</span>, <br>one <span class="gm8-a">file format</span> <br>with that of another.</span></div>
         <div class="gm-s8-box gm-s8-mag"><span><span class="gm8-m">GoMeta</span> works <br><span class="gm8-a">in between</span> them, <br><span class="gm8-a">behind</span> them, <br><span class="gm8-a">within</span> them.</span></div>
         <div class="gm-s8-box gm-s8-viol"><span>That is the <strong>reason why</strong> it is called '<span class="gm8-go">Go</span><span class="gm8-meta">Meta</span>'.</span></div>
@@ -128,7 +128,7 @@ footer: true
       <div class="gm-card">
         <div class="gm-eyebrow"><span class="h">#~</span> 5 &middot; syntax</div>
         <h2>There is a <span class="gm-name">GoMeta</span> syntax</h2>
-        <p>It is essential to <span class="gm-name">GoMeta</span>. Any line starting with <code><span class="gm-sg">#~</span></code> is a metaLine &mdash; it will be processed as metadata. Contiguous metaLines constitute a metaBlock; positioned just above a block of code or text, the metaBlock gets attached &mdash; similar to how docstrings get associated with Julia structures following them. Three comment markers at this release: Julia&rsquo;s <code>#</code>, the C family&rsquo;s <code>//</code> (e.g. C, Rust, etc.), LaTeX&rsquo;s <code>%</code> &mdash; named when <span class="gm-name">GoMeta</span> is called, never inferred. The same principles are easily extended to other programming languages or project data in general.</p>
+        <p>It is essential to <span class="gm-name">GoMeta</span>. Any line starting with <code><span class="gm-sg">#~</span></code> is a metaLine &mdash; it will be processed as metadata. Contiguous metaLines constitute a metaBlock; positioned just above a block of code or text, the metaBlock gets attached &mdash; similar to how docstrings get associated with Julia structures following them. The same principles are easily extended to other programming languages or project data in general.</p>
       </div>
     </div>
   </section>

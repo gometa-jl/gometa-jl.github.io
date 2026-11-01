@@ -60,7 +60,7 @@ The answers, from the [JuliaCon 2026 talk's slides](https://gometa.dev/talk/) an
 
 ## 3. Not just for programmers — and for AI agents too
 
-At this release GoMeta reads three [comment markers](../reference/syntax-and-semantics.md#comment-marker) — Julia's `#`, the C family's `//` (e.g. C, Rust, etc.), LaTeX's `%` — and it is meant for all kinds of comments, documents and files; [What is GoMeta?](what-is-gometa.md) lists the carriers the [JuliaCon 2026 talk](https://gometa.dev/talk/) names and their state. In the creator's words: "This is not just for programmers any more."
+GoMeta is meant for all kinds of comments, documents and files; [Embedding in all kinds of formats](embedding.md) shows the formats this release reads and lists the carriers the [JuliaCon 2026 talk](https://gometa.dev/talk/) names and their state. In the creator's words: "This is not just for programmers any more."
 
 GoMeta's aims, and a forecast in the [JuliaCon 2026 proposal](https://pretalx.com/juliacon-2026/talk/XYMFMZ/), reach further. On the webs: one of the main aims of GoMeta is to interlink documents and files — more generally, content contained in different documents or files — so that, for instance, a paragraph in one document can refer to a sub-section of another; the aim is to create webs of atomic data units, useful not only for humans but also for AI agents. And from the proposal, on
 the labeling itself: "In the near future, AI will automate much of the labeling in the

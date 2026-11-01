@@ -16,6 +16,7 @@ makedocs(;
             "What is GoMeta?" => "concepts/what-is-gometa.md",
             "Why use GoMeta?" => "concepts/why-use-gometa.md",
             "How does GoMeta work?" => "concepts/how-does-gometa-work.md",
+            "Embedding in all kinds of formats" => "concepts/embedding.md",
             "Extensions" => "concepts/extensions.md",
         ],
         "Tutorials" => [

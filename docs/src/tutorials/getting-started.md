@@ -1,6 +1,6 @@
 # Getting started
 
-GoMeta.jl adds interpretable `#~` metadata to ordinary Julia source files. GoMeta can be embedded in all kinds of formats (e.g. C, Rust, LaTeX, etc.) — there the [GoMeta marker](../reference/syntax-and-semantics.md#GoMeta-marker) is `//~` (the C family) or `%~` (LaTeX); see [Embedding in all kinds of formats](../concepts/what-is-gometa.md#Embedding-in-all-kinds-of-formats). This page takes you
+GoMeta.jl adds interpretable `#~` metadata to ordinary Julia source files; files of other formats carry the same metadata behind their own [comment marker](../reference/syntax-and-semantics.md#comment-marker): [Embedding in all kinds of formats](../concepts/embedding.md). This page takes you
 from the install through one complete run — the file goes in, [BLS](../reference/syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) (GoMeta's parser: Block, Line, Segment) parses it, the [GoMeta Engine](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension)
 evaluates the metadata, and the basic renderer, a development tool, shows how an [Extension](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension) acts on the result — and on to the checkout's committed
 examples. Current release: **0.4.4** (alpha).
@@ -46,8 +46,7 @@ more precisely, the GoMeta Engine evaluates it — but does not act on those eva
 is the Extensions' role; they receive the evaluations through GoMeta's interface,
 [`altValues_evals`](../reference/public-api.md#1.-One-call:-the-entry). Your file stays an ordinary Julia file. In a file of another format the
 marker is that format's comment marker followed by the tilde — `//~` in the C family (e.g. C, Rust, etc.), `%~` in
-LaTeX, the three formats this release knows, named when GoMeta is called (Julia is the
-default), never inferred from the file.
+LaTeX — named when GoMeta is called (Julia is the default), never inferred from the file; the formats this release reads: [Embedding in all kinds of formats](../concepts/embedding.md).
 
 An **Alterant** is, for Julia users, most similar to a Type: it defines which values its
 instances can take — Visib's are `show`, `hide` and `discard`, and for any one piece of the

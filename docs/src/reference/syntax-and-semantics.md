@@ -22,13 +22,11 @@ Visib is one Alterant among others; the principles this page states — how a va
 
 ### comment marker
 
-The **comment marker** is the character, or pair of characters, that opens a comment in the file's format: `#` in Julia, `//` in the C family (e.g. C, Rust, etc.),
-`%` in LaTeX. The [GoMeta markers](#GoMeta-marker) are built on it: `#~` opens a metaLine; `##` opens a comment and `#]` the
-close. In another format the same forms use that format's comment marker — `//~`, `//#` and `//]` in the C family, `%~`, `%%` and `%]` in LaTeX — named when GoMeta is called.
+The **comment marker** is the character, or pair of characters, that opens a comment in the file's format: `#` in Julia, `//` in the C family (e.g. C, Rust, etc.), `%` in LaTeX. GoMeta's forms are built on it; in Julia, `#~` — the [GoMeta marker](#GoMeta-marker) — opens a metaLine, `##` opens a comment and `#]` the close. The formats this release reads, with their forms: [Embedding in all kinds of formats](../concepts/embedding.md).
 
 ### GoMeta marker
 
-A **GoMeta marker** is the [comment marker](#comment-marker) of the file's format followed by a tilde: `#~` in Julia, `//~` in the C family (e.g. C, Rust, etc.), `%~` in LaTeX — with its depth where one is written (`#~2`, `//~2`) and the `!` of the inert form (`#~!`). The GoMeta markers symbolize GoMeta: the tilde is part of its logo. GoMeta's comment and its close — `##` and `#]` in Julia, `//#` and `//]` in the C family, `%%` and `%]` in LaTeX — are built on the comment marker in the same way.
+A **GoMeta marker** is the [comment marker](#comment-marker) of the file's format followed by a tilde: `#~` in Julia, `//~` in the C family (e.g. C, Rust, etc.), `%~` in LaTeX — with its depth where one is written (`#~2`, `//~2`) and the `!` of the inert form (`#~!`). The GoMeta markers symbolize GoMeta: the tilde is part of its logo. GoMeta's comment and its close — `##` and `#]` in Julia — are built on the comment marker in the same way; the forms of each format this release reads stand in one table: [Embedding in all kinds of formats](../concepts/embedding.md).
 
 ### BLS, Component, Block, Line, Segment, File
 
