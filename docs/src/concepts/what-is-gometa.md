@@ -50,8 +50,8 @@ that run, and the [Public API](../reference/public-api.md) page names what a pro
 ## Status
 
 GoMeta was presented and released at JuliaCon 2026 by its creator, Jerae Sieburgh; in the words of the [talk proposal](https://pretalx.com/juliacon-2026/talk/XYMFMZ/), the package "finally implements a vastly matured offspring of a [my] half-baked idea proposed at JuliaCon2025."
-GoMeta.jl `0.4.4` is **alpha**: a working, tested engine for the **v0 subset** of the GoMeta
-language. The seven committed example pairs render byte for byte under the shipped test suite,
+GoMeta.jl `0.4.5` is **alpha**: a working, tested engine for the **v0 subset** of the GoMeta
+language. The sixteen committed example pairs render byte for byte under the shipped test suite,
 and input the grammar does not accept meets a stable refusal: GoMeta stops with a message that says what it could not accept, and nothing is delivered; a label GoMeta cannot apply — withheld, or not in the vocabulary — does not stop the run: it is reported by a warning diagnostic and the run completes. The surface may still move — by GoMeta's policy, until at least version 0.7 every change of the public surface is a clean cut (no leftover of an older version in a newer one), and the package's API document (`docs/public-api.md` in the repository) keeps the register of every such change. The language grows by design;
 the v0 subset forecloses none of it.
 

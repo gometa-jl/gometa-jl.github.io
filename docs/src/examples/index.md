@@ -1,7 +1,7 @@
 # Examples
 
 Every example here starts from ordinary Julia files, each carrying `#~`
-[metaLines](../reference/syntax-and-semantics.md#metaLine) in its comments. Files of the other formats GoMeta reads carry metaLines of the same content behind their own [comment marker](../reference/syntax-and-semantics.md#comment-marker): [Embedding in all kinds of formats](../concepts/embedding.md). The smallest
+[metaLines](../reference/syntax-and-semantics.md#metaLine) in its comments — in the package's corpus the ladder's first rung also stands as a C and a LaTeX file, with `//~` and `%~`. Files of the other formats GoMeta reads carry metaLines of the same content behind their own [comment marker](../reference/syntax-and-semantics.md#comment-marker): [Embedding in all kinds of formats](../concepts/embedding.md). The smallest
 examples pair each input file with the rendered copy the basic renderer — a development tool, strictly speaking no Extension —
 writes from the [GoMeta Engine](../reference/syntax-and-semantics.md#the-GoMeta-Engine,-Extension)'s
 run; the richest derive several outputs from one source file, each with its own choice of what is
@@ -9,15 +9,15 @@ shown, what stays hidden, and what runs. Two kinds of control are on display: co
 rendering — which content each derived output carries — and control of execution — which code a
 notebook or a documentation build actually runs — both from the same metadata.
 
-## 1. The committed corpus: seven pairs
+## 1. The committed corpus: sixteen pairs
 
-The repository's `examples/` directory holds seven input files under `InFileFolder/` and, for
+The repository's `examples/` directory holds sixteen input files under `InFileFolder/` and, for
 each, its committed rendered copy under `OutFileFolder/` — byte for byte what the basic renderer
-writes from the Engine's run; the shipped test suite pins the same bytes. Two of the seven serve, in general, as the law of the notation: `file_for_Example_Proposal_JuliaCon.jl` and `file_for_Example_Extended.jl` — the [Syntax & semantics](../reference/syntax-and-semantics.md#11.-The-examples) page lists what each exercises and shows, for each, every Block and Line with what the Engine evaluated. Five feature files
+writes from the Engine's run; the shipped test suite pins the same bytes. Two of the sixteen serve, in general, as the law of the notation: `file_for_Example_Proposal_JuliaCon.jl` and `file_for_Example_Extended.jl` — the [Syntax & semantics](../reference/syntax-and-semantics.md#11.-The-examples) page lists what each exercises and shows, for each, every Block and Line with what the Engine evaluated. Five feature files
 each show one feature of the notation, named in the file's header: `feature_contiguous_metablock.jl`,
 `feature_contiguous_metablock_blankline.jl`, `feature_explicit_close.jl`,
-`feature_order_of_application.jl` and `feature_triple_tilde.jl`. Each input's `##` comments state
-the expected behaviour and the reason why — the files are the specification.
+`feature_order_of_application.jl` and `feature_triple_tilde.jl`. Each input's comments — `##` in Julia, `//#` in C and `%%` in LaTeX — state
+the expected behaviour and the reason why — the files are the specification. The nine others are the newest: the worked example of the labels, `file_for_Example_Labels.jl`, shown whole with its full delivery view on the [Syntax & semantics](../reference/syntax-and-semantics.md#5.-Labels) page; the ladder's six files, `ladder_01_what_bls_sees.jl` to `ladder_06_labels.jl`, which are [Step by step](step-by-step.md)'s rungs 1 to 6 under the package's names; and rung 1 once more in C and in LaTeX — `ladder_01_what_bls_sees.c` and `ladder_01_what_bls_sees.tex`, transposed line for line, the corpus's first files in another format ([Embedding in all kinds of formats](../concepts/embedding.md)).
 
 Verify every pair yourself from a repository checkout:
 
@@ -63,7 +63,7 @@ page is a view: nothing rides invisibly in it, and the sections it leaves out tr
 
 ## 4. The demo: find it again
 
-A demo program under `extensions/` processes the committed examples and answers which pieces of
+A demo program under `extensions/` processes the committed Julia examples and answers which pieces of
 which files carry a given [label](../reference/syntax-and-semantics.md#label), each with its
 visibility as the Engine answers it:
 

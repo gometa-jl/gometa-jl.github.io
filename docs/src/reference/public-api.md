@@ -1,7 +1,7 @@
 # Public API
 
 This page is the reference for the surface a program relies on when it uses GoMeta, release
-**0.4.4** (alpha): the four names `using GoMeta` brings into scope, the further names reached
+**0.4.5** (alpha): the four names `using GoMeta` brings into scope, the further names reached
 qualified as `GoMeta.<name>`, and the door through which a program travels the
 [BLS](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) Component tree. It is written from the package at that release and from GoMeta's design; the package's own test suite pins the set of names the package declares public, and this page lists exactly that set. The terms the page uses are defined where they first appear or in the Syntax & semantics page's
 [Glossary](syntax-and-semantics.md#Glossary); the delivered object and the Component's handle
@@ -372,6 +372,7 @@ offending token, or, where a bullet says so, with Julia's own error; nothing is 
   accepted"; more than one inline marker on one line; the inert marker's `!` before the [depth](syntax-and-semantics.md#depth,-the-meta-hierarchy)
   (`#~!2` for `#~2!`), "bang-first meta marker", naming the right spelling; a reserved form
   (`#-`, `#+`, `#[`, `#>`) right after metadata — after a metaLine or metaBlock even with a blank line between;
+- a close followed by further content on the same line (`x = 1 #] y = 2`; the `//]` and `%]` forms alike), "content after a close marker on the same line is RESERVED syntax at v0", naming the two places it may stand — the end of the line or a line of its own ([Syntax & semantics §4](syntax-and-semantics.md#4.-Where-a-metaBlock-reaches:-attachment,-nesting,-the-close));
 - a condition that is empty or a bare literal (`{}`, `{ 1 }`), "carries no condition
   expression"; a word in a condition that is neither a [BLS key word](syntax-and-semantics.md#the-BLS-key-words) nor an action a condition
   may ask, "unknown condition key"; a condition Julia cannot parse, or one that fails when Julia

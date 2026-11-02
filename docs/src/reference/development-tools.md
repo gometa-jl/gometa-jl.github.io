@@ -1,7 +1,7 @@
 # Development tools
 
 GoMeta's output is a set of evaluated values at the [Components](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File) of a file, not a file. Consequently, the output of GoMeta is not readily directly observable. For that reason, a couple of tools and colorful printouts can serve to track and illustrate the internal process of the package. This page is the reference for those tools
-at release **0.4.4** (alpha): the print tools, which show what a run produced, and the basic
+at release **0.4.5** (alpha): the print tools, which show what a run produced, and the basic
 renderer, which writes a rendered copy of the file. They are not part of a GoMeta run: the
 [GoMeta Engine](syntax-and-semantics.md#the-GoMeta-Engine,-Extension) uses none of them, a run
 gives the same delivery without them, and they change nothing in it. They read the delivery
@@ -11,18 +11,18 @@ uses — the [Public API](public-api.md). Their purpose: the print of the evalua
 ## 1. The print tools
 
 From a shell, at the repository's root and after `Pkg.instantiate()` in its `tests` project,
-one call prints one view of one file, and the run's status and its diagnostics to the error stream:
+one call prints one view of one file, and to the error stream the end-of-run print — the comment marker chosen, the run's status and its diagnostics:
 
 ```
-julia --startup-file=no --project=tests devtools/devtools.jl [--scheme=NAME] <verb> <file> [profile]
+julia --startup-file=no --project=tests devtools/devtools.jl [--scheme=NAME] [--comment-marker=#|//|%] <verb> <file> [profile]
 ```
 
-The optional third argument feeds a user level's profile — the body of a metaLine, as the configuration's `user_mh_profile` does ([Public API](public-api.md#2.-The-configuration)); `--scheme=NAME`, at any place on the line, picks the colours of the delivery views and of the Component-tree view, `evals-tree` and `bls-tree` (below).
+The optional third argument feeds a user level's profile — the body of a metaLine, as the configuration's `user_mh_profile` does ([Public API](public-api.md#2.-The-configuration)); `--scheme=NAME`, at any place on the line, picks the colours of the delivery views and of the Component-tree view, `evals-tree` and `bls-tree` (below). `--comment-marker=#|//|%`, at any place on the line, names the input's [comment marker](syntax-and-semantics.md#comment-marker) and overrides the file's extension, from which the tools read it otherwise — `.jl` → `#`; `.c`, `.h`, `.cpp`, `.hpp`, `.rs` → `//`; `.tex` → `%`; any other extension → `#` — and the marker chosen opens the end-of-run print (`comment marker: // (from .c)`, `comment marker: % (--comment-marker)`, `comment marker: # (default)`). The tools tell the Engine the marker through the configuration's `flavor_tag`; the Engine never infers it from the file.
 
 | verb | prints |
 |---|---|
 | `evals-tree` | the full delivery view: every Block and Line of the [BLS Component tree](syntax-and-semantics.md#BLS,-Component,-Block,-Line,-Segment,-File), each with the [evaluated values](syntax-and-semantics.md#altValue,-evals) recorded at it and every value's handle decoded; a Line that ends in a metaSegment — a `#~` with or without a [statement](syntax-and-semantics.md#statement,-metaSegment) after it — carries its values with that Segment named; a Component without a value of its own is marked so; the view ends with the run's line — its status and its diagnostics, printed also where no Component carries a value |
-| `bls-tree` | the Component-tree view: every Block, Line and Segment with its [settribute](syntax-and-semantics.md#settribute) and its [named integers](syntax-and-semantics.md#NamedElement); this view carries no status line and no run's line — from a shell the status goes to the error stream |
+| `bls-tree` | the Component-tree view: every Block, Line and Segment with its [settribute](syntax-and-semantics.md#settribute) and its [named integers](syntax-and-semantics.md#NamedElement); this view carries no status line and no run's line — from a shell the comment marker chosen and the status go to the error stream |
 | `tree` | the BLS Component tree printed one row per input line: each Component's [flavor](syntax-and-semantics.md#flavor) and content, Blocks, Lines and Segments nested |
 | `segments` | the same rows with the input's line numbers in front |
 | `evals` | the evaluated values alone, one row per value |
@@ -304,10 +304,10 @@ Extension takes this pair; an Extension works from the delivery. The package's t
 
 ## 3. What the rendered copy shows
 
-Measured on the two example files, whose rendered copies the package commits under `examples/OutFileFolder/` and the test suite pins (the second's is embedded in section 6):
+Measured on the two example files (the C and LaTeX hide markers on rung 1's committed twins), whose rendered copies the package commits under `examples/OutFileFolder/` and the test suite pins (the second's is embedded in section 6):
 
 - A discarded Component leaves no bytes of its own.
-- A hidden Line is written behind the file format's hide marker — `## ` in Julia — and so is
+- A hidden Line is written behind the file format's hide marker — `## ` in Julia, `//# ` in the C family, `%% ` in LaTeX — and so is
   every non-empty line of a hidden Block that has no Visib value of its own — a line with its own value is written as that value says: the first example file's line 30, which ends in its own `#~ show`, is written as it is; a hidden empty line stays an empty line (the second example file's line 40).
 - A line that already begins with the marker is written as it is, never marked twice.
 - A hidden metaLine keeps its own marker: *hide* is visibility, so the metadata stays metadata

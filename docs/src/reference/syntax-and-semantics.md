@@ -1,7 +1,7 @@
 # Syntax & semantics
 
 This page is the reference for the notation of GoMeta — the **[metaLines](#metaLine)** written into a
-file's comments — and for what the GoMeta Engine evaluates from them. It is written for the release **0.4.4** (alpha) from the package's own reference document and from GoMeta's design. The two example files committed with the package, and the [talk proposal for JuliaCon 2026](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) by Jerae Sieburgh, which they illustrate, are, in general, the law of the notation: where this page and a committed example could ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
+file's comments — and for what the GoMeta Engine evaluates from them. It is written for the release **0.4.5** (alpha) from the package's own reference document and from GoMeta's design. Two of the example files committed with the package, `file_for_Example_Proposal_JuliaCon.jl` and `file_for_Example_Extended.jl`, and the [talk proposal for JuliaCon 2026](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) by Jerae Sieburgh, which they illustrate, are, in general, the law of the notation: where this page and a committed example could ever disagree, the example and what GoMeta evaluates for it count. The page's terms are defined in the [Glossary](#Glossary) below or where they first appear.
 
 ## 0. What GoMeta does
 
@@ -22,7 +22,7 @@ Visib is one Alterant among others; the principles this page states — how a va
 
 ### comment marker
 
-The **comment marker** is the character, or pair of characters, that opens a comment in the file's format: `#` in Julia, `//` in the C family (e.g. C, Rust, etc.), `%` in LaTeX. GoMeta's forms are built on it; in Julia, `#~` — the [GoMeta marker](#GoMeta-marker) — opens a metaLine, `##` opens a comment and `#]` the close. The formats this release reads, with their forms: [Embedding in all kinds of formats](../concepts/embedding.md).
+The **comment marker** is the character, or pair of characters, that opens a comment in the file's format: `#` in Julia, `//` in the C family (e.g. C, Rust, etc.), `%` in LaTeX. GoMeta's forms are built on it; in Julia, `#~` — the [GoMeta marker](#GoMeta-marker) — opens a metaLine, `##` opens a comment and `#]` the close (the package's word: close-marker). The formats this release reads, with their forms: [Embedding in all kinds of formats](../concepts/embedding.md).
 
 ### GoMeta marker
 
@@ -89,7 +89,7 @@ applies it only where the condition holds. A label can also be [withheld, or app
 ### withhold, explicit apply
 
 A **withhold** keeps a label out of the set a Component carries: `:-label1` withholds one name,
-`:(-, label1, label2)` several, at the statement's own metaBlock and everything under it until a later
+`:(-, label1, label2)` several, at the statement's own metaBlock and everything under it until that section is closed or a later
 metaBlock of the same or a shallower depth replaces the slot. An **explicit apply**, `:+label1` or
 `:(+, label1)`, applies a label whether or not a withhold stands above it. A plain `:label1` met by a
 withhold applies nothing and is reported by a warning [diagnostic](#diagnostic) (§5).
@@ -191,8 +191,8 @@ character without a space between it and the marker. A front-glued marker is nev
 language's strings as strings, with one exception. Inside a multi-line Julia string a marker
 after the line's content, preceded by white space, is live — an inline metaSegment: a trailing `#~ discard` removes that line
 of the string from the rendered copy, a trailing `#~ hide` hides it. The exception: a line that
-begins with `#~` inside a multi-line string is held by the string's quotes and is not a
-metaLine. In a single-line string a marker followed by further words makes GoMeta read those
+begins with `#~` or with `#]` inside a multi-line string is held by the string's quotes — not a
+metaLine, no close, no refusal — with one bound: a `#~` line directly after a string line that ends in a live inline close (`b #]`) stops the run with an internal error, not a refusal; a `#]` line in that position is fence content, as elsewhere in the string. In a single-line string a marker followed by further words makes GoMeta read those
 words as statements, and the whole file is refused with a message naming the first word it does
 not know — `"left part #~ hide right part"` fails on `right`. In LaTeX a `verbatim` environment
 is no shelter: a `%~ hide` inside it is a live metaLine and hides the lines that follow it, the
@@ -342,11 +342,20 @@ open metaBlocks at its depth and below for the content that follows: in the firs
 file, the depth-2 metaBlock at line 32 inherits only from the depth-1 metaBlock at the top, not
 from the depth-3 metaBlock before it.
 
-**The close `#]`.** A line `#]` is the explicit end of the innermost open metaBlock; the
-content that follows it is not attached to that metaBlock. Closing ends the attachment, not the
-reach of the closed metaBlock's statements: a later, deeper metaBlock still nests under it — the
-package's behaviour at this release, shown by the example `feature_explicit_close.jl` (§11). The
-metaBlocks at shallower depths stay open.
+**The close `#]`.** A line `#]` — alone, or a content line ending in it (`x = 1 #]`) — closes the
+innermost open metaBlock, the section it stands in, and the meta hierarchy returns to that
+section's parent: the nearest shallower open metaBlock, else the file level. The closed section's
+labels and standing conditions are retired for everything after it while the parent's stand; the
+line carrying the close is the last line of the section it closes and keeps that section's values
+(a content line ending in the close that an empty line set apart still closes the section and
+inherits nothing); plain content directly after the close continues in the parent and carries
+the parent's values —
+the close detaches nothing, the empty line is the one way to detach; a metaLine directly under
+the close heads its own metaBlock and is applied normally; with nothing open the close has no
+effect on the hierarchy — the file level is never closed. A close followed by further content on the same line
+(`x = 1 #] y = 2`) is reserved and is refused at parse time. The package's behaviour since 0.4.5,
+shown by the example `feature_explicit_close.jl` (§11) and, section by section, on the ladder's
+[rung 7](../examples/step-by-step.md#Rung-7-—-the-explicit-close).
 
 ## 5. Labels
 
@@ -356,8 +365,7 @@ contains metadata. Labels accumulate: a Block attached to a depth-2 metaBlock ca
 that apply to it from that metaBlock and from the depth-1 metaBlock it nests under — unless a
 statement withholds one: `:-label1` keeps `label1` out of the set from there down (below).
 
-GoMeta ships the Labels Alterant's vocabulary as a data file of 46 names: the five names the committed
-examples use — `label1` to `label5` — and `doc`; 33 pictograph names, each the word label glued to a
+GoMeta ships the Labels Alterant's vocabulary as a data file of 46 names: `label1` to `label5` and `doc`; 33 pictograph names, each the word label glued to a
 pictograph (e.g. `label🍒`, `label💡`, `label🔥`, etc.; a bare pictograph is no shipped name), and seven
 everyday names — `warning`, `note`, `info`, `definition`, `todo`, `public` and `private`. A run reads the
 user level's copy of that file (`~/.gometa/labels-vocabulary.txt`, made from the shipped file at the
@@ -413,8 +421,8 @@ from several sources belongs to a later release.
 
 **The withhold and the explicit apply.** A sign at the head of a label statement withholds a label or
 applies it explicitly. `:-label1` or `:(-, label1, label2)` keeps the named labels out of the set at the
-statement's own metaBlock and everything under it, until a later metaBlock of the same or a shallower
-depth replaces the slot — the Engine's own reach, as for any statement (§4); `:+label1` or `:(+, label1)`
+statement's own metaBlock and everything under it, until that section is closed or a later metaBlock of the same or a
+shallower depth replaces the slot — the Engine's own reach, as for any statement (§4); `:+label1` or `:(+, label1)`
 applies a label whether or not a withhold stands above it. Within one metaBlock the written order
 decides: `:label1 :-label1` ends without `label1`, `:-label1 :+label1` ends with it. A plain `:label1`
 at a Component where `label1` is withheld applies nothing, and the run completes: it delivers one
@@ -433,7 +441,7 @@ and removes it again; its comments say what each line does. `label🍒` ships wi
 ends with the run's line and its four [diagnostic](#diagnostic) rows: the info rows of the declaration and the removal, and the
 warning rows of the plain `:label🌲` under the withhold, one at each of the two Components it reached. The run used a fresh vocabulary file at
 `/tmp/example/.gometa/labels-vocabulary.txt`; on your machine the file is `~/.gometa/labels-vocabulary.txt`, and after the run
-your vocabulary is as it was. The file is this site's at release 0.4.4; it is to join the package's committed examples.
+your vocabulary is as it was. The file is committed with the package since release 0.4.5, as `examples/InFileFolder/file_for_Example_Labels.jl` — the bytes shown here.
 
 ```gometa
 #~0 :++label🌲 ## This meta `Line` at level 0 DECLARES the label label🌲.
@@ -575,7 +583,7 @@ Visib is the Alterant of visibility. Its values are `show`, `hide` and `discard`
 one Component only one of them applies at a time; where nothing applies, the value is `show`.
 `discard` removes what it concerns from the output; `hide` keeps it but out of sight — what
 "out of sight" is depends on the format and on the Extension: the package's own development
-tool comments a hidden line out with `## ` (strictly speaking it is no Extension, though it behaves like one); an Extension may hide the same Block as one
+tool comments a hidden line out with `## ` in Julia, `//# ` in the C family and `%% ` in LaTeX (strictly speaking it is no Extension, though it behaves like one); an Extension may hide the same Block as one
 multi-line comment — and an Extension may even render what would be discarded in bold red instead of discarding it, to show what the evaluation would remove. A hidden piece of
 metadata is still metadata: it is evaluated as usual, and only its visibility changes;
 discarded metadata is gone from the output.
@@ -644,7 +652,7 @@ Visib's values take no arguments; `hide()` is read as `hide`. The Id Alterant's 
 
 ## 11. The examples
 
-Two example files, `file_for_Example_Proposal_JuliaCon.jl` and `file_for_Example_Extended.jl`, serve, in general, as the law of the notation; five further inputs are examples the package's tests use. All seven stand under `examples/InFileFolder/`, each with its
+Two example files, `file_for_Example_Proposal_JuliaCon.jl` and `file_for_Example_Extended.jl`, serve, in general, as the law of the notation; five further inputs are examples the package's tests use; the worked example of §5, the ladder's six rungs and rung 1's C and LaTeX twins make sixteen. All stand under `examples/InFileFolder/`, each with its
 rendered copy under `examples/OutFileFolder/`, and the shipped test suite pins every rendered
 copy byte for byte.
 
@@ -657,6 +665,8 @@ copy byte for byte.
 | `feature_contiguous_metablock.jl` | contiguous metaLines of two depths as one metaBlock |
 | `feature_contiguous_metablock_blankline.jl` | the same two metaLines with an empty line between them |
 | `feature_triple_tilde.jl` | `#~~~` as depth 3 under a depth-2 metaBlock |
+
+The table lists the seven the rules above cite; the worked example of §5 and the ladder's rungs — [Step by step](../examples/step-by-step.md), rung 1 there in Julia, with its C and LaTeX twins in the corpus — are shown on their own pages.
 
 The [JuliaCon 2026 talk proposal](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) explains the opening of the first file: "The first three lines in the code below form a Block of metadata at level 1. The optional {} following hide on line 1 allows the user to specify conditions under which hide may get applied. In this case, a Block, say aBlock, inheriting from it will be hidden, if it has been attributed :label4 or is a code Block provided there is no opposing statement closer to aBlock overruling it. Analogously, :label1 gets assigned to anything which inherits from this first meta Block, if it is text and containsMeta or is itself meta, provided there is no other statement closer by, overruling this." The committed file's comment lines differ from the
 proposal's listing in wording only; the metaLines are the same.
@@ -908,7 +918,7 @@ From the repository root, after `Pkg.instantiate()`:
 julia --startup-file=no --project=. devtools/run_examples.jl
 ```
 
-It processes every input under `examples/InFileFolder/`, writes each rendered copy to a scratch
+It processes every input under `examples/InFileFolder/` — `.jl`, `.c` and `.tex`, the host read from the extension and told to the Engine — writes each rendered copy to a scratch
 folder (printed; `--out <dir>` keeps them where you say) and compares every rendered copy byte
 for byte with the committed one under `examples/OutFileFolder/`. To test a reading of this
 page, copy or edit an input, rerun, and read the resulting copy — and read the delivery view
