@@ -127,40 +127,65 @@ export default defineConfig({
       // brand surface, so they must follow the light/dark token set, not a shiki theme.
       const gmEsc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       const gmSpan = (cls: string, s: string) => s.length ? `<span class="${cls}">${gmEsc(s)}</span>` : ''
-      const gmMeta = (rest: string): string => {
-        const m = rest.match(/(^|\s)##(\s|$)/)
+      // The HOST's marker set (the twins of rung 1 in C and LaTeX; the fence option
+      // `host=c` / `host=latex`, Julia without it): the comment marker (`#`, `//`, `%`), the GoMeta marker (`#~`, `//~`,
+      // `%~`), the close (`#]`, `//]`, `%]`) and GoMeta's comment (`##`, `//#`, `%%`) — the formats page's table, line
+      // for line, so a twin in another host takes the SAME flavor palette as the Julia file beside it. Julia's
+      // md"""…""" string rule is Julia's alone (a host without it never enters a string). Without the option every
+      // pattern below is byte for byte the former rule's (the Julia set): the other pages' fences are unchanged.
+      const gmHosts: Record<string, { c: string, cc: string }> = { julia: { c: '#', cc: '##' }, c: { c: '//', cc: '//#' }, latex: { c: '%', cc: '%%' } }
+      const gmRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\\/]/g, '\\$&')
+      type GmHost = { c: string, cc: string, metaStart: RegExp, inlineSig: RegExp, commentLine: RegExp, textLine: RegExp, inlineAny: RegExp, commentCut: RegExp }
+      const gmHost = (name: string): GmHost => {
+        const h = gmHosts[name]
+        if (!h) throw new Error(`gometa fence: unknown host=${name} (julia, c or latex)`)
+        const C = gmRe(h.c), CC = gmRe(h.cc)
+        return {
+          c: h.c, cc: h.cc,
+          metaStart: new RegExp(`^(\\s*)(${C}~[0-9~]*!?|${C}\\])(?=[\\s[]|$)`),
+          inlineSig: new RegExp(`\\s(${C}~[0-9~]*!?|${C}\\])(?=\\s|$)`),
+          commentLine: new RegExp(`^\\s*${CC}(\\s|$)`),
+          textLine: new RegExp(`^\\s*${C}(\\s|$)`),
+          inlineAny: new RegExp(`\\s(${C}~[0-9~]*!?|${C}\\]|${CC}|${C})(?=\\s|$)`),
+          commentCut: new RegExp(`(^|\\s)${CC}(\\s|$)`),
+        }
+      }
+      const gmMeta = (rest: string, h: GmHost): string => {
+        const m = rest.match(h.commentCut)
         if (m && m.index !== undefined) {
           const cut = m.index + m[1].length
           return gmSpan('gm-mt', rest.slice(0, cut)) + gmSpan('gm-cm', rest.slice(cut))
         }
         return gmSpan('gm-mt', rest)
       }
-      const gmInline = (base: string, cls: string): string => {
-        const m = base.match(/\s(#~[0-9~]*!?|#\])(?=\s|$)/)
+      const gmInline = (base: string, cls: string, h: GmHost): string => {
+        const m = base.match(h.inlineSig)
         if (m && m.index !== undefined) {
           const cut = m.index + 1
           const head = base.slice(0, cut), tok = m[1], rest = base.slice(cut + tok.length)
-          return gmSpan(cls, head) + gmSpan('gm-sg', tok) + gmMeta(rest)
+          return gmSpan(cls, head) + gmSpan('gm-sg', tok) + gmMeta(rest, h)
         }
         return gmSpan(cls, base)
       }
-      const gmLine = (line: string, inStr: boolean): [string, boolean] => {
+      const gmLine = (line: string, inStr: boolean, h: GmHost): [string, boolean] => {
         if (line.trim() === '') return ['', inStr]
-        if (inStr) return [gmInline(line, 'gm-tx'), !/"""/.test(line)]
-        if (/^\s*md"""/.test(line)) return [gmInline(line, 'gm-tx'), true]
-        let m = line.match(/^(\s*)(#~[0-9~]*!?|#\])(?=[\s[]|$)/)
+        if (h.c === '#') {
+          if (inStr) return [gmInline(line, 'gm-tx', h), !/"""/.test(line)]
+          if (/^\s*md"""/.test(line)) return [gmInline(line, 'gm-tx', h), true]
+        }
+        let m = line.match(h.metaStart)
         if (m) {
           const head = m[1] + m[2]
-          return [gmSpan('gm-sg', head) + gmMeta(line.slice(head.length)), false]
+          return [gmSpan('gm-sg', head) + gmMeta(line.slice(head.length), h), false]
         }
-        if (/^\s*##(\s|$)/.test(line)) return [gmSpan('gm-cm', line), false]
-        if (/^\s*#(\s|$)/.test(line)) return [gmInline(line, 'gm-tx'), false]
-        const t = line.match(/\s(#~[0-9~]*!?|#\]|##|#)(?=\s|$)/)
+        if (h.commentLine.test(line)) return [gmSpan('gm-cm', line), false]
+        if (h.textLine.test(line)) return [gmInline(line, 'gm-tx', h), false]
+        const t = line.match(h.inlineAny)
         if (t && t.index !== undefined) {
           const cut = t.index + 1, tok = t[1], rest = line.slice(cut + tok.length)
           const head = gmSpan('gm-cd', line.slice(0, cut))
-          if (tok.startsWith('#~') || tok === '#]') return [head + gmSpan('gm-sg', tok) + gmMeta(rest), false]
-          if (tok === '##') return [head + gmSpan('gm-cm', tok + rest), false]
+          if (tok.startsWith(h.c + '~') || tok === h.c + ']') return [head + gmSpan('gm-sg', tok) + gmMeta(rest, h), false]
+          if (tok === h.cc) return [head + gmSpan('gm-cm', tok + rest), false]
           return [head + gmSpan('gm-tx', tok + rest), false]
         }
         return [gmSpan('gm-cd', line), false]
@@ -219,10 +244,11 @@ export default defineConfig({
         const opt: Record<string, string> = {}
         for (const w of words.slice(1)) { const eq = w.indexOf('='); if (eq < 0) opt[w] = '1'; else opt[w.slice(0, eq)] = w.slice(eq + 1) }
         const plain = words.length === 1
+        const host = gmHost(opt['host'] || 'julia')
         let inStr = false
         const lines: string[] = []
         for (const raw of tok.content.replace(/\n$/, '').split('\n')) {
-          const [html, next] = gmLine(raw, inStr)
+          const [html, next] = gmLine(raw, inStr, host)
           inStr = next
           lines.push(html)
         }

@@ -1,6 +1,6 @@
 # The ladder — step by step
 
-Every rung below is one file GoMeta can read, shown whole with its line numbers, followed by what the GoMeta Engine evaluated for it — the development tools' own printouts, captured from the package, never typed — and, where visibility is the point, the rendered copy the basic renderer writes. Read it after [Getting started](../tutorials/getting-started.md)'s first metaLine, or start here: rung 1 assumes Julia and nothing of GoMeta. Every rung is a Julia file — rungs 1 to 6 are committed with the package as `ladder_01_what_bls_sees.jl` to `ladder_06_labels.jl` (shown here under the site's names `rung-0N_…`), rung 1 in C and in LaTeX as well; rung 7 is this site's capture at release 0.4.5, handed to the package to join its examples; the other formats GoMeta reads: [Embedding in all kinds of formats](../concepts/embedding.md). The first four rungs grow ONE file: the lines a rung adds carry a bold number, a tint and a bar at the left edge; a line a rung only touched carries a dotted number, a lighter tint and a yellow bar; the unchanged lines fold away behind a line that opens on a click, and a long box scrolls inside itself until its bar shows the whole file. From rung 5 on each rung is a file of its own. The comments inside each file carry its point; the paragraph before it says what the file leaves unsaid.
+Every rung below is one file GoMeta can read, shown whole with its line numbers, followed by what the GoMeta Engine evaluated for it — the development tools' own printouts, captured from the package, never typed — and, where visibility is the point, the rendered copy the basic renderer writes. Read it after [Getting started](../tutorials/getting-started.md)'s first metaLine, or start here: rung 1 assumes Julia and nothing of GoMeta. Every rung is a Julia file — rungs 1 to 6 are committed with the package as `ladder_01_what_bls_sees.jl` to `ladder_06_labels.jl` (shown here under the site's names `rung-0N_…`), rung 1 [in C and in LaTeX](#Rung-1-in-C-and-in-LaTeX) as well; rung 7 is this site's capture at release 0.4.5, handed to the package to join its examples; the other formats GoMeta reads: [Embedding in all kinds of formats](../concepts/embedding.md). The first four rungs grow ONE file: the lines a rung adds carry a bold number, a tint and a bar at the left edge; a line a rung only touched carries a dotted number, a lighter tint and a yellow bar; the unchanged lines fold away behind a line that opens on a click, and a long box scrolls inside itself until its bar shows the whole file. From rung 5 on each rung is a file of its own. The comments inside each file carry its point; the paragraph before it says what the file leaves unsaid.
 
 ## Rung 1 — what BLS sees
 
@@ -237,6 +237,456 @@ How to read the view: each Component's line names one Block or Line with its fla
 :::
 
 In the full delivery view, `visib => :hide` stands on three Blocks — the first metaBlock, the `#~2` metaBlock and the `c = 3` Block — and on nothing else: the `a = 1`/`b = 2` Block and the markdown Block read "(no evals — defaults apply)". A metaBlock carries the value it states. The Block `a = 1`/`b = 2` spans the lines 10 to 15: in the printouts an empty line counts as the first Line of the Block it starts. In the Component-tree view, line 1 is two Segments (the second a comment of flavor Text), the metaLine two Segments, and every Code or Text Block written directly below a metaBlock carries `attachedToMeta`; the metaBlocks of depth 1 and deeper carry the flag too.
+
+### Rung 1 in C and in LaTeX
+
+The file of rung 1 in C and in LaTeX — committed with the package as `ladder_01_what_bls_sees.c` and `ladder_01_what_bls_sees.tex` — transposed line for line, the host's forms in place of Julia's (the table: [Embedding in all kinds of formats](../concepts/embedding.md)) and the content lines in the host's own syntax, `int a = 1;` and `\alpha = 1`. The markdown Block that ends the Julia file — Text by Julia's `md"""` string — has no counterpart in C or in LaTeX and gives way to a second Text Block, three lines behind the host's comment marker, so each twin has 26 lines to the Julia file's 27. The printouts read as the Julia file's: `visib => :hide` on the first metaBlock, on the `//~2` or `%~2` metaBlock and on the Block opening with `int c = 3;` or `\gamma = 3`, and on nothing else; in the Component-tree view 6 Blocks, 26 Lines and 12 Segments, line 1 two Segments as before.
+
+```gometa ln scroll=16 host=c
+// This first line is 'Text'. //# This is a 'comment' of 'Text'.
+// Line 1 above consists of two BLS 'Segment' Components.
+// Both of flavor: 'Text'. The '//#' starts a 'comment'.
+// BLS [Block, Line, Segment] Components can currently be of
+// 3 different flavors: 'Code', 'Meta' and 'Text'.
+// Each of which can be turned into a flavored comment by '//#'.
+
+//~ hide //# This is a first 'metaLine' (incl. this comment).
+//# The 'Line' above consists of two BLS 'Segment's.
+
+int a = 1; //# This is a first 'Line' of 'Code'.
+int b = 2; //# These two lines of 'Code' form a 'Block' of 'Code'.
+//# Empty line 10 starts this 'Block' and DETACHES it from the metaLine:
+//# it is NOT attached to any 'metaComponent'
+//# and therefore unaffected by metadata.
+
+//~2 //# This second 'metaLine' is kind of a sub-section
+//# of the first 'metaLine' above and therefore it
+//# inherits its 'metaStatement's. More later.
+int c = 3; //# This 'Line' of 'Code' IS attached
+//# to the 'metaBlock' of "//~2" (no empty line between),
+//# which in turn inherits from the first 'metaBlock'.
+
+// This is a second 'Block' of 'Text': in C, 'Text' needs the '//'.
+// The empty line above starts it, so it is NOT attached to metadata.
+// A line of code with no '//' in front is 'Code' - lines 11, 12 and 20.
+```
+
+::: details The full delivery view of rung 1 in C — every Block and Line with its evaluated values, as the development tools print it
+
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">rung-01_what-bls-sees.c</span><span class="gm-dt-gutter">  —  3 evals rows on 3 cells  (of 6 Blocks · 26 Lines)
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #2  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1–L6   </span> "// This first line is 'Text'. //# Thi…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #2   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "// This first line is 'Text'. //# Thi…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #3   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L2      </span> "// Line 1 above consists of two BLS '…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #4   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L3      </span> "// Both of flavor: 'Text'. The '//#' …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #5   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L4      </span> "// BLS [Block, Line, Segment] Compone…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #6   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L5      </span> "// 3 different flavors: 'Code', 'Meta…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #7   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L6      </span> "// Each of which can be turned into a…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #3  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L7–L9   </span> "//~ hide //# This is a first 'metaLin…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,3)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #8   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L7      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #9   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L8      </span> "//~ hide //# This is a first 'metaLin…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #10  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L9      </span> "//# The 'Line' above consists of two …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #4  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L10–L15 </span> "int a = 1; //# This is a first 'Line'…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #11  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L10     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #12  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L11     </span> "int a = 1; //# This is a first 'Line'…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #13  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L12     </span> "int b = 2; //# These two lines of 'Co…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #14  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L13     </span> "//# Empty line 10 starts this 'Block'…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #15  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L14     </span> "//# it is NOT attached to any 'metaCo…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #16  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L15     </span> "//# and therefore unaffected by metad…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #5  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L16–L19 </span> "//~2 //# This second 'metaLine' is ki…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #17  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L16     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #18  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L17     </span> "//~2 //# This second 'metaLine' is ki…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #19  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L18     </span> "//# of the first 'metaLine' above and…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #20  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L19     </span> "//# inherits its 'metaStatement's. Mo…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #6  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L20–L22 </span> "int c = 3; //# This 'Line' of 'Code' …"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #21  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L20     </span> "int c = 3; //# This 'Line' of 'Code' …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #22  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L21     </span> "//# to the 'metaBlock' of "//~2" (no …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #23  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L22     </span> "//# which in turn inherits from the f…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block">Block #7  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L23–L26 </span> "// This is a second 'Block' of 'Text'…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #24  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L23     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #25  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L24     </span> "// This is a second 'Block' of 'Text'…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #26  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L25     </span> "// The empty line above starts it, so…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line">Line #27  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L26     </span> "// A line of code with no '//' in fro…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">── the run: status PROCESS_OK · no diagnostics
+</span></pre>
+```
+
+:::
+
+::: details The Component-tree view of rung 1 in C — every Block, Line and Segment with the facts BLS recorded about it (the `Bool` row) and its numbers (the `Int64` row)
+
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">rung-01_what-bls-sees.c</span><span class="gm-dt-gutter">  —  6 Blocks · 26 Lines · 12 Segments
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #2    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L1–L6   </span>
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=2 idParent=1 idxString=0 inputLineNum=1 numChildren=6 startMainStr=1 stopMainStr=6 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Bool   </span>containsText isText
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #2     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L1      </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=2 idParent=2 idxString=0 inputLineNum=1 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>containsText isText
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #2  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L1      </span> "// This first line is 'Text'. "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=2 idParent=2 idxString=1 inputLineNum=1 numChildren=0 startMainStr=1 stopMainStr=30 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #3  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L1      </span> "//# This is a 'comment' of 'Text'."
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=3 idParent=2 idxString=1 inputLineNum=1 numChildren=0 startMainStr=31 stopMainStr=64 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsText isText
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #3     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L2      </span> "// Line 1 above consists of two BLS 'Segmen…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=3 idParent=2 idxString=2 inputLineNum=2 numChildren=0 startMainStr=1 stopMainStr=57 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #4     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L3      </span> "// Both of flavor: 'Text'. The '//#' starts…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=4 idParent=2 idxString=3 inputLineNum=3 numChildren=0 startMainStr=1 stopMainStr=56 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #5     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L4      </span> "// BLS [Block, Line, Segment] Components ca…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=5 idParent=2 idxString=4 inputLineNum=4 numChildren=0 startMainStr=1 stopMainStr=60 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #6     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L5      </span> "// 3 different flavors: 'Code', 'Meta' and …"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=6 idParent=2 idxString=5 inputLineNum=5 numChildren=0 startMainStr=1 stopMainStr=50 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #7     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L6      </span> "// Each of which can be turned into a flavo…"
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Int64  </span>idComponent=7 idParent=2 idxString=6 inputLineNum=6 numChildren=0 startMainStr=1 stopMainStr=64 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-empty"></span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #3    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L7–L9   </span>
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=3 idParent=1 idxString=0 inputLineNum=7 numChildren=3 startMainStr=7 stopMainStr=9 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Bool   </span>depth1 attachedToMeta containsMeta isMeta
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #8     </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L7      </span> ""
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=8 idParent=3 idxString=0 inputLineNum=7 numChildren=0 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile isEmpty containsMeta isMeta
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #9     </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L8      </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=9 idParent=3 idxString=0 inputLineNum=8 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>depth1 containsMeta isMeta
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #4  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L8      </span> "//~ hide "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=4 idParent=9 idxString=8 inputLineNum=8 numChildren=0 startMainStr=1 stopMainStr=9 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>depth1 includeInOutFile containsMeta isMeta hasMetaStr
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #5  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L8      </span> "//# This is a first 'metaLine' (incl. this …"
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=5 idParent=9 idxString=8 inputLineNum=8 numChildren=0 startMainStr=10 stopMainStr=61 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>ignoreThisMeta includeInOutFile comment containsMeta isMeta hasMetaStr
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #10    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L9      </span> "//# The 'Line' above consists of two BLS 'S…"
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Int64  </span>idComponent=10 idParent=3 idxString=9 inputLineNum=9 numChildren=0 startMainStr=1 stopMainStr=52 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Bool   </span>ignoreThisMeta includeInOutFile comment containsMeta isMeta hasMetaStr
+<span class="gm-dt-empty"></span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #4    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L10–L15 </span>
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=4 idParent=1 idxString=0 inputLineNum=10 numChildren=6 startMainStr=10 stopMainStr=15 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Bool   </span>containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #11    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L10     </span> ""
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=11 idParent=4 idxString=0 inputLineNum=10 numChildren=0 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile isEmpty containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #12    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L11     </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=12 idParent=4 idxString=0 inputLineNum=11 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>containsCode isCode
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #6  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L11     </span> "int a = 1; "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=6 idParent=12 idxString=11 inputLineNum=11 numChildren=0 startMainStr=1 stopMainStr=11 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsCode isCode
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #7  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L11     </span> "//# This is a first 'Line' of 'Code'."
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=7 idParent=12 idxString=11 inputLineNum=11 numChildren=0 startMainStr=12 stopMainStr=48 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #13    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L12     </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=13 idParent=4 idxString=0 inputLineNum=12 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>containsCode isCode
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #8  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L12     </span> "int b = 2; "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=8 idParent=13 idxString=12 inputLineNum=12 numChildren=0 startMainStr=1 stopMainStr=11 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsCode isCode
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #9  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L12     </span> "//# These two lines of 'Code' form a 'Block…"
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=9 idParent=13 idxString=12 inputLineNum=12 numChildren=0 startMainStr=12 stopMainStr=66 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #14    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L13     </span> "//# Empty line 10 starts this 'Block' and D…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=14 idParent=4 idxString=13 inputLineNum=13 numChildren=0 startMainStr=1 stopMainStr=72 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #15    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L14     </span> "//# it is NOT attached to any 'metaComponen…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=15 idParent=4 idxString=14 inputLineNum=14 numChildren=0 startMainStr=1 stopMainStr=45 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #16    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L15     </span> "//# and therefore unaffected by metadata."
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Int64  </span>idComponent=16 idParent=4 idxString=15 inputLineNum=15 numChildren=0 startMainStr=1 stopMainStr=41 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-empty"></span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #5    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L16–L19 </span>
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=5 idParent=1 idxString=0 inputLineNum=16 numChildren=4 startMainStr=16 stopMainStr=19 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Bool   </span>depth2 attachedToMeta containsMeta isMeta
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #17    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L16     </span> ""
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=17 idParent=5 idxString=0 inputLineNum=16 numChildren=0 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile isEmpty containsMeta isMeta
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #18    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L17     </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=18 idParent=5 idxString=0 inputLineNum=17 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>depth2 containsMeta isMeta
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #10 </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L17     </span> "//~2 "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=10 idParent=18 idxString=17 inputLineNum=17 numChildren=0 startMainStr=1 stopMainStr=5 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>depth2 includeInOutFile containsMeta isMeta hasMetaStr
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #11 </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L17     </span> "//# This second 'metaLine' is kind of a sub…"
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=11 idParent=18 idxString=17 inputLineNum=17 numChildren=0 startMainStr=6 stopMainStr=56 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>ignoreThisMeta includeInOutFile comment containsMeta isMeta hasMetaStr
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #19    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L18     </span> "//# of the first 'metaLine' above and there…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=19 idParent=5 idxString=18 inputLineNum=18 numChildren=0 startMainStr=1 stopMainStr=50 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>ignoreThisMeta includeInOutFile comment containsMeta isMeta hasMetaStr
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #20    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L19     </span> "//# inherits its 'metaStatement's. More lat…"
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Int64  </span>idComponent=20 idParent=5 idxString=19 inputLineNum=19 numChildren=0 startMainStr=1 stopMainStr=46 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Bool   </span>ignoreThisMeta includeInOutFile comment containsMeta isMeta hasMetaStr
+<span class="gm-dt-empty"></span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #6    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L20–L22 </span>
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=6 idParent=1 idxString=0 inputLineNum=20 numChildren=3 startMainStr=20 stopMainStr=22 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Bool   </span>attachedToMeta containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #21    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L20     </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=21 idParent=6 idxString=0 inputLineNum=20 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>attachedToMeta containsCode isCode
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #12 </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L20     </span> "int c = 3; "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=12 idParent=21 idxString=20 inputLineNum=20 numChildren=0 startMainStr=1 stopMainStr=11 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>attachedToMeta includeInOutFile containsCode isCode
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #13 </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L20     </span> "//# This 'Line' of 'Code' IS attached"
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=13 idParent=21 idxString=20 inputLineNum=20 numChildren=0 startMainStr=12 stopMainStr=48 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #22    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L21     </span> "//# to the 'metaBlock' of "//~2" (no empty …"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=22 idParent=6 idxString=21 inputLineNum=21 numChildren=0 startMainStr=1 stopMainStr=57 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #23    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L22     </span> "//# which in turn inherits from the first '…"
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Int64  </span>idComponent=23 idParent=6 idxString=22 inputLineNum=22 numChildren=0 startMainStr=1 stopMainStr=54 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-empty"></span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #7    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L23–L26 </span>
+<span class="gm-dt-gutter">   │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=7 idParent=1 idxString=0 inputLineNum=23 numChildren=4 startMainStr=23 stopMainStr=26 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">   │  </span><span class="gm-dt-gutter">Bool   </span>containsText isText
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #24    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L23     </span> ""
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=24 idParent=7 idxString=0 inputLineNum=23 numChildren=0 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile isEmpty containsText isText
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #25    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L24     </span> "// This is a second 'Block' of 'Text': in C…"
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=25 idParent=7 idxString=24 inputLineNum=24 numChildren=0 startMainStr=1 stopMainStr=67 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #26    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L25     </span> "// The empty line above starts it, so it is…"
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=26 idParent=7 idxString=25 inputLineNum=25 numChildren=0 startMainStr=1 stopMainStr=69 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line">Line #27    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L26     </span> "// A line of code with no '//' in front is …"
+<span class="gm-dt-gutter">         </span><span class="gm-dt-gutter">Int64  </span>idComponent=27 idParent=7 idxString=26 inputLineNum=26 numChildren=0 startMainStr=1 stopMainStr=72 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">         </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+</pre>
+```
+
+:::
+
+```gometa ln scroll=16 host=latex
+% This first line is 'Text'. %% This is a 'comment' of 'Text'.
+% Line 1 above consists of two BLS 'Segment' Components.
+% Both of flavor: 'Text'. The '%%' starts a 'comment'.
+% BLS [Block, Line, Segment] Components can currently be of
+% 3 different flavors: 'Code', 'Meta' and 'Text'.
+% Each of which can be turned into a flavored comment by '%%'.
+
+%~ hide %% This is a first 'metaLine' (incl. this comment).
+%% The 'Line' above consists of two BLS 'Segment's.
+
+\alpha = 1 %% This is a first 'Line' of 'Code'.
+\beta = 2 %% These two lines of 'Code' form a 'Block' of 'Code'.
+%% Empty line 10 starts this 'Block' and DETACHES it from the metaLine:
+%% it is NOT attached to any 'metaComponent'
+%% and therefore unaffected by metadata.
+
+%~2 %% This second 'metaLine' is kind of a sub-section
+%% of the first 'metaLine' above and therefore it
+%% inherits its 'metaStatement's. More later.
+\gamma = 3 %% This 'Line' of 'Code' IS attached
+%% to the 'metaBlock' of "%~2" (no empty line between),
+%% which in turn inherits from the first 'metaBlock'.
+
+% This is a second 'Block' of 'Text': in LaTeX, 'Text' needs the '%'.
+% The empty line above starts it, so it is NOT attached to metadata.
+% A line of body with no '%' in front is 'Code' - lines 11, 12 and 20.
+```
+
+::: details The full delivery view of rung 1 in LaTeX — every Block and Line with its evaluated values, as the development tools print it
+
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">rung-01_what-bls-sees.tex</span><span class="gm-dt-gutter">  —  3 evals rows on 3 cells  (of 6 Blocks · 26 Lines)
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #2  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1–L6   </span> "% This first line is 'Text'. %% This …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #2   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L1      </span> "% This first line is 'Text'. %% This …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #3   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L2      </span> "% Line 1 above consists of two BLS 'S…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #4   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L3      </span> "% Both of flavor: 'Text'. The '%%' st…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #5   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L4      </span> "% BLS [Block, Line, Segment] Componen…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #6   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L5      </span> "% 3 different flavors: 'Code', 'Meta'…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #7   </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L6      </span> "% Each of which can be turned into a …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #3  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L7–L9   </span> "%~ hide %% This is a first 'metaLine'…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,3)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #8   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L7      </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #9   </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L8      </span> "%~ hide %% This is a first 'metaLine'…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #10  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L9      </span> "%% The 'Line' above consists of two B…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block">Block #4  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L10–L15 </span> "\alpha = 1 %% This is a first 'Line' …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #11  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L10     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #12  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L11     </span> "\alpha = 1 %% This is a first 'Line' …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #13  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L12     </span> "\beta = 2 %% These two lines of 'Code…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #14  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L13     </span> "%% Empty line 10 starts this 'Block' …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #15  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L14     </span> "%% it is NOT attached to any 'metaCom…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #16  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L15     </span> "%% and therefore unaffected by metada…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #5  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L16–L19 </span> "%~2 %% This second 'metaLine' is kind…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,5)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #17  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L16     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #18  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L17     </span> "%~2 %% This second 'metaLine' is kind…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #19  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L18     </span> "%% of the first 'metaLine' above and …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #20  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter"> L19     </span> "%% inherits its 'metaStatement's. Mor…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #6  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L20–L22 </span> "\gamma = 3 %% This 'Line' of 'Code' I…"
+<span class="gm-dt-gutter">│  </span><span class="gm-dt-gutter">● </span><span class="gm-dt-payload gm-dt-bold">visib       </span> =&gt; <span class="gm-dt-neutral gm-dt-warn gm-dt-bold">:hide   </span><span class="gm-dt-gutter">  (+)</span>
+<span class="gm-dt-gutter">│      handle ns=:default  grain=Block  path=[(direct,1) (direct,6)]
+</span><span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #21  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L20     </span> "\gamma = 3 %% This 'Line' of 'Code' I…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #22  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L21     </span> "%% to the 'metaBlock' of "%~2" (no em…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #23  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter"> L22     </span> "%% which in turn inherits from the fi…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block">Block #7  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L23–L26 </span> "% This is a second 'Block' of 'Text':…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #24  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L23     </span> ""<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #25  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L24     </span> "% This is a second 'Block' of 'Text':…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #26  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L25     </span> "% The empty line above starts it, so …"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line">Line #27  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter"> L26     </span> "% A line of body with no '%' in front…"<span class="gm-dt-gutter gm-dt-italic">   (no evals — defaults apply)</span>
+<span class="gm-dt-gutter">── the run: status PROCESS_OK · no diagnostics
+</span></pre>
+```
+
+:::
+
+::: details The Component-tree view of rung 1 in LaTeX — every Block, Line and Segment with the facts BLS recorded about it (the `Bool` row) and its numbers (the `Int64` row)
+
+```@raw html
+<pre class="gm-dt" tabindex="0" v-pre><span class="gm-dt-bold">File  </span><span class="gm-dt-bold">rung-01_what-bls-sees.tex</span><span class="gm-dt-gutter">  —  6 Blocks · 26 Lines · 12 Segments
+</span><span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #2    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L1–L6   </span>
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=2 idParent=1 idxString=0 inputLineNum=1 numChildren=6 startMainStr=1 stopMainStr=6 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Bool   </span>containsText isText
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #2     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L1      </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=2 idParent=2 idxString=0 inputLineNum=1 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>containsText isText
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #2  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L1      </span> "% This first line is 'Text'. "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=2 idParent=2 idxString=1 inputLineNum=1 numChildren=0 startMainStr=1 stopMainStr=29 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #3  </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L1      </span> "%% This is a 'comment' of 'Text'."
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=3 idParent=2 idxString=1 inputLineNum=1 numChildren=0 startMainStr=30 stopMainStr=62 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsText isText
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #3     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L2      </span> "% Line 1 above consists of two BLS 'Segment…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=3 idParent=2 idxString=2 inputLineNum=2 numChildren=0 startMainStr=1 stopMainStr=56 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #4     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L3      </span> "% Both of flavor: 'Text'. The '%%' starts a…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=4 idParent=2 idxString=3 inputLineNum=3 numChildren=0 startMainStr=1 stopMainStr=54 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #5     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L4      </span> "% BLS [Block, Line, Segment] Components can…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=5 idParent=2 idxString=4 inputLineNum=4 numChildren=0 startMainStr=1 stopMainStr=59 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #6     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L5      </span> "% 3 different flavors: 'Code', 'Meta' and '…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=6 idParent=2 idxString=5 inputLineNum=5 numChildren=0 startMainStr=1 stopMainStr=49 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #7     </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L6      </span> "% Each of which can be turned into a flavor…"
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Int64  </span>idComponent=7 idParent=2 idxString=6 inputLineNum=6 numChildren=0 startMainStr=1 stopMainStr=62 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-empty"></span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #3    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L7–L9   </span>
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=3 idParent=1 idxString=0 inputLineNum=7 numChildren=3 startMainStr=7 stopMainStr=9 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Bool   </span>depth1 attachedToMeta containsMeta isMeta
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #8     </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L7      </span> ""
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=8 idParent=3 idxString=0 inputLineNum=7 numChildren=0 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile isEmpty containsMeta isMeta
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #9     </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L8      </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=9 idParent=3 idxString=0 inputLineNum=8 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>depth1 containsMeta isMeta
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #4  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L8      </span> "%~ hide "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=4 idParent=9 idxString=8 inputLineNum=8 numChildren=0 startMainStr=1 stopMainStr=8 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>depth1 includeInOutFile containsMeta isMeta hasMetaStr
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #5  </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L8      </span> "%% This is a first 'metaLine' (incl. this c…"
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=5 idParent=9 idxString=8 inputLineNum=8 numChildren=0 startMainStr=9 stopMainStr=59 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>ignoreThisMeta includeInOutFile comment containsMeta isMeta hasMetaStr
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #10    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L9      </span> "%% The 'Line' above consists of two BLS 'Se…"
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Int64  </span>idComponent=10 idParent=3 idxString=9 inputLineNum=9 numChildren=0 startMainStr=1 stopMainStr=51 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Bool   </span>ignoreThisMeta includeInOutFile comment containsMeta isMeta hasMetaStr
+<span class="gm-dt-empty"></span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #4    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L10–L15 </span>
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=4 idParent=1 idxString=0 inputLineNum=10 numChildren=6 startMainStr=10 stopMainStr=15 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Bool   </span>containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #11    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L10     </span> ""
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=11 idParent=4 idxString=0 inputLineNum=10 numChildren=0 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile isEmpty containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #12    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L11     </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=12 idParent=4 idxString=0 inputLineNum=11 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>containsCode isCode
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #6  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L11     </span> "\alpha = 1 "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=6 idParent=12 idxString=11 inputLineNum=11 numChildren=0 startMainStr=1 stopMainStr=11 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsCode isCode
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #7  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L11     </span> "%% This is a first 'Line' of 'Code'."
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=7 idParent=12 idxString=11 inputLineNum=11 numChildren=0 startMainStr=12 stopMainStr=47 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #13    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L12     </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=13 idParent=4 idxString=0 inputLineNum=12 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>containsCode isCode
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #8  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L12     </span> "\beta = 2 "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=8 idParent=13 idxString=12 inputLineNum=12 numChildren=0 startMainStr=1 stopMainStr=10 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsCode isCode
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #9  </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L12     </span> "%% These two lines of 'Code' form a 'Block'…"
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=9 idParent=13 idxString=12 inputLineNum=12 numChildren=0 startMainStr=11 stopMainStr=64 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #14    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L13     </span> "%% Empty line 10 starts this 'Block' and DE…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=14 idParent=4 idxString=13 inputLineNum=13 numChildren=0 startMainStr=1 stopMainStr=71 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #15    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L14     </span> "%% it is NOT attached to any 'metaComponent…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=15 idParent=4 idxString=14 inputLineNum=14 numChildren=0 startMainStr=1 stopMainStr=44 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #16    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L15     </span> "%% and therefore unaffected by metadata."
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Int64  </span>idComponent=16 idParent=4 idxString=15 inputLineNum=15 numChildren=0 startMainStr=1 stopMainStr=40 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-empty"></span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #5    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L16–L19 </span>
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=5 idParent=1 idxString=0 inputLineNum=16 numChildren=4 startMainStr=16 stopMainStr=19 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Bool   </span>depth2 attachedToMeta containsMeta isMeta
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #17    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L16     </span> ""
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=17 idParent=5 idxString=0 inputLineNum=16 numChildren=0 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile isEmpty containsMeta isMeta
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #18    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L17     </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=18 idParent=5 idxString=0 inputLineNum=17 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>depth2 containsMeta isMeta
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #10 </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L17     </span> "%~2 "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=10 idParent=18 idxString=17 inputLineNum=17 numChildren=0 startMainStr=1 stopMainStr=4 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>depth2 includeInOutFile containsMeta isMeta hasMetaStr
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #11 </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L17     </span> "%% This second 'metaLine' is kind of a sub-…"
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=11 idParent=18 idxString=17 inputLineNum=17 numChildren=0 startMainStr=5 stopMainStr=54 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>ignoreThisMeta includeInOutFile comment containsMeta isMeta hasMetaStr
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #19    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L18     </span> "%% of the first 'metaLine' above and theref…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=19 idParent=5 idxString=18 inputLineNum=18 numChildren=0 startMainStr=1 stopMainStr=49 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>ignoreThisMeta includeInOutFile comment containsMeta isMeta hasMetaStr
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #20    </span><span class="gm-dt-marker">Meta </span><span class="gm-dt-gutter">  L19     </span> "%% inherits its 'metaStatement's. More late…"
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Int64  </span>idComponent=20 idParent=5 idxString=19 inputLineNum=19 numChildren=0 startMainStr=1 stopMainStr=45 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Bool   </span>ignoreThisMeta includeInOutFile comment containsMeta isMeta hasMetaStr
+<span class="gm-dt-empty"></span>
+<span class="gm-dt-gutter">├─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #6    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L20–L22 </span>
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=6 idParent=1 idxString=0 inputLineNum=20 numChildren=3 startMainStr=20 stopMainStr=22 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  </span><span class="gm-dt-gutter">Bool   </span>attachedToMeta containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #21    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L20     </span>
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=21 idParent=6 idxString=0 inputLineNum=20 numChildren=2 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │  </span><span class="gm-dt-gutter">Bool   </span>attachedToMeta containsCode isCode
+<span class="gm-dt-gutter">│  │  ├─ </span><span class="gm-dt-tree gm-dt-segment">Segment #12 </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L20     </span> "\gamma = 3 "
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=12 idParent=21 idxString=20 inputLineNum=20 numChildren=0 startMainStr=1 stopMainStr=11 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │  │     </span><span class="gm-dt-gutter">Bool   </span>attachedToMeta includeInOutFile containsCode isCode
+<span class="gm-dt-gutter">│  │  └─ </span><span class="gm-dt-tree gm-dt-segment">Segment #13 </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L20     </span> "%% This 'Line' of 'Code' IS attached"
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Int64  </span>idComponent=13 idParent=21 idxString=20 inputLineNum=20 numChildren=0 startMainStr=12 stopMainStr=47 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  ├─ </span><span class="gm-dt-tree gm-dt-line">Line #22    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L21     </span> "%% to the 'metaBlock' of "%~2" (no empty li…"
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=22 idParent=6 idxString=21 inputLineNum=21 numChildren=0 startMainStr=1 stopMainStr=55 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│  │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-gutter">│  └─ </span><span class="gm-dt-tree gm-dt-line">Line #23    </span><span class="gm-dt-code">Code </span><span class="gm-dt-gutter">  L22     </span> "%% which in turn inherits from the first 'm…"
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Int64  </span>idComponent=23 idParent=6 idxString=22 inputLineNum=22 numChildren=0 startMainStr=1 stopMainStr=53 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">│        </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile comment containsCode isCode
+<span class="gm-dt-empty"></span>
+<span class="gm-dt-gutter">└─ </span><span class="gm-dt-tree gm-dt-block gm-dt-bold">Block #7    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L23–L26 </span>
+<span class="gm-dt-gutter">   │  </span><span class="gm-dt-gutter">Int64  </span>idComponent=7 idParent=1 idxString=0 inputLineNum=23 numChildren=4 startMainStr=23 stopMainStr=26 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">   │  </span><span class="gm-dt-gutter">Bool   </span>containsText isText
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #24    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L23     </span> ""
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=24 idParent=7 idxString=0 inputLineNum=23 numChildren=0 startMainStr=0 stopMainStr=0 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile isEmpty containsText isText
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #25    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L24     </span> "% This is a second 'Block' of 'Text': in La…"
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=25 idParent=7 idxString=24 inputLineNum=24 numChildren=0 startMainStr=1 stopMainStr=69 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">   ├─ </span><span class="gm-dt-tree gm-dt-line">Line #26    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L25     </span> "% The empty line above starts it, so it is …"
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Int64  </span>idComponent=26 idParent=7 idxString=25 inputLineNum=25 numChildren=0 startMainStr=1 stopMainStr=68 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">   │     </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+<span class="gm-dt-gutter">   └─ </span><span class="gm-dt-tree gm-dt-line">Line #27    </span><span class="gm-dt-text">Text </span><span class="gm-dt-gutter">  L26     </span> "% A line of body with no '%' in front is 'C…"
+<span class="gm-dt-gutter">         </span><span class="gm-dt-gutter">Int64  </span>idComponent=27 idParent=7 idxString=26 inputLineNum=26 numChildren=0 startMainStr=1 stopMainStr=70 idExtension=0 idExtended=0
+<span class="gm-dt-gutter">         </span><span class="gm-dt-gutter">Bool   </span>includeInOutFile containsText isText
+</pre>
+```
+
+:::
 
 ## Rung 2 — the three values of Visib, and the first rendered copy
 

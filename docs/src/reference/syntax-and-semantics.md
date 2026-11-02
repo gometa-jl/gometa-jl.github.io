@@ -666,7 +666,7 @@ copy byte for byte.
 | `feature_contiguous_metablock_blankline.jl` | the same two metaLines with an empty line between them |
 | `feature_triple_tilde.jl` | `#~~~` as depth 3 under a depth-2 metaBlock |
 
-The table lists the seven the rules above cite; the worked example of §5 and the ladder's rungs — [Step by step](../examples/step-by-step.md), rung 1 there in Julia, with its C and LaTeX twins in the corpus — are shown on their own pages.
+The table lists the seven the rules above cite; the worked example of §5 and the ladder's rungs — [Step by step](../examples/step-by-step.md), rung 1 there in Julia and, under it, [in C and in LaTeX](../examples/step-by-step.md#Rung-1-in-C-and-in-LaTeX) — are shown on their own pages.
 
 The [JuliaCon 2026 talk proposal](https://pretalx.com/juliacon-2026/talk/XYMFMZ/) explains the opening of the first file: "The first three lines in the code below form a Block of metadata at level 1. The optional {} following hide on line 1 allows the user to specify conditions under which hide may get applied. In this case, a Block, say aBlock, inheriting from it will be hidden, if it has been attributed :label4 or is a code Block provided there is no opposing statement closer to aBlock overruling it. Analogously, :label1 gets assigned to anything which inherits from this first meta Block, if it is text and containsMeta or is itself meta, provided there is no other statement closer by, overruling this." The committed file's comment lines differ from the
 proposal's listing in wording only; the metaLines are the same.
