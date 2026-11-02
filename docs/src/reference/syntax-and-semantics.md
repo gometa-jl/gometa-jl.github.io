@@ -353,9 +353,7 @@ the parent's values —
 the close detaches nothing, the empty line is the one way to detach; a metaLine directly under
 the close heads its own metaBlock and is applied normally; with nothing open the close has no
 effect on the hierarchy — the file level is never closed. A close followed by further content on the same line
-(`x = 1 #] y = 2`) is reserved and is refused at parse time. The package's behaviour since 0.4.5,
-shown by the example `feature_explicit_close.jl` (§11) and, section by section, on the ladder's
-[rung 7](../examples/step-by-step.md#Rung-7-—-the-explicit-close).
+(`x = 1 #] y = 2`) is reserved and is refused at parse time. The package's behaviour since 0.4.5, shown by the example `feature_explicit_close.jl` (§11) and, close by close, on the ladder's [rung 8](../examples/step-by-step.md#Rung-8-—-the-explicit-close:-back-to-the-parent's-level) — [rung 7](../examples/step-by-step.md#Rung-7-—-nested-sections,-and-no-way-back-up)'s nested sections grown by the closes.
 
 ## 5. Labels
 
